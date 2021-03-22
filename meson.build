@@ -1,40 +1,16 @@
 project('hdoc', 'cpp', version: '1.0.1', default_options: ['cpp_std=c++17', 'warning_level=3'])
 
-if get_option('static_hdoc') == true
-  dep_llvm = dependency('LLVM', method: 'config-tool', static: true, include_type: 'system')
-  clang_deps_ldflags = [
-    '-lclangAST',
-    '-lclangASTMatchers',
-    '-lclangAnalysis',
-    '-lclangBasic',
-    '-lclangDriver',
-    '-lclangEdit',
-    '-lclangFormat',
-    '-lclangFrontend',
-    '-lclangIndex',
-    '-lclangLex',
-    '-lclangParse',
-    '-lclangRewrite',
-    '-lclangSema',
-    '-lclangSerialization',
-    '-lclangTooling',
-    '-lclangToolingCore',
-    '-lclangToolingInclusions',
-  ]
-  dep_clang = declare_dependency(link_args: clang_deps_ldflags)
-else
-  dep_llvm = dependency('LLVM', include_type: 'system')
-  clang_modules = [
-    'clangTooling',
-    'clangToolingInclusions',
-    'clangToolingCore',
-    'clangFrontend',
-    'clangAST',
-    'clangIndex',
-    'clangBasic',
-  ]
-  dep_clang = dependency('Clang', include_type: 'system', method: 'cmake', modules: clang_modules)
-endif
+dep_llvm = dependency('LLVM', include_type: 'system')
+clang_modules = [
+  'clangTooling',
+  'clangToolingInclusions',
+  'clangToolingCore',
+  'clangFrontend',
+  'clangAST',
+  'clangIndex',
+  'clangBasic',
+]
+dep_clang = dependency('Clang', include_type: 'system', method: 'cmake', modules: clang_modules)
 
 # Add minimum macOS sdk version needed to use std::filesystem on macOS
 if build_machine.system() == 'darwin'

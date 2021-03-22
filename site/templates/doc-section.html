@@ -1,0 +1,25 @@
+{% extends "index.html" %}
+{% import "macros/nav.html" as nav %}
+
+{% block title %}
+<title>{{ section.title }}</title>
+{% endblock title %}
+
+{% block description %}
+<meta name="description" content="{{ section.description }}">
+{% endblock description %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="columns">
+      <aside class="column is-one-fifth">
+        {{nav::side_nav()}}
+      </aside>
+      <main class="content column is-two-thirds">
+        <p>{{ section.content | safe }}</p>
+      </main>
+    </div>
+  </div>
+</section>
+{% endblock content %}

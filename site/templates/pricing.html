@@ -1,0 +1,78 @@
+{% extends "index.html" %}
+
+{% block title %}
+<title>{{ page.title }}</title>
+{% endblock title %}
+
+{% block description %}
+<meta name="description" content="{{ page.description }}">
+{% endblock description %}
+
+{% block content %}
+<section class="section">
+  <div class="container has-text-centered py-4">
+    <h1 class="title">Plans</h1>
+    <div class="columns">
+      <div class="column">
+        <div class="card">
+          <div class="card-content">
+            <h3 class="title is-3">Community Edition</h3>
+            <h4 class="title is-4">Free</h4>
+            <ul class="pb-4">
+              <li>AGPLv3 License</li>
+              <li>1 Project</li>
+              <li>API Documentation</li>
+              <li>Instant Search</li>
+              <li>Markdown Pages</li>
+              <li>Managed hosting at <a href="https://docs.hdoc.io">docs.hdoc.io</a></li>
+            </ul>
+            <a href="https://app.hdoc.io/accounts/signup/" class="button is-link is-outlined">Sign Up</a>
+          </div>
+        </div>
+      </div>
+      <div class="column">
+        <div class="card">
+          <div class="card-content">
+            <h3 class="title is-3">Team Edition</h3>
+            <h4 class="title is-4">$99 <small>/ month</small></h4>
+            <h5 class="subtitle is-7 pt-2">$79 / month if billed annually</h5>
+            <ul class="pb-4">
+              <li>AGPLv3 License</li>
+              <li>5 Projects</li>
+              <li>Increased build resources</li>
+              <li>Email support</li>
+              <li>All features from the Community Edition</li>
+            </ul>
+            <a href="https://app.hdoc.io/accounts/signup/" class="button is-link">Sign Up</a>
+          </div>
+        </div>
+      </div>
+      <div class="column">
+        <div class="card">
+          <div class="card-content">
+            <h3 class="title is-3">Enterprise Edition</h3>
+            <h4 class="title is-spaced is-5">For organizations with enterprise requirements.</h4>
+            <ul class="pb-4">
+              <li>Commercial licensing</li>
+              <li>On premises</li>
+              <li>Unlimited projects</li>
+              <li>Priority email/phone support</li>
+              <li>All features from the Team Edition</li>
+            </ul>
+            <a href="mailto:sales@hdoc.io" class="button is-link is-outlined">Contact Sales</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <main class="content column is-two-thirds">
+        {{ page.content | safe }}
+      </main>
+    </div>
+  </div>
+</section>
+{% endblock %}

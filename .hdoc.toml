@@ -1,0 +1,20 @@
+[project]
+name = "hdoc"
+version = "0.1.0"
+
+[paths]
+compile_commands = "build/compile_commands.json"
+output_dir = "hdoc-output"
+
+[includes]
+paths = []
+use_system_includes = true
+
+[ignore]
+paths = [
+  "/third_party/",
+  "/subprojects/",
+]
+
+[pages]
+homepage = "README.md"

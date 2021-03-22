@@ -1,0 +1,18 @@
+[project]
+name = "mio"
+version = "1.0.0"
+
+[paths]
+compile_commands = "build/compile_commands.json"
+output_dir = "../../hdoc-output/mio"
+
+[includes]
+paths = []
+use_system_includes = true
+
+[ignore]
+paths = [
+  "/third_party/",
+  "/test/",
+  "/detail/",
+]

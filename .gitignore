@@ -1,0 +1,16 @@
+# ccls and clangd caches
+.ccls-cache/
+.clangd/
+
+# build directories
+build*/
+
+# hdoc output and test files
+hdoc-test/
+hdoc-output/
+
+# Zola build files
+site/public/
+site/static/processed_images/
+
+.direnv/

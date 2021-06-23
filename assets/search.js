@@ -63,33 +63,48 @@ function updateSearchResults() {
     }
     const res = miniSearch.search(input.value, searchOptions).slice(0, 90);
 
+    // Clear output and print a message if no results were found
+    if (res.length == 0) {
+        results.style.display = "none";
+        info.innerText = 'No results found.';
+        results.innerHTML = '';
+        return;
+    }
+
     // Only needed for the first call of USR after indexing because
     // otherwise an ugly grey line will appear for the empty results table
     results.style.display = "block";
     results.innerHTML = '';
 
     res.forEach(function(obj){
-        var template =
-            '<a class="list-item is-family-code" ';
-        // Method
-        if (obj.type === 0) {
-            template += 'href="r' + obj.id + '">';
+        var a = document.createElement("a");
+        a.classList.add('list-item');
+        a.classList.add('is-family-code');
+
+        // Method, class, struct, or union
+        if (obj.type === 0 || obj.type === 2 || obj.type === 3 || obj.type === 4) {
+            a.setAttribute("href", "r" + obj.id + ".html");
         }
         // Function
         if (obj.type === 1) {
-            template += 'href="f' + obj.id + '.html">';
-        }
-        // Class, struct, or union
-        if (obj.type === 2 || obj.type === 3 || obj.type === 4) {
-            template += 'href="r' + obj.id + '.html">';
+            a.setAttribute("href", "f" + obj.id + ".html");
         }
         // Enum or enum val
         if (obj.type === 5 || obj.type === 6) {
-            template += 'href="e' + obj.id + '.html">';
+            a.setAttribute("href", "e" + obj.id + ".html");
         }
-        // Test comment
-        template += '<span class="tag is-dark is-family-sans-serif">' + typeIntToStr(obj.type) + '</span>';
-        template += '<strong> ' + obj.decl + '</strong></a>';
-        results.innerHTML += template;
+
+        var span = document.createElement("span");
+        span.classList.add("tag");
+        span.classList.add("is-dark");
+        span.classList.add("is-family-sans-serif");
+        span.textContent = typeIntToStr(obj.type);
+
+        var decl = document.createElement("strong");
+        decl.textContent = " " + obj.decl;
+
+        a.appendChild(span);
+        a.appendChild(decl);
+        results.appendChild(a);
     });
 }

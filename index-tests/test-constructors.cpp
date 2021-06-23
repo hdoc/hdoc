@@ -1,3 +1,6 @@
+// Copyright 2019-2021 hdoc
+// SPDX-License-Identifier: AGPL-3.0-only
+
 #include "common.hpp"
 
 TEST_CASE("Class with constructor definition") {
@@ -112,7 +115,8 @@ TEST_CASE("Destructor") {
   CHECK(f1.refQualifier == clang::RQ_None);
 
   CHECK(f1.proto == "Foo()");
-  CHECK(f1.returnType == "");
+  CHECK(f1.returnType.name == "");
+  CHECK(f1.returnType.id.raw() ==0);
   CHECK(f1.returnTypeDocComment == "");
 
   hdoc::types::FunctionSymbol f2 = *o2;
@@ -140,7 +144,8 @@ TEST_CASE("Destructor") {
   CHECK(f2.refQualifier == clang::RQ_None);
 
   CHECK(f2.proto == "~Foo()");
-  CHECK(f2.returnType == "");
+  CHECK(f2.returnType.name == "");
+  CHECK(f2.returnType.id.raw() ==0);
   CHECK(f2.returnTypeDocComment == "");
 
   hdoc::types::FunctionSymbol f3 = *o3;
@@ -168,6 +173,7 @@ TEST_CASE("Destructor") {
   CHECK(f3.refQualifier == clang::RQ_None);
 
   CHECK(f3.proto == "void bar()");
-  CHECK(f3.returnType == "void");
+  CHECK(f3.returnType.name == "void");
+  CHECK(f3.returnType.id.raw() ==0);
   CHECK(f3.returnTypeDocComment == "");
 }

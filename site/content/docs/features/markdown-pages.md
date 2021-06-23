@@ -19,7 +19,7 @@ First, make a Markdown document.
 Typical content includes build and usage instructions, contribution guidelines, and manuals.
 You can find a description of Markdown syntax and usage [here](https://daringfireball.net/projects/markdown/syntax).
 
-If you have existing written documentation in a format other than Markdown, the [pandoc](https://pandoc.org/) document converted can help you convert it to Markdown.
+If you have existing written documentation in a format other than Markdown, the [pandoc](https://pandoc.org/) document converter can help you convert it to Markdown.
 
 Next, add a new section in your `.hdoc.toml` file.
 

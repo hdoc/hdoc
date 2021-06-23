@@ -1,4 +1,4 @@
-project('tiny-process-library', 'cpp', default_options: ['warning_level=3'])
+project('tiny-process-library', 'cpp', version: 'v2.0.4', default_options: ['warning_level=3'])
 
 src = [
   'process.cpp',

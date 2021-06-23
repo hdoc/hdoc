@@ -1,5 +1,7 @@
+// Copyright 2019-2021 hdoc
+// SPDX-License-Identifier: AGPL-3.0-only
+
 #include "common.hpp"
-#include "spdlog/spdlog.h"
 
 TEST_CASE("Function template declaration") {
   const std::string code = R"(
@@ -35,17 +37,20 @@ TEST_CASE("Function template declaration") {
   CHECK(f.refQualifier == clang::RQ_None);
 
   CHECK(f.proto == "template <class T>void foo(T & a, T & b)");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 2);
 
   CHECK(f.params[0].name == "a");
-  CHECK(f.params[0].type == "T &");
+  CHECK(f.params[0].type.name == "T &");
+  CHECK(f.params[0].type.id.raw() == 0);
   CHECK(f.params[0].docComment == "");
   CHECK(f.params[0].defaultValue == "");
 
   CHECK(f.params[1].name == "b");
-  CHECK(f.params[1].type == "T &");
+  CHECK(f.params[1].type.name == "T &");
+  CHECK(f.params[1].type.id.raw() == 0);
   CHECK(f.params[1].docComment == "");
   CHECK(f.params[1].defaultValue == "");
 }
@@ -84,17 +89,20 @@ TEST_CASE("Function template definition") {
   CHECK(f.refQualifier == clang::RQ_None);
 
   CHECK(f.proto == "template <class T>void foo(T & a, T & b)");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 2);
 
   CHECK(f.params[0].name == "a");
-  CHECK(f.params[0].type == "T &");
+  CHECK(f.params[0].type.name == "T &");
+  CHECK(f.params[0].type.id.raw() == 0);
   CHECK(f.params[0].docComment == "");
   CHECK(f.params[0].defaultValue == "");
 
   CHECK(f.params[1].name == "b");
-  CHECK(f.params[1].type == "T &");
+  CHECK(f.params[1].type.name == "T &");
+  CHECK(f.params[1].type.id.raw() == 0);
   CHECK(f.params[1].docComment == "");
   CHECK(f.params[1].defaultValue == "");
 }
@@ -133,12 +141,14 @@ TEST_CASE("Function with variadic template") {
   CHECK(f.refQualifier == clang::RQ_None);
 
   CHECK(f.proto == "template <typename... Ts>void ignore(Ts... ts)");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 1);
 
   CHECK(f.params[0].name == "ts");
-  CHECK(f.params[0].type == "Ts...");
+  CHECK(f.params[0].type.name == "Ts...");
+  CHECK(f.params[0].type.id.raw() == 0);
   CHECK(f.params[0].docComment == "");
   CHECK(f.params[0].defaultValue == "");
 }
@@ -215,12 +225,14 @@ TEST_CASE("Function specialized template parameter") {
   CHECK(f.refQualifier == clang::RQ_None);
 
   CHECK(f.proto == "void Bar(Template<double> &)");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 1);
 
   CHECK(f.params[0].name == "");
-  CHECK(f.params[0].type == "Template<double> &");
+  CHECK(f.params[0].type.name == "Template<double> &");
+  // CHECK(f.params[0].type.id == s1.ID); // TODO: figure out why this doesn't work
   CHECK(f.params[0].docComment == "");
   CHECK(f.params[0].defaultValue == "");
 }
@@ -252,7 +264,8 @@ TEST_CASE("Templated class with templated member variable") {
 
   CHECK(s.vars[0].isStatic == false);
   CHECK(s.vars[0].name == "x");
-  CHECK(s.vars[0].type == "T");
+  CHECK(s.vars[0].type.name == "T");
+  CHECK(s.vars[0].type.id.raw() == 0);
   CHECK(s.vars[0].defaultValue == "");
   CHECK(s.vars[0].docComment == "");
   CHECK(s.vars[0].access == clang::AS_public);
@@ -282,7 +295,8 @@ TEST_CASE("Templated class with templated member variable") {
   CHECK(f.refQualifier == clang::RQ_None);
 
   CHECK(f.proto == "void bar()");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
 }
@@ -374,7 +388,8 @@ TEST_CASE("Specialized function definition") {
   CHECK(f.refQualifier == clang::RQ_None);
 
   CHECK(f.proto == "void Foo()");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
 }

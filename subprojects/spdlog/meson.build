@@ -1,4 +1,4 @@
-project('spdlog', 'cpp', default_options: ['warning_level=3'])
+project('spdlog', 'cpp', version: '1.8.5', default_options: ['warning_level=3'])
 
 add_project_arguments('-DSPDLOG_COMPILED_LIB', language: 'cpp')
 

@@ -1,3 +1,6 @@
+// Copyright 2019-2021 hdoc
+// SPDX-License-Identifier: AGPL-3.0-only
+
 #include "common.hpp"
 
 TEST_CASE("Function with struct as a parameter") {
@@ -34,17 +37,20 @@ TEST_CASE("Function with struct as a parameter") {
   CHECK(s.refQualifier == clang::RQ_None);
 
   CHECK(s.proto == "void foo(Foo * p0, Foo * p1)");
-  CHECK(s.returnType == "void");
+  CHECK(s.returnType.name == "void");
+  CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "");
 
   CHECK(s.params.size() == 2);
   CHECK(s.params[0].name == "p0");
-  CHECK(s.params[0].type == "Foo *");
+  CHECK(s.params[0].type.name == "Foo *");
+  // CHECK(s.params[0].type.id.raw() == 0); // ID would be 0 after pruning
   CHECK(s.params[0].docComment == "");
   CHECK(s.params[0].defaultValue == "");
 
   CHECK(s.params[1].name == "p1");
-  CHECK(s.params[1].type == "Foo *");
+  CHECK(s.params[1].type.name == "Foo *");
+  // CHECK(s.params[1].type.id.raw() == 0); // ID would be 0 after pruning
   CHECK(s.params[1].docComment == "");
   CHECK(s.params[1].defaultValue == "");
 }
@@ -82,17 +88,20 @@ TEST_CASE("Function with unnamed parameters") {
   CHECK(s.refQualifier == clang::RQ_None);
 
   CHECK(s.proto == "void foo(int, int)");
-  CHECK(s.returnType == "void");
+  CHECK(s.returnType.name == "void");
+  CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "");
 
   CHECK(s.params.size() == 2);
   CHECK(s.params[0].name == "");
-  CHECK(s.params[0].type == "int");
+  CHECK(s.params[0].type.name == "int");
+  CHECK(s.params[0].type.id.raw() == 0);
   CHECK(s.params[0].docComment == "");
   CHECK(s.params[0].defaultValue == "");
 
   CHECK(s.params[1].name == "");
-  CHECK(s.params[1].type == "int");
+  CHECK(s.params[1].type.name == "int");
+  CHECK(s.params[1].type.id.raw() == 0);
   CHECK(s.params[1].docComment == "");
   CHECK(s.params[1].defaultValue == "");
 }
@@ -130,17 +139,20 @@ TEST_CASE("Function default values for parameters") {
   CHECK(s.refQualifier == clang::RQ_None);
 
   CHECK(s.proto == "void foo(int a = 0, int b = 100)");
-  CHECK(s.returnType == "void");
+  CHECK(s.returnType.name == "void");
+  CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "");
 
   CHECK(s.params.size() == 2);
   CHECK(s.params[0].name == "a");
-  CHECK(s.params[0].type == "int");
+  CHECK(s.params[0].type.name == "int");
+  CHECK(s.params[0].type.id.raw() == 0);
   CHECK(s.params[0].docComment == "");
   CHECK(s.params[0].defaultValue == "0");
 
   CHECK(s.params[1].name == "b");
-  CHECK(s.params[1].type == "int");
+  CHECK(s.params[1].type.name == "int");
+  CHECK(s.params[1].type.id.raw() == 0);
   CHECK(s.params[1].docComment == "");
   CHECK(s.params[1].defaultValue == "100");
 }
@@ -178,17 +190,20 @@ TEST_CASE("Function with trailing return type syntax") {
   CHECK(s.refQualifier == clang::RQ_None);
 
   CHECK(s.proto == "auto foo(int x, int y) -> int");
-  CHECK(s.returnType == "int");
+  CHECK(s.returnType.name == "int");
+  CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "");
 
   CHECK(s.params.size() == 2);
   CHECK(s.params[0].name == "x");
-  CHECK(s.params[0].type == "int");
+  CHECK(s.params[0].type.name == "int");
+  CHECK(s.params[0].type.id.raw() == 0);
   CHECK(s.params[0].docComment == "");
   CHECK(s.params[0].defaultValue == "");
 
   CHECK(s.params[1].name == "y");
-  CHECK(s.params[1].type == "int");
+  CHECK(s.params[1].type.name == "int");
+  CHECK(s.params[1].type.id.raw() == 0);
   CHECK(s.params[1].docComment == "");
   CHECK(s.params[1].defaultValue == "");
 }
@@ -228,17 +243,20 @@ TEST_CASE("Function with constexpr") {
   CHECK(s.refQualifier == clang::RQ_None);
 
   CHECK(s.proto == "constexpr int gcd(int a, int b)");
-  CHECK(s.returnType == "int");
+  CHECK(s.returnType.name == "int");
+  CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "");
 
   CHECK(s.params.size() == 2);
   CHECK(s.params[0].name == "a");
-  CHECK(s.params[0].type == "int");
+  CHECK(s.params[0].type.name == "int");
+  CHECK(s.params[0].type.id.raw() == 0);
   CHECK(s.params[0].docComment == "");
   CHECK(s.params[0].defaultValue == "");
 
   CHECK(s.params[1].name == "b");
-  CHECK(s.params[1].type == "int");
+  CHECK(s.params[1].type.name == "int");
+  CHECK(s.params[1].type.id.raw() == 0);
   CHECK(s.params[1].docComment == "");
   CHECK(s.params[1].defaultValue == "");
 }
@@ -279,7 +297,8 @@ TEST_CASE("Member function marked volatile") {
   CHECK(f.refQualifier == clang::RQ_None);
 
   CHECK(f.proto == "void bar() volatile");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
 }
@@ -320,7 +339,8 @@ TEST_CASE("Member function with lvalue ref qualifier") {
   CHECK(f.refQualifier == clang::RQ_LValue);
 
   CHECK(f.proto == "void get() &");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
 }
@@ -361,7 +381,8 @@ TEST_CASE("Member function with rvalue ref qualifier") {
   CHECK(f.refQualifier == clang::RQ_RValue);
 
   CHECK(f.proto == "void get() &&");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
 }
@@ -402,7 +423,8 @@ TEST_CASE("Member function with const lvalue ref qualifier") {
   CHECK(f.refQualifier == clang::RQ_LValue);
 
   CHECK(f.proto == "void get() const &");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
 }
@@ -443,7 +465,8 @@ TEST_CASE("Member function with const rvalue ref qualifier") {
   CHECK(f.refQualifier == clang::RQ_RValue);
 
   CHECK(f.proto == "void get() const &&");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
 }
@@ -481,7 +504,8 @@ TEST_CASE("Noexcept function 1") {
   CHECK(f.refQualifier == clang::RQ_None);
 
   CHECK(f.proto == "void foo() noexcept");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
 }
@@ -519,7 +543,8 @@ TEST_CASE("Noexcept function 2") {
   CHECK(f.refQualifier == clang::RQ_None);
 
   CHECK(f.proto == "void foo() noexcept");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
 }
@@ -557,12 +582,13 @@ TEST_CASE("Variadic function") {
   CHECK(f.refQualifier == clang::RQ_None);
 
   CHECK(f.proto == "void simple_printf(const char * fmt, ...)");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 1);
 
   CHECK(f.params[0].name == "fmt");
-  CHECK(f.params[0].type == "const char *");
+  CHECK(f.params[0].type.name == "const char *");
+  CHECK(f.params[0].type.id.raw() == 0);
   CHECK(f.params[0].docComment == "");
   CHECK(f.params[0].defaultValue == "");
 }
@@ -602,12 +628,14 @@ TEST_CASE("Inline function") {
   CHECK(f.refQualifier == clang::RQ_None);
 
   CHECK(f.proto == "inline int cube(int s)");
-  CHECK(f.returnType == "int");
+  CHECK(f.returnType.name == "int");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 1);
 
   CHECK(f.params[0].name == "s");
-  CHECK(f.params[0].type == "int");
+  CHECK(f.params[0].type.name == "int");
+  CHECK(f.params[0].type.id.raw() == 0);
   CHECK(f.params[0].docComment == "");
   CHECK(f.params[0].defaultValue == "");
 }

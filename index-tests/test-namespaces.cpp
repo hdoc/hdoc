@@ -1,3 +1,6 @@
+// Copyright 2019-2021 hdoc
+// SPDX-License-Identifier: AGPL-3.0-only
+
 #include "common.hpp"
 
 TEST_CASE("Function defined in anonymous namespace") {
@@ -156,17 +159,20 @@ TEST_CASE("Function declaration in namespace") {
   CHECK(f.refQualifier == clang::RQ_None);
 
   CHECK(f.proto == "void foo(int a, int b)");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
 
   CHECK(f.params.size() == 2);
   CHECK(f.params[0].name == "a");
-  CHECK(f.params[0].type == "int");
+  CHECK(f.params[0].type.name == "int");
+  CHECK(f.params[0].type.id.raw() == 0);
   CHECK(f.params[0].docComment == "");
   CHECK(f.params[0].defaultValue == "");
 
   CHECK(f.params[1].name == "b");
-  CHECK(f.params[1].type == "int");
+  CHECK(f.params[1].type.name == "int");
+  CHECK(f.params[1].type.id.raw() == 0);
   CHECK(f.params[1].docComment == "");
   CHECK(f.params[1].defaultValue == "");
 }
@@ -228,7 +234,8 @@ TEST_CASE("Class in namespace with method declaration") {
   CHECK(f.refQualifier == clang::RQ_None);
 
   CHECK(f.proto == "void foo()");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
 }
@@ -292,7 +299,8 @@ TEST_CASE("Class in namespace with outside method definition") {
   CHECK(f.refQualifier == clang::RQ_None);
 
   CHECK(f.proto == "void foo()");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
 }
@@ -354,7 +362,8 @@ TEST_CASE("Class in namespace with in method definition") {
   CHECK(f.refQualifier == clang::RQ_None);
 
   CHECK(f.proto == "void foo()");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
 }
@@ -416,7 +425,8 @@ TEST_CASE("Function declaration in nested namespaces") {
   CHECK(f.refQualifier == clang::RQ_None);
 
   CHECK(f.proto == "void baz()");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
 }

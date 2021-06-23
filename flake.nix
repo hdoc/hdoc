@@ -20,9 +20,9 @@
         nativeBuildInputs = self.buildTimeDeps;
         buildInputs = [
           openssl
-          llvmPackages_10.clang-unwrapped
-          llvmPackages_10.llvm
-          llvmPackages_10.libclang
+          llvmPackages_12.clang-unwrapped
+          llvmPackages_12.llvm
+          llvmPackages_12.libclang
         ];
 
         CPPFLAGS = ''-DHDOC_GIT_REV=\"${self.gitrev}\"'';
@@ -39,9 +39,9 @@
         buildInputs = self.buildTimeDeps ++ [
           zola
           openssl
-          llvmPackages_10.clang-unwrapped
-          llvmPackages_10.llvm
-          llvmPackages_10.libclang
+          llvmPackages_12.clang-unwrapped
+          llvmPackages_12.llvm
+          llvmPackages_12.libclang
         ];
       };
   };

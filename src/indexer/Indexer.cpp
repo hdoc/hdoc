@@ -1,3 +1,6 @@
+// Copyright 2019-2021 hdoc
+// SPDX-License-Identifier: AGPL-3.0-only
+
 #include <filesystem>
 
 #include "spdlog/spdlog.h"
@@ -50,7 +53,7 @@ void hdoc::indexer::Indexer::run() {
     args.push_back(clang::tooling::getInsertArgumentAdjuster(("-isystem" + d).c_str()));
   }
 
-  ParallelExecutor tool(*cmpdb, args, this->cfg->numThreads);
+  hdoc::indexer::ParallelExecutor tool(*cmpdb, args, this->pool);
   tool.execute(clang::tooling::newFrontendActionFactory(&Finder));
 }
 
@@ -77,8 +80,6 @@ void hdoc::indexer::Indexer::resolveNamespaces() {
   spdlog::info("Indexer namespace resolution complete.");
 }
 
-/// Update the declaration of the all records to indicate records they inherit from and the type of inheritance
-/// This must be done after all records are parsed as the inherited records might not be in the DB at parse-time
 void hdoc::indexer::Indexer::updateRecordNames() {
   spdlog::info("Indexer updating record names with inheritance information.");
   for (auto& [k, c] : this->index.records.entries) {
@@ -114,7 +115,6 @@ void hdoc::indexer::Indexer::updateRecordNames() {
   }
 }
 
-/// Print the number of matches, indexed entries, and size of the database for each type
 void hdoc::indexer::Indexer::printStats() const {
   // Size of databases in KiB
   const auto functionIndexSize  = this->index.functions.entries.size() * sizeof(hdoc::types::FunctionSymbol) / 1024;
@@ -154,6 +154,28 @@ void hdoc::indexer::Indexer::pruneMethods() {
     this->index.functions.entries.erase(deadSymbolID);
   }
   spdlog::info("Pruned {} functions from the database.", toBePruned.size());
+}
+
+void hdoc::indexer::Indexer::pruneTypeRefs() {
+  for (auto& [k, v] : this->index.functions.entries) {
+    if (this->index.records.contains(v.returnType.id) == false) {
+      v.returnType.id = hdoc::types::SymbolID();
+    }
+
+    for (auto& param : v.params) {
+      if (this->index.records.contains(param.type.id) == false) {
+        param.type.id = hdoc::types::SymbolID();
+      }
+    }
+  }
+
+  for (auto& [k, v] : this->index.records.entries) {
+    for (auto& var : v.vars) {
+      if (this->index.records.contains(var.type.id) == false) {
+        var.type.id = hdoc::types::SymbolID();
+      }
+    }
+  }
 }
 
 const hdoc::types::Index* hdoc::indexer::Indexer::dump() const {

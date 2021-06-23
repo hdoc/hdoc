@@ -1,6 +1,7 @@
 [project]
 name = "hdoc"
-version = "0.1.0"
+version = "1.1.0"
+git_repo_url = "https://github.com/hdoc/hdoc/blob/master/"
 
 [paths]
 compile_commands = "build/compile_commands.json"
@@ -14,6 +15,8 @@ use_system_includes = true
 paths = [
   "/third_party/",
   "/subprojects/",
+  "/index-tests/",
+  "/unit-tests/",
 ]
 
 [pages]

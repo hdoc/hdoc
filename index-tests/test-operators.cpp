@@ -1,3 +1,6 @@
+// Copyright 2019-2021 hdoc
+// SPDX-License-Identifier: AGPL-3.0-only
+
 #include "common.hpp"
 
 TEST_CASE("Class with custom operators") {

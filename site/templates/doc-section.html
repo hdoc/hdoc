@@ -13,12 +13,10 @@
 <section class="section">
   <div class="container">
     <div class="columns">
-      <aside class="column is-one-fifth">
-        {{nav::side_nav()}}
-      </aside>
-      <main class="content column is-two-thirds">
-        <p>{{ section.content | safe }}</p>
-      </main>
+      {{nav::side_nav()}}
+      <div class="content column is-two-thirds">
+        {{ section.content | safe }}
+      </div>
     </div>
   </div>
 </section>

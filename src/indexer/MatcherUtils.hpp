@@ -1,3 +1,6 @@
+// Copyright 2019-2021 hdoc
+// SPDX-License-Identifier: AGPL-3.0-only
+
 #pragma once
 
 #include "types/Symbols.hpp"
@@ -17,7 +20,7 @@ bool isInBlacklist(const clang::Decl*              d,
                    const std::filesystem::path&    rootDir);
 
 /// @brief Check if the decl is in an anonymous namespace
-bool isInAnonymousNamespace(const clang::NamedDecl* d);
+bool isInAnonymousNamespace(const clang::Decl* d);
 
 /// @brief Update FunctionSymbol.proto with the full prototype
 std::string getFunctionSignature(hdoc::types::FunctionSymbol& f, const clang::FunctionDecl* function);

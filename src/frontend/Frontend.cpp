@@ -1,3 +1,6 @@
+// Copyright 2019-2021 hdoc
+// SPDX-License-Identifier: AGPL-3.0-only
+
 #include <chrono>
 #include <cstdlib>
 #include <filesystem>
@@ -82,12 +85,17 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
   cfg->outputDir      = std::filesystem::path(toml["paths"]["output_dir"].value_or(""));
   cfg->projectName    = toml["project"]["name"].value_or("");
   cfg->projectVersion = toml["project"]["version"].value_or("");
+  cfg->gitRepoURL     = toml["project"]["git_repo_url"].value_or("");
   if (cfg->projectName == "") {
     spdlog::error("Project name in .hdoc.toml is empty, not a string, or invalid.");
     return;
   }
   if (cfg->projectVersion == "") {
     spdlog::error("Project version in .hdoc.toml is empty, not a string, or invalid.");
+    return;
+  }
+  if (cfg->gitRepoURL != "" && cfg->gitRepoURL.back() != '/') {
+    spdlog::error("Git repo URL is missing the mandatory trailing slash: {}", cfg->gitRepoURL);
     return;
   }
 
@@ -180,7 +188,7 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
   // Get the current timestamp
   const auto        time_t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
   std::stringstream ss;
-  ss << std::put_time(std::localtime(&time_t), "%FT%T %Z");
+  ss << std::put_time(std::gmtime(&time_t), "%FT%T UTC");
   cfg->timestamp = ss.str();
 
   cfg->initialized = true;

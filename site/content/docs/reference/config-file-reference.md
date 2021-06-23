@@ -53,6 +53,24 @@ It is optional and defaults to 0.
 num_threads = 8
 ```
 
+### `git_repo_url`
+
+URL to a GitHub or GitLab repository where source code for the current project is stored.
+This is used to link functions, records, and enums to their original declarations in the source code.
+The URL must end with a trailing slash, and include a commit hash or branch designation.
+The commit hash can be used to pin the documentation to a given version of the code, while using a branch designation (such as "main") will use the latest commit on that branch for all links.
+The value is a string, and is optional.
+If the value is not supplied, declarations will not be linked back to the source code.
+
+```toml
+[project]
+# Use the latest commit on the main branch
+git_repo_url = "https://github.com/hdoc/hdoc/blob/main/"
+
+# Alternatively, pin all links to the 3d9b3c0... commit
+# git_repo_url = "https://github.com/hdoc/hdoc/blob/3d9b3c0f6d21b7dc79318da394afcdd2d3e077cc/"
+```
+
 ## `paths`
 
 The paths section contains information needed by hdoc to parse your codebase and to know where to put its files.

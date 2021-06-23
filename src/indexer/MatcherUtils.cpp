@@ -1,19 +1,18 @@
+// Copyright 2019-2021 hdoc
+// SPDX-License-Identifier: AGPL-3.0-only
+
 #include "MatcherUtils.hpp"
+#include "support/StringUtils.hpp"
+
 #include "clang/AST/ASTContext.h"
 #include "clang/AST/DeclTemplate.h"
+#include "clang/Basic/FileManager.h"
+#include "clang/Basic/SourceManager.h"
 #include "clang/Index/USRGeneration.h"
 
 #include "spdlog/spdlog.h"
 
 #include <filesystem>
-
-static void ltrim(std::string& s) {
-  s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) { return !std::isspace(ch); }));
-}
-
-static void rtrim(std::string& s) {
-  s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), s.end());
-}
 
 /// When hdoc is run by multiple threads, we use a VFS (virtual file system) to access
 /// files safely. The working directory of the parser is changed during indexing, and
@@ -105,7 +104,7 @@ bool isInBlacklist(const clang::Decl*              d,
 /// Decls in anonymous namespaces should not be documented
 /// This function checks if a declaration is made in an anonymous namespace
 /// or if any of its parents are
-bool isInAnonymousNamespace(const clang::NamedDecl* d) {
+bool isInAnonymousNamespace(const clang::Decl* d) {
   const auto* dc = llvm::dyn_cast_or_null<clang::DeclContext>(d);
   if (dc == nullptr) {
     return false;
@@ -157,6 +156,7 @@ std::string getFunctionSignature(hdoc::types::FunctionSymbol& f, const clang::Fu
     }
     signature += ">";
   }
+  f.postTemplate = signature.size();
 
   // Various qualifiers
   signature += f.storageClass == clang::SC_Static ? "static " : "";
@@ -168,7 +168,7 @@ std::string getFunctionSignature(hdoc::types::FunctionSymbol& f, const clang::Fu
 
   // Return type
   if (f.isCtorOrDtor == false) {
-    signature += f.hasTrailingReturn ? "auto " : f.returnType + " ";
+    signature += f.hasTrailingReturn ? "auto " : f.returnType.name + " ";
   }
 
   // Get the location of the first character of the function name
@@ -181,7 +181,7 @@ std::string getFunctionSignature(hdoc::types::FunctionSymbol& f, const clang::Fu
   uint64_t count = 0;
   for (const auto& param : f.params) {
     signature += count > 0 ? ", " : "";
-    signature += param.type;
+    signature += param.type.name;
     // Functions can have unnamed parameters, so don't add the space and name if it doesn't exist
     signature += param.name != "" ? " " + param.name : "";
     // Add default argument if it exists
@@ -198,7 +198,7 @@ std::string getFunctionSignature(hdoc::types::FunctionSymbol& f, const clang::Fu
   signature += f.isConst ? " const" : "";
   signature += f.isVolatile ? " volatile" : "";
   signature += f.isRestrict ? " restrict" : "";
-  signature += f.hasTrailingReturn ? " -> " + f.returnType : "";
+  signature += f.hasTrailingReturn ? " -> " + f.returnType.name : "";
 
   // Add reference qualifier
   signature += f.refQualifier == clang::RQ_LValue ? " &" : "";
@@ -247,7 +247,7 @@ std::string getParaCommentContents(const clang::comments::Comment* comment) {
     if (const auto* tc = llvm::dyn_cast<clang::comments::TextComment>(*c)) {
       if (!tc->isWhitespace()) {
         std::string current_text = tc->getText().str();
-        ltrim(current_text); // Remove leading whitespace (indentation)
+        hdoc::utils::ltrim(current_text); // Remove leading whitespace (indentation)
         if (c != comment->child_begin()) {
           text += " " + current_text; // Add a space if it isn't the first line of the comment
         } else {
@@ -285,8 +285,8 @@ void processRecordComment(hdoc::types::RecordSymbol& cs, const clang::comments::
       }
     }
   }
-  rtrim(cs.briefComment);
-  rtrim(cs.docComment);
+  hdoc::utils::rtrim(cs.briefComment);
+  hdoc::utils::rtrim(cs.docComment);
 }
 
 void processEnumComment(hdoc::types::EnumSymbol& e, const clang::comments::Comment* comment) {
@@ -312,8 +312,8 @@ void processEnumComment(hdoc::types::EnumSymbol& e, const clang::comments::Comme
       }
     }
   }
-  rtrim(e.briefComment);
-  rtrim(e.docComment);
+  hdoc::utils::rtrim(e.briefComment);
+  hdoc::utils::rtrim(e.docComment);
 }
 
 void processFunctionComment(hdoc::types::FunctionSymbol& f, const clang::comments::Comment* comment) {
@@ -345,6 +345,6 @@ void processFunctionComment(hdoc::types::FunctionSymbol& f, const clang::comment
       }
     }
   }
-  rtrim(f.briefComment);
-  rtrim(f.docComment);
+  hdoc::utils::rtrim(f.briefComment);
+  hdoc::utils::rtrim(f.docComment);
 }

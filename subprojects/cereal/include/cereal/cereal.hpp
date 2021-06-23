@@ -568,7 +568,11 @@ namespace cereal
       template <class T> inline
       std::uint32_t registerClassVersion()
       {
-        static const auto hash = std::type_index(typeid(T)).hash_code();
+        assert(false && "hdoc - this should not be reached");
+        // We disable RTTI in hdoc, which requires modifications to make cereal compile.
+        // These changes mangle the cereal's support for virtual classes, which we don't use anyway.
+        #if 0
+        static const auto hash = std::type_index(std::type_info(0)).hash_code();
         const auto insertResult = itsVersionedTypes.insert( hash );
         const auto lock = detail::StaticObject<detail::Versions>::lock();
         const auto version =
@@ -578,6 +582,8 @@ namespace cereal
           process( make_nvp<ArchiveType>("cereal_class_version", version) );
 
         return version;
+        #endif
+        return 0;
       }
 
       //! Member serialization
@@ -982,7 +988,11 @@ namespace cereal
       template <class T> inline
       std::uint32_t loadClassVersion()
       {
-        static const auto hash = std::type_index(typeid(T)).hash_code();
+        // We disable RTTI in hdoc, which requires modifications to make cereal compile.
+        // These changes mangle the cereal's support for virtual classes, which we don't use anyway.
+        assert(false && "hdoc - this should not be reached");
+        #if 0
+        static const auto hash = std::type_index(std::type_info(0)).hash_code();
         auto lookupResult = itsVersionedTypes.find( hash );
 
         if( lookupResult != itsVersionedTypes.end() ) // already exists
@@ -996,6 +1006,8 @@ namespace cereal
 
           return version;
         }
+        #endif
+        return 0;
       }
 
       //! Member serialization

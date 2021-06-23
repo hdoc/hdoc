@@ -1,12 +1,14 @@
 {% macro side_nav(title="none") %}
-  {% set top_section = get_section(path="docs/_index.md") -%}
+{% set top_section = get_section(path="docs/_index.md") -%}
+<aside class="column is-one-fifth">
+  {% for subsection in top_section.subsections -%}
+    {% set subsection = get_section(path=subsection) -%}
+    <p class="menu-label">{{ subsection.title }}</p>
     <ul class="menu-list">
-      {% for subsection in top_section.subsections -%}
-        {% set subsection = get_section(path=subsection) -%}
-        <p class="menu-label">{{ subsection.title }}</p>
-        {% for child_page in subsection.pages -%}
-          <a {% if title == child_page.title %}class="is-active"{% endif %} href="{{ child_page.path | safe }}">{{ child_page.title }}</a>
-        {% endfor -%}
-      {%- endfor -%}
+      {% for child_page in subsection.pages -%}
+      <li><a {% if title == child_page.title %}class="is-active"{% endif %} href="{{ child_page.path | safe }}">{{ child_page.title }}</a></li>
+      {% endfor -%}
     </ul>
+  {%- endfor -%}
+</aside>
 {% endmacro side_nav %}

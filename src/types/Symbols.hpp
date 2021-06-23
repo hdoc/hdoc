@@ -1,3 +1,6 @@
+// Copyright 2019-2021 hdoc
+// SPDX-License-Identifier: AGPL-3.0-only
+
 #pragma once
 
 #include "clang/AST/Type.h"
@@ -13,6 +16,7 @@ namespace hdoc::types {
 /// @brief A unique identifier for each symbol in hdoc's index, built from its clang USR
 struct SymbolID {
   SymbolID() = default;
+
   /// @brief Constructs a SymbolID from a USR value by SHA1 hashing it
   SymbolID(llvm::StringRef USR) {
     const auto& hash = llvm::SHA1::hash(llvm::arrayRefFromStringRef(USR));
@@ -63,11 +67,18 @@ struct Symbol {
   }
 };
 
+/// @brief Represents a possible reference to another Symbol that may or may not be in the Index.
+/// Used to represent cross-links to function parameters, return types, or record member variables.
+struct TypeRef {
+  hdoc::types::SymbolID id;   ///< Possible SymbolID of this type.
+  std::string           name; ///< Name of the type
+};
+
 /// @brief Represents a member variable of a record
 struct MemberVariable {
   bool                   isStatic = false; ///< Is this member variable marked static?
   std::string            name;             ///< Name of the member variable
-  std::string            type;             ///< Type of the string, i.e. int or a struct name
+  hdoc::types::TypeRef   type;             ///< Type of the string, i.e. int or a struct name
   std::string            defaultValue;     ///< Default value, usually an int
   std::string            docComment;       ///< Any comment attached to this decl
   clang::AccessSpecifier access;           ///< Access type, i.e. public/protected/private
@@ -87,14 +98,18 @@ struct RecordSymbol : public Symbol {
   std::vector<MemberVariable>        vars;        ///< All of this record's member variables
   std::vector<hdoc::types::SymbolID> methodIDs;   ///< All of this record's methods
   std::vector<BaseRecord>            baseRecords; ///< All of the records this record inherits from
+
+  std::string url() const {
+    return "r" + this->ID.str() + ".html";
+  }
 };
 
 /// @brief Represents a function parameter
 struct FunctionParam {
-  std::string name;         ///< Name given to the parameter
-  std::string type;         ///< Type of the parameter, i.e. "int"
-  std::string docComment;   ///< Any comment attached to this param using @param or \param
-  std::string defaultValue; ///< The default value for this param, if it exists
+  std::string          name;         ///< Name given to the parameter
+  hdoc::types::TypeRef type;         ///< Type of the parameter, i.e. "int"
+  std::string          docComment;   ///< Any comment attached to this param using @param or \param
+  std::string          defaultValue; ///< The default value for this param, if it exists
 };
 
 /// @brief Symbol representing a function or member function
@@ -113,13 +128,18 @@ public:
   bool                       hasTrailingReturn = false; ///< Does use the funky `auto func() -> int {}` syntax?
   bool                       isCtorOrDtor      = false; ///< Is it a record constructor or destructor
   uint64_t                   nameStart         = 0;     ///< Position of the first character of the name
+  uint64_t                   postTemplate      = 0;     ///< Position of the first character after all the template magic
   clang::AccessSpecifier     access            = clang::AS_public; ///< Is the function public/protected/private
   clang::StorageClass        storageClass;                         ///< Is this function marked static or extern;
   clang::RefQualifierKind    refQualifier; ///< Refqualifier of this function, if any, ex. void get() &
   std::string                proto;        ///< Function prototype, including template, return type, name, and params
-  std::string                returnType;   ///< Return type of the function, ex. "int"
+  hdoc::types::TypeRef       returnType;   ///< Return type of the function, ex. "int"
   std::string                returnTypeDocComment; ///< Any comment attached to a @return(s) or \return(s) command
   std::vector<FunctionParam> params;               ///< All of the parameters for this function
+
+  std::string url() const {
+    return "f" + this->ID.str() + ".html";
+  }
 };
 
 /// @brief Represents the values inside an enum
@@ -134,6 +154,10 @@ struct EnumSymbol : public Symbol {
 public:
   std::string             type = ""; ///< "class" for enum class, "struct" for enum struct, otherwise ""
   std::vector<EnumMember> members;   ///< All of this enum's values
+
+  std::string url() const {
+    return "e" + this->ID.str() + ".html";
+  }
 };
 
 /// @brief Represents a namespace
@@ -142,6 +166,10 @@ public:
   std::vector<hdoc::types::SymbolID> records    = {}; ///< All of the records in this namespace
   std::vector<hdoc::types::SymbolID> namespaces = {}; ///< All of the other namespaces in this namespace
   std::vector<hdoc::types::SymbolID> enums      = {}; ///< All of the enums in this namespace
+
+  std::string url() const {
+    return "n" + this->ID.str() + ".html";
+  }
 };
 
 } // namespace hdoc::types

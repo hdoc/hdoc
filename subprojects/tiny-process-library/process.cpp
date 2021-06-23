@@ -48,8 +48,8 @@ Process::id_type Process::get_id() const noexcept {
   return data.id;
 }
 
-bool Process::write(const std::string &data) {
-  return write(data.c_str(), data.size());
+bool Process::write(const std::string &str) {
+  return write(str.c_str(), str.size());
 }
 
 } // namespace TinyProcessLib

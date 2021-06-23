@@ -1,4 +1,4 @@
-project('hdoc', 'cpp', version: '1.0.1', default_options: ['cpp_std=c++17', 'warning_level=3'])
+project('hdoc', 'cpp', version: '1.1.0', default_options: ['cpp_std=c++17', 'warning_level=3'])
 
 dep_llvm = dependency('LLVM', include_type: 'system')
 clang_modules = [
@@ -11,6 +11,9 @@ clang_modules = [
   'clangBasic',
 ]
 dep_clang = dependency('Clang', include_type: 'system', method: 'cmake', modules: clang_modules)
+
+# Disable RTTI
+add_project_arguments('-fno-rtti', language: 'cpp')
 
 # Add minimum macOS sdk version needed to use std::filesystem on macOS
 if build_machine.system() == 'darwin'
@@ -60,6 +63,7 @@ src = [
   'src/serde/HTMLWriter.cpp',
   'src/serde/Serialization.cpp',
   'src/support/ParallelExecutor.cpp',
+  'src/support/StringUtils.cpp',
   assets_src,
 ]
 lib = static_library('hdoc', sources: src, include_directories: inc, dependencies: deps)
@@ -67,6 +71,11 @@ libdeps = declare_dependency(dependencies: deps, include_directories: inc, link_
 
 executable('hdoc', sources: 'src/main.cpp', dependencies: libdeps)
 executable('hdoc-client', sources: 'src/client-main.cpp', dependencies: libdeps)
+
+unit_tests_src = [
+  'unit-tests/test.cpp',
+]
+executable('unit-tests', sources: unit_tests_src, dependencies: libdeps, cpp_args: '-DHDOC_TEST_CODE')
 
 test_src = [
   'index-tests/test.cpp',

@@ -12,7 +12,7 @@ The following instructions show how to get hdoc and use it on your codebase.
 
 ## Getting hdoc
 
-Once you've [made an account](https://app.hdoc.io/accounts/signup/), [subscribed](https://app.hdoc.io/subscriptions/plans/), and [created a project](https://app.hdoc.io/projects/create/), you can download hdoc releases from the [Releases](https://app.hdoc.io/releases/downloads/) page of the hdoc console.
+Once you've [made an account](https://app.hdoc.io/accounts/signup/), (optionally) [subscribed](https://app.hdoc.io/subscriptions/plans/), and [created a project](https://app.hdoc.io/projects/create/), you can download hdoc releases from the [Releases](https://app.hdoc.io/releases/downloads/) page of the hdoc console.
 Make sure you save the API key given to you when you created the project!
 You'll need it later.
 
@@ -37,6 +37,10 @@ Here's the bare minimum `.hdoc.toml` file that you need:
 [project]
 name = "my-project"
 version = "1.0.0"
+
+# Optional, adding this will enable direct links from the documentation
+# to your source code.
+git_repo_url = "https://github.com/MYUSERNAME/MYPROJECT/blob/main/"
 
 [paths]
 compile_commands = "build/compile_commands.json"
@@ -65,7 +69,7 @@ Once this file has been created you are ready to run hdoc.
 
 You need an API key to run hdoc.
 An API key was given to you when you first created your project in the console.
-This API key must be available in the `HDOC_PROJECT_API_KEY` environment variable.
+The `HDOC_PROJECT_API_KEY` environment variable must contain this API key when you run hdoc.
 If you forgot your API key, you can [revoke it in the console](https://app.hdoc.io/projects/) and generate a new one.
 
 Now that you have hdoc installed and your project has an hdoc configuration file, it's time to run hdoc.
@@ -82,7 +86,7 @@ It can be omitted for future runs.
 
 ## Viewing the results
 
-Once hdoc has finished analyzing your project, it will securely upload your documentation for hosting at docs.hdoc.io.
+Once hdoc has finished analyzing your project, it will securely upload your documentation for hosting at [docs.hdoc.io](https://docs.hdoc.io).
 The address at which your documentation is hosted can be found under [Projects](https://app.hdoc.io/projects/) in the hdoc console.
 The address will also be printed in the terminal at program completion if the `--verbose` flag was passed to hdoc.
 

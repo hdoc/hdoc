@@ -1,3 +1,6 @@
+// Copyright 2019-2021 hdoc
+// SPDX-License-Identifier: AGPL-3.0-only
+
 #include "common.hpp"
 
 TEST_CASE("Class inherit") {
@@ -196,7 +199,8 @@ TEST_CASE("Function override") {
   CHECK(f1.refQualifier == clang::RQ_None);
 
   CHECK(f1.proto == "virtual void foo()");
-  CHECK(f1.returnType == "void");
+  CHECK(f1.returnType.name == "void");
+  CHECK(f1.returnType.id.raw() == 0);
   CHECK(f1.returnTypeDocComment == "");
   CHECK(f1.params.size() == 0);
 
@@ -241,7 +245,8 @@ TEST_CASE("Function override") {
   CHECK(f2.refQualifier == clang::RQ_None);
 
   CHECK(f2.proto == "void foo()");
-  CHECK(f2.returnType == "void");
+  CHECK(f2.returnType.name == "void");
+  CHECK(f2.returnType.id.raw() == 0);
   CHECK(f2.returnTypeDocComment == "");
   CHECK(f2.params.size() == 0);
 }
@@ -294,7 +299,8 @@ TEST_CASE("Interface pure virtual") {
   CHECK(f.refQualifier == clang::RQ_None);
 
   CHECK(f.proto == "virtual void foo()");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
 }
@@ -364,7 +370,8 @@ TEST_CASE("Multiple base functions") {
   CHECK(f1.refQualifier == clang::RQ_None);
 
   CHECK(f1.proto == "virtual ~Base0()");
-  CHECK(f1.returnType == "");
+  CHECK(f1.returnType.name == "");
+  CHECK(f1.returnType.id.raw() == 0);
   CHECK(f1.returnTypeDocComment == "");
   CHECK(f1.params.size() == 0);
 
@@ -405,7 +412,8 @@ TEST_CASE("Multiple base functions") {
   CHECK(f2.refQualifier == clang::RQ_None);
 
   CHECK(f2.proto == "virtual ~Base1()");
-  CHECK(f2.returnType == "");
+  CHECK(f2.returnType.name == "");
+  CHECK(f2.returnType.id.raw() == 0);
   CHECK(f2.returnTypeDocComment == "");
   CHECK(f2.params.size() == 0);
 
@@ -454,7 +462,8 @@ TEST_CASE("Multiple base functions") {
   CHECK(f3.refQualifier == clang::RQ_None);
 
   CHECK(f3.proto == "~Derived()");
-  CHECK(f3.returnType == "");
+  CHECK(f3.returnType.name == "");
+  CHECK(f3.returnType.id.raw() == 0);
   CHECK(f3.returnTypeDocComment == "");
   CHECK(f3.params.size() == 0);
 }

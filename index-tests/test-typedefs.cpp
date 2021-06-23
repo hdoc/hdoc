@@ -1,3 +1,6 @@
+// Copyright 2019-2021 hdoc
+// SPDX-License-Identifier: AGPL-3.0-only
+
 #include "common.hpp"
 
 TEST_CASE("Typedefed function") {
@@ -35,17 +38,20 @@ TEST_CASE("Typedefed function") {
 
   // Typedef'ed functions don't inherit parameter names, only types
   CHECK(s.proto == "int g(const int *, const int *)");
-  CHECK(s.returnType == "int");
+  CHECK(s.returnType.name == "int");
+  CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "");
 
   CHECK(s.params.size() == 2);
   CHECK(s.params[0].name == "");
-  CHECK(s.params[0].type == "const int *");
+  CHECK(s.params[0].type.name == "const int *");
+  CHECK(s.params[0].type.id.raw() == 0);
   CHECK(s.params[0].docComment == "");
   CHECK(s.params[0].defaultValue == "");
 
   CHECK(s.params[1].name == "");
-  CHECK(s.params[1].type == "const int *");
+  CHECK(s.params[1].type.name == "const int *");
+  CHECK(s.params[1].type.id.raw() == 0);
   CHECK(s.params[1].docComment == "");
   CHECK(s.params[1].defaultValue == "");
 }
@@ -99,12 +105,14 @@ TEST_CASE("Type instance with 'using'") {
   CHECK(f.refQualifier == clang::RQ_None);
 
   CHECK(f.proto == "void Foo(F * param)");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
 
   CHECK(f.params.size() == 1);
   CHECK(f.params[0].name == "param");
-  CHECK(f.params[0].type == "F *");
+  CHECK(f.params[0].type.name == "F *");
+  CHECK(f.params[0].type.id == s.ID);
   CHECK(f.params[0].docComment == "");
   CHECK(f.params[0].defaultValue == "");
 }

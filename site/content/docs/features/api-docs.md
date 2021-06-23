@@ -11,8 +11,8 @@ hdoc's main feature is the generating API documentation.
 hdoc will go through your codebase, scan for symbols and documentation attached to them, and then use this information to construct a website.
 
 hdoc collects information on four categories of symbols:
-- Functions and methods
-- Classes, structs, and unions
+- Functions and methods (including templates)
+- Classes, structs, and unions (including templates)
 - Enums
 - Namespaces
 

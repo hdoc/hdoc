@@ -1,4 +1,9 @@
+// Copyright 2019-2021 hdoc
+// SPDX-License-Identifier: AGPL-3.0-only
+
 #pragma once
+
+#include "llvm/Support/ThreadPool.h"
 
 #include "types/Config.hpp"
 #include "types/Index.hpp"
@@ -9,7 +14,7 @@ namespace serde {
 /// @brief Serialize hdoc's index to HTML files
 class HTMLWriter {
 public:
-  HTMLWriter(const hdoc::types::Index* index, const hdoc::types::Config* cfg);
+  HTMLWriter(const hdoc::types::Index* index, const hdoc::types::Config* cfg, llvm::ThreadPool& pool);
   void printFunctions() const;
   void printRecords() const;
   void printRecord(const hdoc::types::RecordSymbol& c) const;
@@ -29,6 +34,10 @@ public:
 private:
   const hdoc::types::Index*  index;
   const hdoc::types::Config* cfg;
+  llvm::ThreadPool&          pool;
 };
+std::string getHyperlinkedFunctionProto(const std::string& proto, const hdoc::types::FunctionSymbol& f);
+std::string clangFormat(const std::string& s, const uint64_t& columnLimit = 50);
+std::string getBareTypeName(const std::string& typeName);
 } // namespace serde
 } // namespace hdoc

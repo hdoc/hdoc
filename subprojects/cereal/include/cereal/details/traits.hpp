@@ -1145,11 +1145,20 @@ namespace cereal
       struct base_class_id
       {
         template<class T>
+        // We disable RTTI in hdoc, which requires modifications to make cereal compile.
+        // These changes mangle the cereal's support for virtual classes, which we don't use anyway.
+        #if 0
           base_class_id(T const * const t) :
           type(typeid(T)),
           ptr(t),
           hash(std::hash<std::type_index>()(typeid(T)) ^ (std::hash<void const *>()(t) << 1))
           { }
+        #endif
+
+          base_class_id(T const * const t) :
+          ptr(t),
+          hash(0)
+          { assert(false && "hdoc - this should not be reached"); }
 
           bool operator==(base_class_id const & other) const
           { return (type == other.type) && (ptr == other.ptr); }

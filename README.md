@@ -48,8 +48,9 @@ hdoc has a suite of unit and integration tests, which can be run using the instr
 # Assumes you've already built hdoc
 cd build
 
-# Running indexing unit tests
+# Running indexing tests and unit tests
 ./index-tests
+./unit-tests
 
 # Running integration tests
 cd ../tests
@@ -71,7 +72,8 @@ hdoc
 │   ├── support    # Ancillary code used to parallelize indexing
 │   └── types      # Types used by hdoc
 ├── subprojects  # Vendored dependencies
-└── tests        # Integration testing scripts
+├── tests        # Integration testing scripts
+└── unit-tests   # Unit tests for a small portion of hdoc's codebase
 ```
 
 ## Attribution

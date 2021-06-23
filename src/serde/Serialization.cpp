@@ -1,3 +1,6 @@
+// Copyright 2019-2021 hdoc
+// SPDX-License-Identifier: AGPL-3.0-only
+
 #include "serde/Serialization.hpp"
 #include "types/Symbols.hpp"
 
@@ -46,6 +49,10 @@ template <class Archive> static void serialize(Archive& archive, hdoc::types::Fu
   archive(s.name, s.type, s.defaultValue, s.docComment);
 }
 
+template <class Archive> static void serialize(Archive& archive, hdoc::types::TypeRef& s) {
+  archive(s.name, s.id);
+}
+
 template <class Archive> static void serialize(Archive& archive, hdoc::types::FunctionSymbol& s) {
   archive(cereal::base_class<hdoc::types::Symbol>(&s),
           s.isRecordMember,
@@ -83,7 +90,7 @@ template <class Archive> static void serialize(Archive& archive, hdoc::types::Na
 }
 
 template <class Archive> static void serialize(Archive& archive, hdoc::types::Config& s) {
-  archive(s.projectName, s.projectVersion, s.timestamp, s.hdocVersion);
+  archive(s.projectName, s.projectVersion, s.timestamp, s.hdocVersion, s.gitRepoURL);
 }
 
 template <class Archive, typename T> static void serialize(Archive& archive, hdoc::types::Database<T>& s) {
@@ -232,7 +239,7 @@ void uploadDocs(const std::string& data) {
   httplib::Headers headers{
       {"Authorization", "Api-Key " + api_key},
       {"Content-Disposition", "inline;filename=docs.archive"},
-      {"X-Schema-Version", "v1"},
+      {"X-Schema-Version", "v2"},
   };
 
   const auto res = cli.Put("/api/upload/", headers, data.data(), data.size(), "application/octet-stream");

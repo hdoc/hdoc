@@ -1,3 +1,6 @@
+// Copyright 2019-2021 hdoc
+// SPDX-License-Identifier: AGPL-3.0-only
+
 #include "common.hpp"
 
 TEST_CASE("Union decl") {
@@ -26,14 +29,16 @@ TEST_CASE("Union decl") {
 
   CHECK(s.vars[0].isStatic == false);
   CHECK(s.vars[0].name == "a");
-  CHECK(s.vars[0].type == "int");
+  CHECK(s.vars[0].type.name == "int");
+  CHECK(s.vars[0].type.id.raw() == 0);
   CHECK(s.vars[0].defaultValue == "");
   CHECK(s.vars[0].docComment == "");
   CHECK(s.vars[0].access == clang::AS_public);
 
   CHECK(s.vars[1].isStatic == false);
   CHECK(s.vars[1].name == "b");
-  CHECK(s.vars[1].type == "bool");
+  CHECK(s.vars[1].type.name == "bool");
+  CHECK(s.vars[1].type.id.raw() == 0);
   CHECK(s.vars[1].defaultValue == "");
   CHECK(s.vars[1].docComment == "");
   CHECK(s.vars[1].access == clang::AS_public);
@@ -67,14 +72,16 @@ TEST_CASE("Function with union as a parameter") {
 
   CHECK(s.vars[0].isStatic == false);
   CHECK(s.vars[0].name == "a");
-  CHECK(s.vars[0].type == "int");
+  CHECK(s.vars[0].type.name == "int");
+  CHECK(s.vars[0].type.id.raw() == 0);
   CHECK(s.vars[0].defaultValue == "");
   CHECK(s.vars[0].docComment == "");
   CHECK(s.vars[0].access == clang::AS_public);
 
   CHECK(s.vars[1].isStatic == false);
   CHECK(s.vars[1].name == "b");
-  CHECK(s.vars[1].type == "bool");
+  CHECK(s.vars[1].type.name == "bool");
+  CHECK(s.vars[1].type.id.raw() == 0);
   CHECK(s.vars[1].defaultValue == "");
   CHECK(s.vars[1].docComment == "");
   CHECK(s.vars[1].access == clang::AS_public);
@@ -104,12 +111,14 @@ TEST_CASE("Function with union as a parameter") {
   CHECK(f.refQualifier == clang::RQ_None);
 
   CHECK(f.proto == "void act(Foo *)");
-  CHECK(f.returnType == "void");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
 
   CHECK(f.params.size() == 1);
   CHECK(f.params[0].name == "");
-  CHECK(f.params[0].type == "Foo *");
+  CHECK(f.params[0].type.name == "Foo *");
+  CHECK(f.params[0].type.id == s.ID);
   CHECK(f.params[0].docComment == "");
   CHECK(f.params[0].defaultValue == "");
 }
@@ -140,14 +149,16 @@ TEST_CASE("Anonymous struct in a union") {
 
   CHECK(s.vars[0].isStatic == false);
   CHECK(s.vars[0].name == "");
-  CHECK(s.vars[0].type == "anonymous struct/union");
+  CHECK(s.vars[0].type.name == "anonymous struct/union");
+  CHECK(s.vars[0].type.id.raw() == 0);
   CHECK(s.vars[0].defaultValue == "");
   CHECK(s.vars[0].docComment == "");
   CHECK(s.vars[0].access == clang::AS_public);
 
   CHECK(s.vars[1].isStatic == false);
   CHECK(s.vars[1].name == "v");
-  CHECK(s.vars[1].type == "float [3]");
+  CHECK(s.vars[1].type.name == "float [3]");
+  CHECK(s.vars[1].type.id.raw() == 0);
   CHECK(s.vars[1].defaultValue == "");
   CHECK(s.vars[1].docComment == "");
   CHECK(s.vars[1].access == clang::AS_public);

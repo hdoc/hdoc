@@ -1,3 +1,6 @@
+// Copyright 2019-2021 hdoc
+// SPDX-License-Identifier: AGPL-3.0-only
+
 #pragma once
 
 #include <filesystem>
@@ -17,6 +20,7 @@ struct Config {
   std::string              projectVersion;        ///< Project version
   std::string              timestamp;             ///< Timestamp of this run
   std::string              hdocVersion;           ///< hdoc git commit hash
+  std::string              gitRepoURL;            ///< URL prefix of a GitHub or GitLab repo for source links
   std::vector<std::string> includePaths;          ///< Include paths passed on to Clang
   std::vector<std::string> ignorePaths;           ///< Paths from which matches should be ignored
   std::filesystem::path    homepage;              ///< Path to "homepage" markdown file

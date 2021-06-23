@@ -1,4 +1,9 @@
+// Copyright 2019-2021 hdoc
+// SPDX-License-Identifier: AGPL-3.0-only
+
 #include "llvm/Support/Signals.h"
+#include "llvm/Support/ThreadPool.h"
+#include "llvm/Support/Threading.h"
 
 #include "frontend/Frontend.hpp"
 #include "indexer/Indexer.hpp"
@@ -16,15 +21,17 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
 
-  hdoc::indexer::Indexer indexer(&cfg);
+  llvm::ThreadPool       pool(llvm::hardware_concurrency(cfg.numThreads));
+  hdoc::indexer::Indexer indexer(&cfg, pool);
   indexer.run();
   indexer.pruneMethods();
+  indexer.pruneTypeRefs();
   indexer.resolveNamespaces();
   indexer.updateRecordNames();
   indexer.printStats();
   const hdoc::types::Index* index = indexer.dump();
 
-  hdoc::serde::HTMLWriter htmlWriter(index, &cfg);
+  hdoc::serde::HTMLWriter htmlWriter(index, &cfg, pool);
   htmlWriter.printFunctions();
   htmlWriter.printRecords();
   htmlWriter.printNamespaces();

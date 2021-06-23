@@ -1,3 +1,6 @@
+// Copyright 2019-2021 hdoc
+// SPDX-License-Identifier: AGPL-3.0-only
+
 #include "common.hpp"
 
 TEST_CASE("Function with docComment only (style 1)") {
@@ -34,7 +37,8 @@ TEST_CASE("Function with docComment only (style 1)") {
   CHECK(s.refQualifier == clang::RQ_None);
 
   CHECK(s.proto == "void someFunction()");
-  CHECK(s.returnType == "void");
+  CHECK(s.returnType.name == "void");
+  CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "");
   CHECK(s.params.size() == 0);
 }
@@ -75,7 +79,8 @@ TEST_CASE("Function with docComment only (style 2)") {
   CHECK(s.refQualifier == clang::RQ_None);
 
   CHECK(s.proto == "void someFunction()");
-  CHECK(s.returnType == "void");
+  CHECK(s.returnType.name == "void");
+  CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "");
   CHECK(s.params.size() == 0);
 }
@@ -113,7 +118,8 @@ TEST_CASE("Function with docComment only (style 3, ignored)") {
   CHECK(s.refQualifier == clang::RQ_None);
 
   CHECK(s.proto == "void someFunction()");
-  CHECK(s.returnType == "void");
+  CHECK(s.returnType.name == "void");
+  CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "");
   CHECK(s.params.size() == 0);
 }
@@ -156,17 +162,20 @@ TEST_CASE("Function with trailing return type syntax and comments") {
   CHECK(s.refQualifier == clang::RQ_None);
 
   CHECK(s.proto == "auto foo(int x, int y) -> int");
-  CHECK(s.returnType == "int");
+  CHECK(s.returnType.name == "int");
+  CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "boo");
 
   CHECK(s.params.size() == 2);
   CHECK(s.params[0].name == "x");
-  CHECK(s.params[0].type == "int");
+  CHECK(s.params[0].type.name == "int");
+  CHECK(s.params[0].type.id.raw() == 0);
   CHECK(s.params[0].docComment == "bar");
   CHECK(s.params[0].defaultValue == "");
 
   CHECK(s.params[1].name == "y");
-  CHECK(s.params[1].type == "int");
+  CHECK(s.params[1].type.name == "int");
+  CHECK(s.params[1].type.id.raw() == 0);
   CHECK(s.params[1].docComment == "baz");
   CHECK(s.params[1].defaultValue == "");
 }
@@ -210,17 +219,20 @@ TEST_CASE("Function with trailing return type syntax, comments, and an extra err
   CHECK(s.refQualifier == clang::RQ_None);
 
   CHECK(s.proto == "auto foo(int x, int y) -> int");
-  CHECK(s.returnType == "int");
+  CHECK(s.returnType.name == "int");
+  CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "boo");
 
   CHECK(s.params.size() == 2);
   CHECK(s.params[0].name == "x");
-  CHECK(s.params[0].type == "int");
+  CHECK(s.params[0].type.name == "int");
+  CHECK(s.params[0].type.id.raw() == 0);
   CHECK(s.params[0].docComment == "bar");
   CHECK(s.params[0].defaultValue == "");
 
   CHECK(s.params[1].name == "y");
-  CHECK(s.params[1].type == "int");
+  CHECK(s.params[1].type.name == "int");
+  CHECK(s.params[1].type.id.raw() == 0);
   CHECK(s.params[1].docComment == "baz");
   CHECK(s.params[1].defaultValue == "");
 }
@@ -272,22 +284,26 @@ TEST_CASE("Function that uses many unsupported doxygen commands") {
   CHECK(s.refQualifier == clang::RQ_None);
 
   CHECK(s.proto == "void addCurve(int n, const double * x, const double * y)");
-  CHECK(s.returnType == "void");
+  CHECK(s.returnType.name == "void");
+  CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "Void");
 
   CHECK(s.params.size() == 3);
   CHECK(s.params[0].name == "n");
-  CHECK(s.params[0].type == "int");
+  CHECK(s.params[0].type.name == "int");
+  CHECK(s.params[0].type.id.raw() == 0);
   CHECK(s.params[0].docComment == "array size");
   CHECK(s.params[0].defaultValue == "");
 
   CHECK(s.params[1].name == "x");
-  CHECK(s.params[1].type == "const double *");
+  CHECK(s.params[1].type.name == "const double *");
+  CHECK(s.params[1].type.id.raw() == 0);
   CHECK(s.params[1].docComment == "array of x-coordinates values");
   CHECK(s.params[1].defaultValue == "");
 
   CHECK(s.params[2].name == "y");
-  CHECK(s.params[2].type == "const double *");
+  CHECK(s.params[2].type.name == "const double *");
+  CHECK(s.params[2].type.id.raw() == 0);
   CHECK(s.params[2].docComment == "array of y-coordinates values");
   CHECK(s.params[2].defaultValue == "");
 }

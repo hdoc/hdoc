@@ -1,3 +1,6 @@
+// Copyright 2019-2021 hdoc
+// SPDX-License-Identifier: AGPL-3.0-only
+
 #include "Matchers.hpp"
 #include "MatcherUtils.hpp"
 #include "types/Symbols.hpp"
@@ -5,6 +8,19 @@
 #include "clang/Lex/Lexer.h"
 
 #include <string>
+
+/// @brief Try to get a SymbolID from a QualType, and return an empty SymbolID if it's not possible
+static hdoc::types::SymbolID getTypeSymbolID(const clang::QualType& typ) {
+  if (const clang::TagDecl* decl = typ->getAsTagDecl()) {
+    return buildID(decl);
+  } else if (typ->isPointerType() && typ->getPointeeType()->getAsTagDecl()) {
+    return buildID(typ->getPointeeType()->getAsTagDecl());
+  } else if (typ->isReferenceType() && typ.getNonReferenceType()->getAsTagDecl()) {
+    return buildID(typ.getNonReferenceType()->getAsTagDecl());
+  } else {
+    return hdoc::types::SymbolID();
+  }
+}
 
 void hdoc::indexer::matchers::FunctionMatcher::run(const clang::ast_matchers::MatchFinder::MatchResult& Result) {
   const auto res = Result.Nodes.getNodeAs<clang::FunctionDecl>("function");
@@ -56,8 +72,9 @@ void hdoc::indexer::matchers::FunctionMatcher::run(const clang::ast_matchers::Ma
   f.params.reserve(res->param_size());
   for (const auto* i : res->parameters()) {
     hdoc::types::FunctionParam a;
-    a.name = i->getNameAsString();
-    a.type = i->getType().getAsString(pp);
+    a.name      = i->getNameAsString();
+    a.type.name = i->getType().getAsString(pp);
+    a.type.id   = getTypeSymbolID(i->getType());
     if (i->hasDefaultArg()) {
       a.defaultValue = i->hasUninstantiatedDefaultArg() ? exprToString(i->getUninstantiatedDefaultArg(), pp)
                                                         : exprToString(i->getDefaultArg(), pp);
@@ -72,7 +89,8 @@ void hdoc::indexer::matchers::FunctionMatcher::run(const clang::ast_matchers::Ma
   // Don't print "void" return type for constructors and destructors
   f.isCtorOrDtor = clang::isa<clang::CXXConstructorDecl>(res) || clang::isa<clang::CXXDestructorDecl>(res);
   if (f.isCtorOrDtor == false) {
-    f.returnType = res->getReturnType().getAsString(pp);
+    f.returnType.name = res->getReturnType().getAsString(pp);
+    f.returnType.id   = getTypeSymbolID(res->getReturnType());
   }
   f.proto          = getFunctionSignature(f, res);
   f.isRecordMember = res->isCXXClassMember();
@@ -229,9 +247,10 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
     // Anonymous records have their types recorded as "anonymous struct at $FILE:$LINE"
     // which is ugly, so we replace it with out own
     if (field->isAnonymousStructOrUnion() || isAnonRecordMemberVar(field)) {
-      mv.type = "anonymous struct/union";
+      mv.type.name = "anonymous struct/union";
     } else {
-      mv.type = field->getType().getAsString(pp);
+      mv.type.name = field->getType().getAsString(pp);
+      mv.type.id   = getTypeSymbolID(field->getType());
     }
 
     const clang::comments::Comment* comment = res->getASTContext().getCommentForDecl(field, nullptr);
@@ -256,15 +275,15 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
       hdoc::types::MemberVariable mv;
       mv.isStatic     = true;
       mv.name         = vd->getNameAsString();
-      mv.type         = vd->getType().getAsString(pp);
       mv.defaultValue = vd->hasInit() ? exprToString(vd->getInit(), pp) : "";
       mv.access       = vd->getAccess();
 
       // See previous section for explanation
       if (isAnonRecordMemberVar(vd)) {
-        mv.type = "anonymous struct/union";
+        mv.type.name = "anonymous struct/union";
       } else {
-        mv.type = vd->getType().getAsString(pp);
+        mv.type.name = vd->getType().getAsString(pp);
+        mv.type.id   = getTypeSymbolID(vd->getType());
       }
 
       const clang::comments::Comment* comment = res->getASTContext().getCommentForDecl(vd, nullptr);

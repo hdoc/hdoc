@@ -164,13 +164,22 @@ Process::id_type Process::open(const std::vector<string_type> &arguments, const 
 
 Process::id_type Process::open(const std::string &command, const std::string &path, const environment_type *environment) noexcept {
   return open([&command, &path, &environment] {
+    auto command_c_str = command.c_str();
+    std::string cd_path_and_command;
     if(!path.empty()) {
-      if(chdir(path.c_str()) != 0)
-        exit(1);
+      auto path_escaped = path;
+      size_t pos = 0;
+      // Based on https://www.reddit.com/r/cpp/comments/3vpjqg/a_new_platform_independent_process_library_for_c11/cxsxyb7
+      while((pos = path_escaped.find('\'', pos)) != std::string::npos) {
+        path_escaped.replace(pos, 1, "'\\''");
+        pos += 4;
+      }
+      cd_path_and_command = "cd '" + path_escaped + "' && " + command; // To avoid resolving symbolic links
+      command_c_str = cd_path_and_command.c_str();
     }
 
     if(!environment)
-      execl("/bin/sh", "/bin/sh", "-c", command.c_str(), nullptr);
+      execl("/bin/sh", "/bin/sh", "-c", command_c_str, nullptr);
     else {
       std::vector<std::string> env_strs;
       std::vector<const char *> env_ptrs;
@@ -181,7 +190,7 @@ Process::id_type Process::open(const std::string &command, const std::string &pa
         env_ptrs.emplace_back(env_strs.back().c_str());
       }
       env_ptrs.emplace_back(nullptr);
-      execle("/bin/sh", "/bin/sh", "-c", command.c_str(), nullptr, env_ptrs.data());
+      execle("/bin/sh", "/bin/sh", "-c", command_c_str, nullptr, env_ptrs.data());
     }
   });
 }
@@ -206,7 +215,7 @@ void Process::async_read() noexcept {
     }
     auto buffer = std::unique_ptr<char[]>(new char[config.buffer_size]);
     bool any_open = !pollfds.empty();
-    while(any_open && (poll(pollfds.data(), pollfds.size(), -1) > 0 || errno == EINTR)) {
+    while(any_open && (poll(pollfds.data(), static_cast<nfds_t>(pollfds.size()), -1) > 0 || errno == EINTR)) {
       any_open = false;
       for(size_t i = 0; i < pollfds.size(); ++i) {
         if(pollfds[i].fd >= 0) {
@@ -239,17 +248,17 @@ int Process::get_exit_status() noexcept {
     return -1;
 
   int exit_status;
-  id_type p;
+  id_type pid;
   do {
-    p = waitpid(data.id, &exit_status, 0);
-  } while(p < 0 && errno == EINTR);
+    pid = waitpid(data.id, &exit_status, 0);
+  } while(pid < 0 && errno == EINTR);
 
-  if(p < 0 && errno == ECHILD) {
+  if(pid < 0 && errno == ECHILD) {
     // PID doesn't exist anymore, return previously sampled exit status (or -1)
     return data.exit_status;
   }
   else {
-    // store exit status for future calls
+    // Store exit status for future calls
     if(exit_status >= 256)
       exit_status = exit_status >> 8;
     data.exit_status = exit_status;
@@ -268,13 +277,13 @@ bool Process::try_get_exit_status(int &exit_status) noexcept {
   if(data.id <= 0)
     return false;
 
-  const id_type p = waitpid(data.id, &exit_status, WNOHANG);
-  if(p < 0 && errno == ECHILD) {
+  const id_type pid = waitpid(data.id, &exit_status, WNOHANG);
+  if(pid < 0 && errno == ECHILD) {
     // PID doesn't exist anymore, set previously sampled exit status (or -1)
     exit_status = data.exit_status;
     return true;
   }
-  else if(p <= 0) {
+  else if(pid <= 0) {
     // Process still running (p==0) or error
     return false;
   }
@@ -355,6 +364,13 @@ void Process::kill(id_type id, bool force) noexcept {
     ::kill(-id, SIGTERM);
   else
     ::kill(-id, SIGINT);
+}
+
+void Process::signal(int signum) noexcept {
+  std::lock_guard<std::mutex> lock(close_mutex);
+  if(data.id > 0 && !closed) {
+    ::kill(-data.id, signum);
+  }
 }
 
 } // namespace TinyProcessLib

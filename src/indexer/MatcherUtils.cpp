@@ -198,7 +198,6 @@ std::string getFunctionSignature(hdoc::types::FunctionSymbol& f, const clang::Fu
   signature += f.isConst ? " const" : "";
   signature += f.isVolatile ? " volatile" : "";
   signature += f.isRestrict ? " restrict" : "";
-  signature += f.hasTrailingReturn ? " -> " + f.returnType.name : "";
 
   // Add reference qualifier
   signature += f.refQualifier == clang::RQ_LValue ? " &" : "";
@@ -206,6 +205,9 @@ std::string getFunctionSignature(hdoc::types::FunctionSymbol& f, const clang::Fu
 
   // Add noexcept qualifier
   signature += f.isNoExcept ? " noexcept" : "";
+
+  // Trailing return type goes last
+  signature += f.hasTrailingReturn ? " -> " + f.returnType.name : "";
 
   return signature;
 }

@@ -1,4 +1,4 @@
-project('hdoc', 'cpp', version: '1.1.0', default_options: ['cpp_std=c++17', 'warning_level=3'])
+project('hdoc', 'cpp', version: '1.2.0', default_options: ['cpp_std=c++17', 'warning_level=3'])
 
 dep_llvm = dependency('LLVM', include_type: 'system')
 clang_modules = [
@@ -44,7 +44,7 @@ deps += dep_llvm
 deps += dep_clang
 deps += dependency('threads')
 deps += dependency('openssl')
-deps += subproject('cmark').get_variable('dep')
+deps += subproject('cmark-gfm').get_variable('dep')
 deps += subproject('spdlog').get_variable('dep')
 deps += subproject('tiny-process-library').get_variable('dep')
 deps += subproject('ctml').get_variable('dep')
@@ -64,6 +64,7 @@ src = [
   'src/serde/Serialization.cpp',
   'src/support/ParallelExecutor.cpp',
   'src/support/StringUtils.cpp',
+  'src/support/MarkdownConverter.cpp',
   assets_src,
 ]
 lib = static_library('hdoc', sources: src, include_directories: inc, dependencies: deps)
@@ -73,26 +74,26 @@ executable('hdoc', sources: 'src/main.cpp', dependencies: libdeps)
 executable('hdoc-client', sources: 'src/client-main.cpp', dependencies: libdeps)
 
 unit_tests_src = [
-  'unit-tests/test.cpp',
+  'tests/unit-tests/test.cpp',
 ]
 executable('unit-tests', sources: unit_tests_src, dependencies: libdeps, cpp_args: '-DHDOC_TEST_CODE')
 
 test_src = [
-  'index-tests/test.cpp',
-  'index-tests/common.cpp',
-  'index-tests/test-records.cpp',
-  'index-tests/test-unions.cpp',
-  'index-tests/test-functions.cpp',
-  'index-tests/test-enums.cpp',
-  'index-tests/test-namespaces.cpp',
-  'index-tests/test-typedefs.cpp',
-  'index-tests/test-inheritance.cpp',
-  'index-tests/test-constructors.cpp',
-  'index-tests/test-operators.cpp',
-  'index-tests/test-templates.cpp',
-  'index-tests/test-comments-records.cpp',
-  'index-tests/test-comments-functions.cpp',
-  'index-tests/test-comments-enums.cpp',
-  'index-tests/test-comments-namespaces.cpp',
+  'tests/index-tests/test.cpp',
+  'tests/index-tests/common.cpp',
+  'tests/index-tests/test-records.cpp',
+  'tests/index-tests/test-unions.cpp',
+  'tests/index-tests/test-functions.cpp',
+  'tests/index-tests/test-enums.cpp',
+  'tests/index-tests/test-namespaces.cpp',
+  'tests/index-tests/test-typedefs.cpp',
+  'tests/index-tests/test-inheritance.cpp',
+  'tests/index-tests/test-constructors.cpp',
+  'tests/index-tests/test-operators.cpp',
+  'tests/index-tests/test-templates.cpp',
+  'tests/index-tests/test-comments-records.cpp',
+  'tests/index-tests/test-comments-functions.cpp',
+  'tests/index-tests/test-comments-enums.cpp',
+  'tests/index-tests/test-comments-namespaces.cpp',
 ]
 executable('index-tests', sources: test_src, dependencies: libdeps, cpp_args: '-DHDOC_TEST_CODE')

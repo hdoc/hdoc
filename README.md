@@ -63,7 +63,6 @@ cd ../tests
 ```
 hdoc
 ├── assets       # Static HTML/CSS/Favicons used in the generated HTML docs
-├── index-tests  # Unit tests of hdoc's indexing functionality
 ├── site         # Source code for hdoc.io and hdoc's documentation
 ├── src          # C++ source code
 │   ├── frontend   # Parses configuration file and CLI arguments
@@ -72,8 +71,10 @@ hdoc
 │   ├── support    # Ancillary code used to parallelize indexing
 │   └── types      # Types used by hdoc
 ├── subprojects  # Vendored dependencies
-├── tests        # Integration testing scripts
-└── unit-tests   # Unit tests for a small portion of hdoc's codebase
+└── tests        # Testing code
+    ├── index-tests  # Unit tests of hdoc's indexing functionality
+    ├── integration-tests # Integration testing scripts
+    └── unit-tests  # Unit tests for a small portion of hdoc's codebase
 ```
 
 ## Attribution
@@ -82,13 +83,17 @@ hdoc relies on several open source software projects.
 We thank all of the contributors to these projects for their work.
 These are listed below in alphabetical order:
 - [argparse](https://github.com/p-ranav/argparse)
+- [Bulma](https://bulma.io/)
 - [cereal](https://uscilab.github.io/cereal/)
 - [Clang](https://clang.llvm.org/)
-- [cmark](https://github.com/commonmark/cmark)
+- [cmark-gfm](https://github.com/github/cmark-gfm)
 - [cpp-httplib](https://github.com/yhirose/cpp-httplib)
 - [CTML](https://github.com/tinfoilboy/CTML)
 - [doctest](https://github.com/onqtam/doctest)
+- [highlight.js](https://github.com/highlightjs/highlight.js)
+- [KaTeX](https://github.com/KaTeX/KaTeX)
 - [LLVM](https://llvm.org/)
+- [minisearch](https://github.com/lucaong/minisearch)
 - [spdlog](https://github.com/gabime/spdlog)
 - [tiny-process-library](https://gitlab.com/eidheim/tiny-process-library)
 - [toml++](https://marzer.github.io/tomlplusplus/)

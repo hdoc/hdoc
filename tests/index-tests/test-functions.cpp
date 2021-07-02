@@ -640,6 +640,93 @@ TEST_CASE("Inline function") {
   CHECK(f.params[0].defaultValue == "");
 }
 
+TEST_CASE("Member function with trailing return type, noexcept, and rvalue reference") {
+  const std::string code = R"(
+    class Type {
+    public:
+      constexpr auto take() && noexcept -> Type;
+    };
+  )";
+
+  const hdoc::types::Index index = runOverCode(code);
+  checkIndexSizes(index, 1, 1, 0, 0);
+
+  hdoc::types::RecordSymbol c = index.records.entries.begin()->second;
+  hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
+  CHECK(f.name == "take");
+  CHECK(f.briefComment == "");
+  CHECK(f.docComment == "");
+  CHECK(f.ID.str().size() == 16);
+  CHECK(f.parentNamespaceID == c.ID);
+
+  CHECK(f.isRecordMember == true);
+  CHECK(f.isConstexpr == true);
+  CHECK(f.isConsteval == false);
+  CHECK(f.isInline == false);
+  CHECK(f.isConst == false);
+  CHECK(f.isVolatile == false);
+  CHECK(f.isRestrict == false);
+  CHECK(f.isVirtual == false);
+  CHECK(f.isVariadic == false);
+  CHECK(f.isNoExcept == true);
+  CHECK(f.hasTrailingReturn == true);
+  CHECK(f.isCtorOrDtor == false);
+
+  CHECK(f.access == clang::AS_public);
+  CHECK(f.storageClass == clang::SC_None);
+  CHECK(f.refQualifier == clang::RQ_RValue);
+
+  CHECK(f.proto == "constexpr auto take() && noexcept -> Type");
+  CHECK(f.returnType.name == "Type");
+  CHECK(f.returnType.id == c.ID);
+  CHECK(f.returnTypeDocComment == "");
+  CHECK(f.params.size() == 0);
+}
+
+TEST_CASE("Const member function with trailing return type, noexcept, and const lvalue reference") {
+  const std::string code = R"(
+    class Type {
+    public:
+      constexpr auto borrow() const& noexcept -> const Type&;
+    };
+  )";
+
+  const hdoc::types::Index index = runOverCode(code);
+  checkIndexSizes(index, 1, 1, 0, 0);
+
+  hdoc::types::RecordSymbol c = index.records.entries.begin()->second;
+  hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
+  CHECK(f.name == "borrow");
+  CHECK(f.briefComment == "");
+  CHECK(f.docComment == "");
+  CHECK(f.ID.str().size() == 16);
+  CHECK(f.parentNamespaceID == c.ID);
+
+  CHECK(f.isRecordMember == true);
+  CHECK(f.isConstexpr == true);
+  CHECK(f.isConsteval == false);
+  CHECK(f.isInline == false);
+  CHECK(f.isConst == true);
+  CHECK(f.isVolatile == false);
+  CHECK(f.isRestrict == false);
+  CHECK(f.isVirtual == false);
+  CHECK(f.isVariadic == false);
+  CHECK(f.isNoExcept == true);
+  CHECK(f.hasTrailingReturn == true);
+  CHECK(f.isCtorOrDtor == false);
+
+  CHECK(f.access == clang::AS_public);
+  CHECK(f.storageClass == clang::SC_None);
+  CHECK(f.refQualifier == clang::RQ_LValue);
+
+  CHECK(f.proto == "constexpr auto borrow() const & noexcept -> const Type &");
+  CHECK(f.returnType.name == "const Type &");
+  CHECK(f.returnType.id == c.ID);
+  CHECK(f.returnTypeDocComment == "");
+  CHECK(f.params.size() == 0);
+}
+
+
 // TODO: fix this once we're on LLVM/Clang 12
 // on clang 9 the function is marked constexpr and not consteval
 // TEST_CASE("Consteval function") {

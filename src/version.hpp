@@ -9,5 +9,5 @@
 #define HDOC_GIT_REV "hdocInternal"
 #endif
 
-#define HDOC_NUMERIC_VERSION "1.1.0"
+#define HDOC_NUMERIC_VERSION "1.2.0"
 #define HDOC_VERSION HDOC_NUMERIC_VERSION "-" HDOC_GIT_REV

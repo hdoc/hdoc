@@ -6,6 +6,29 @@ date = 2020-01-01
 description = "What's changed between each release of hdoc, including new features, fixes, and improvements."
 +++
 
+# Version 1.2.0 (1 July 2021)
+
+## New Features
+* hdoc now supports LaTeX math in Markdown pages and documentation comments.
+  - KaTeX is used to render math in the generated documentation.
+  - Only the `$` (inline math) and `$$` (display math) delimiters are supported.
+* hdoc now supports tables in Markdown pages.
+* hdoc now prints breadcrumbs at the top of each documentation page for functions, records, and enums.
+  - This makes the structure of the code more clear (e.g. what namespaces is this function a part of?)
+
+## Fixes
+* [A bug](https://github.com/hdoc/hdoc/issues/4) which misprinted functions with trailing return types and exception specifiers was fixed.
+* Markdown documents that have exceptionally wide code blocks are now wrapped to ensure that the entire webpage is not stretch to uncomfortable widths. A horizontal scrollbar now wraps such code blocks.
+* Attribution for the open source libraries we use in the web documentation was added to the [open source page](https://hdoc.io/oss/)
+  - The newly attributed libraries/tools are: [Bulma](https://bulma.io/), [highlight.js](https://highlightjs.org/), [KaTeX](https://katex.org/), and [minisearch](https://github.com/lucaong/minisearch).
+  - Thank you to all the contributors to these projects!
+* A message indicating that no free functions are defined in the current project is printed instead of leaving a blank page.
+* The project name and version is printed in the page title (i.e. HTML `<title>` tag) of all documentation pages.
+
+## Internal changes
+* Integration tests, unit tests, and index tests were all moved to the `tests/` directory.
+* The Markdown to HTML library was changed from CommonMark to GitHub's fork of CommonMark to enable the table extension.
+
 # Version 1.1.0 (23 June 2021)
 
 Check out [the accompanying blog post](@/blog/improvements-in-hdoc-1-1-0.md) for more details on the features in hdoc 1.1.0 and videos showing them off.

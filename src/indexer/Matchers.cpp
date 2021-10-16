@@ -83,7 +83,7 @@ void hdoc::indexer::matchers::FunctionMatcher::run(const clang::ast_matchers::Ma
   }
   const clang::comments::Comment* comment = res->getASTContext().getCommentForDecl(res, nullptr);
   if (comment != nullptr) {
-    processFunctionComment(f, comment);
+    processFunctionComment(f, comment, res->getASTContext());
   }
 
   // Don't print "void" return type for constructors and destructors
@@ -257,7 +257,7 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
     if (comment != nullptr) {
       for (auto c = comment->child_begin(); c != comment->child_end(); ++c) {
         if (const auto* paraComment = llvm::dyn_cast<clang::comments::ParagraphComment>(*c)) {
-          mv.docComment = getParaCommentContents(paraComment);
+          mv.docComment = getParaCommentContents(paraComment, res->getASTContext());
         }
       }
     }
@@ -290,7 +290,7 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
       if (comment != nullptr) {
         for (auto c = comment->child_begin(); c != comment->child_end(); ++c) {
           if (const auto* paraComment = llvm::dyn_cast<clang::comments::ParagraphComment>(*c)) {
-            mv.docComment = getParaCommentContents(paraComment);
+            mv.docComment = getParaCommentContents(paraComment, res->getASTContext());
           }
         }
       }
@@ -301,7 +301,7 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
 
   const clang::comments::Comment* comment = res->getASTContext().getCommentForDecl(res, nullptr);
   if (comment != nullptr) {
-    processRecordComment(c, comment);
+    processRecordComment(c, comment, res->getASTContext());
   }
 
   findParentNamespace(c, res);
@@ -354,7 +354,7 @@ void hdoc::indexer::matchers::EnumMatcher::run(const clang::ast_matchers::MatchF
     if (memberComment != nullptr) {
       for (auto c = memberComment->child_begin(); c != memberComment->child_end(); ++c) {
         if (const auto* paraComment = llvm::dyn_cast<clang::comments::ParagraphComment>(*c)) {
-          em.docComment += getParaCommentContents(paraComment);
+          em.docComment += getParaCommentContents(paraComment, res->getASTContext());
         }
       }
     }
@@ -363,7 +363,7 @@ void hdoc::indexer::matchers::EnumMatcher::run(const clang::ast_matchers::MatchF
 
   const clang::comments::Comment* comment = res->getASTContext().getCommentForDecl(res, nullptr);
   if (comment != nullptr) {
-    processEnumComment(e, comment);
+    processEnumComment(e, comment, res->getASTContext());
   }
 
   findParentNamespace(e, res);

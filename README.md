@@ -53,9 +53,9 @@ cd build
 ./unit-tests
 
 # Running integration tests
-cd ../tests
-./clone_test_repos.sh  # Pull testing repos from GitHub
-./test.sh              # Run hdoc over testing repos
+cd ../tests/integration_tests
+./clone_test_repos.sh          # Pull testing repos from GitHub
+./test.sh                      # Run hdoc over testing repos
 ```
 
 ## Repository structure

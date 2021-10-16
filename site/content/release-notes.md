@@ -6,6 +6,17 @@ date = 2020-01-01
 description = "What's changed between each release of hdoc, including new features, fixes, and improvements."
 +++
 
+# Version 1.2.1 (15 October 2021)
+
+## New Features
+* No new features in this release.
+
+## Fixes
+* An issue where LaTeX commands such as `\sqrt{}` would not appear properly in the rendered math output has been fixed
+
+## Internal changes
+* Updated to LLVM 13.
+
 # Version 1.2.0 (1 July 2021)
 
 ## New Features
@@ -18,8 +29,8 @@ description = "What's changed between each release of hdoc, including new featur
 
 ## Fixes
 * [A bug](https://github.com/hdoc/hdoc/issues/4) which misprinted functions with trailing return types and exception specifiers was fixed.
-* Markdown documents that have exceptionally wide code blocks are now wrapped to ensure that the entire webpage is not stretch to uncomfortable widths. A horizontal scrollbar now wraps such code blocks.
-* Attribution for the open source libraries we use in the web documentation was added to the [open source page](https://hdoc.io/oss/)
+* Markdown documents that have exceptionally wide code blocks are now wrapped to ensure that the entire webpage is not stretched to uncomfortable widths. A horizontal scrollbar now wraps such code blocks.
+* Attribution for the open source libraries we use in the web documentation was added to the [open source page](https://hdoc.io/oss/).
   - The newly attributed libraries/tools are: [Bulma](https://bulma.io/), [highlight.js](https://highlightjs.org/), [KaTeX](https://katex.org/), and [minisearch](https://github.com/lucaong/minisearch).
   - Thank you to all the contributors to these projects!
 * A message indicating that no free functions are defined in the current project is printed instead of leaving a blank page.

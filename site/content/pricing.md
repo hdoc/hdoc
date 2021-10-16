@@ -29,12 +29,12 @@ For those users, we provide support and priority service.
 ## Do you offer private hosting?
 
 The only option for private hosting is currently the Enterprise plan.
-Private hosting on [docs.hdoc.io](http://docs.hdoc.io) is in development.
+Private hosting on [docs.hdoc.io](http://docs.hdoc.io) is currently under consideration for other plans.
 
 ## Do you offer hosting on custom domains?
 
 The only option for custom domains is currently the Enterprise plan.
-Hosting hdoc documentation while using your custom domain is in development.
+Hosting documentation on a custom domain is currently under consideration for other plans.
 
 ## Have a question that wasn't answered here?
 

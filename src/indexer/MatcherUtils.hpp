@@ -33,8 +33,12 @@ hdoc::types::SymbolID buildID(const clang::NamedDecl* d);
 
 /// @brief Get the Doxygen command name (i.e. brief, param, returns) from a CommandID
 std::string getCommandName(const unsigned& CommandID);
-std::string getParaCommentContents(const clang::comments::Comment* comment);
+std::string getParaCommentContents(const clang::comments::Comment* comment, clang::ASTContext& ctx);
 std::string getCommentContents(const clang::comments::Comment* comment);
-void        processRecordComment(hdoc::types::RecordSymbol& cs, const clang::comments::Comment* comment);
-void        processEnumComment(hdoc::types::EnumSymbol& e, const clang::comments::Comment* comment);
-void        processFunctionComment(hdoc::types::FunctionSymbol& f, const clang::comments::Comment* comment);
+void        processRecordComment(hdoc::types::RecordSymbol&      cs,
+                                 const clang::comments::Comment* comment,
+                                 clang::ASTContext&              ctx);
+void processEnumComment(hdoc::types::EnumSymbol& e, const clang::comments::Comment* comment, clang::ASTContext& ctx);
+void processFunctionComment(hdoc::types::FunctionSymbol&    f,
+                            const clang::comments::Comment* comment,
+                            clang::ASTContext&              ctx);

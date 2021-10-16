@@ -9,6 +9,7 @@
 #include "clang/Basic/FileManager.h"
 #include "clang/Basic/SourceManager.h"
 #include "clang/Index/USRGeneration.h"
+#include "clang/Lex/Lexer.h"
 
 #include "spdlog/spdlog.h"
 
@@ -243,17 +244,26 @@ std::string getCommandName(const unsigned& CommandID) {
   return cmd ? cmd->Name : "";
 }
 
-std::string getParaCommentContents(const clang::comments::Comment* comment) {
+std::string getParaCommentContents(const clang::comments::Comment* comment, clang::ASTContext& ctx) {
   std::string text;
+  bool prevCommentWasDoxygenCommand = false;
   for (auto c = comment->child_begin(); c != comment->child_end(); ++c) {
-    if (const auto* tc = llvm::dyn_cast<clang::comments::TextComment>(*c)) {
+    if (const auto* icc = llvm::dyn_cast<clang::comments::InlineCommandComment>(*c)) {
+      text += clang::Lexer::getSourceText(clang::CharSourceRange::getTokenRange(icc->getCommandNameRange()),
+                                          ctx.getSourceManager(),
+                                          ctx.getLangOpts())
+                  .drop_front() // there seems to be a leading space before the command name by default
+                  .str();
+      prevCommentWasDoxygenCommand = true;
+    } else if (const auto* tc = llvm::dyn_cast<clang::comments::TextComment>(*c)) {
       if (!tc->isWhitespace()) {
         std::string current_text = tc->getText().str();
         hdoc::utils::ltrim(current_text); // Remove leading whitespace (indentation)
-        if (c != comment->child_begin()) {
-          text += " " + current_text; // Add a space if it isn't the first line of the comment
-        } else {
+        if (c == comment->child_begin() || prevCommentWasDoxygenCommand == true) {
           text += current_text;
+          prevCommentWasDoxygenCommand = false;
+        } else {
+          text += " " + current_text; // Add a space if it isn't the first line of the comment
         }
       }
     }
@@ -261,29 +271,31 @@ std::string getParaCommentContents(const clang::comments::Comment* comment) {
   return text;
 }
 
-std::string getCommentContents(const clang::comments::Comment* comment) {
+std::string getCommentContents(const clang::comments::Comment* comment, clang::ASTContext& ctx) {
   std::string wholeText;
   for (auto c = comment->child_begin(); c != comment->child_end(); ++c) {
-    wholeText += getParaCommentContents(*c);
+    wholeText += getParaCommentContents(*c, ctx);
   }
   return wholeText;
 }
 
-void processRecordComment(hdoc::types::RecordSymbol& cs, const clang::comments::Comment* comment) {
+void processRecordComment(hdoc::types::RecordSymbol&      cs,
+                          const clang::comments::Comment* comment,
+                          clang::ASTContext&              ctx) {
   for (auto c = comment->child_begin(); c != comment->child_end(); ++c) {
     // Top-level paragraph comment is typically the object description
     if (const auto* paraComment = llvm::dyn_cast<clang::comments::ParagraphComment>(*c)) {
       if (paraComment->isWhitespace()) {
         continue;
       }
-      cs.docComment += getParaCommentContents(paraComment) + " ";
+      cs.docComment += getParaCommentContents(paraComment, ctx) + " ";
     }
 
     // Only look for \brief doxygen command
     if (auto commandComment = llvm::dyn_cast<clang::comments::BlockCommandComment>(*c)) {
       const std::string commandName = getCommandName(commandComment->getCommandID());
       if (commandName == "brief") {
-        cs.briefComment = getCommentContents(commandComment);
+        cs.briefComment = getCommentContents(commandComment, ctx);
       }
     }
   }
@@ -291,14 +303,14 @@ void processRecordComment(hdoc::types::RecordSymbol& cs, const clang::comments::
   hdoc::utils::rtrim(cs.docComment);
 }
 
-void processEnumComment(hdoc::types::EnumSymbol& e, const clang::comments::Comment* comment) {
+void processEnumComment(hdoc::types::EnumSymbol& e, const clang::comments::Comment* comment, clang::ASTContext& ctx) {
   for (auto c = comment->child_begin(); c != comment->child_end(); ++c) {
     // Top-level paragraph comment is typically the object description
     if (const auto* paraComment = llvm::dyn_cast<clang::comments::ParagraphComment>(*c)) {
       if (paraComment->isWhitespace()) {
         continue;
       }
-      e.docComment += getParaCommentContents(paraComment) + " ";
+      e.docComment += getParaCommentContents(paraComment, ctx) + " ";
     }
 
     // Get verbatim comments
@@ -310,7 +322,7 @@ void processEnumComment(hdoc::types::EnumSymbol& e, const clang::comments::Comme
     if (const auto* commandComment = llvm::dyn_cast<clang::comments::BlockCommandComment>(*c)) {
       std::string commandName = getCommandName(commandComment->getCommandID());
       if (commandName == "brief") {
-        e.briefComment = getCommentContents(commandComment);
+        e.briefComment = getCommentContents(commandComment, ctx);
       }
     }
   }
@@ -318,14 +330,16 @@ void processEnumComment(hdoc::types::EnumSymbol& e, const clang::comments::Comme
   hdoc::utils::rtrim(e.docComment);
 }
 
-void processFunctionComment(hdoc::types::FunctionSymbol& f, const clang::comments::Comment* comment) {
+void processFunctionComment(hdoc::types::FunctionSymbol&    f,
+                            const clang::comments::Comment* comment,
+                            clang::ASTContext&              ctx) {
   for (auto c = comment->child_begin(); c != comment->child_end(); ++c) {
     // Top-level paragraph comment is typically function description
     if (const auto* paraComment = llvm::dyn_cast<clang::comments::ParagraphComment>(*c)) {
       if (paraComment->isWhitespace()) {
         continue;
       }
-      f.docComment += getParaCommentContents(paraComment) + " ";
+      f.docComment += getParaCommentContents(paraComment, ctx) + " ";
     }
 
     // Match function parameter names with params in FunctionSymbol
@@ -333,7 +347,7 @@ void processFunctionComment(hdoc::types::FunctionSymbol& f, const clang::comment
       const std::string paramName = paramComment->getParamNameAsWritten().str();
       for (auto& param : f.params) {
         if (param.name == paramName) {
-          param.docComment = getCommentContents(paramComment);
+          param.docComment = getCommentContents(paramComment, ctx);
         }
       }
     }
@@ -341,9 +355,9 @@ void processFunctionComment(hdoc::types::FunctionSymbol& f, const clang::comment
     if (const auto* commandComment = llvm::dyn_cast<clang::comments::BlockCommandComment>(*c)) {
       const std::string commandName = getCommandName(commandComment->getCommandID());
       if (commandName == "return" || commandName == "returns") {
-        f.returnTypeDocComment = getCommentContents(commandComment);
+        f.returnTypeDocComment = getCommentContents(commandComment, ctx);
       } else if (commandName == "brief") {
-        f.briefComment = getCommentContents(commandComment);
+        f.briefComment = getCommentContents(commandComment, ctx);
       }
     }
   }

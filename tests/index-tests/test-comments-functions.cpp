@@ -307,3 +307,74 @@ TEST_CASE("Function that uses many unsupported doxygen commands") {
   CHECK(s.params[2].docComment == "array of y-coordinates values");
   CHECK(s.params[2].defaultValue == "");
 }
+
+TEST_CASE("Function has math commands in function and parameter names") {
+  const std::string code = R"(
+    /// Calculate Euclidean distance in $\R^2$.
+    /// Corresponds to the following formula:
+    /// $$ d(x,y) = \sqrt{(x_2-x_1)^2 + (y_2-y_1)^2} $$
+    /// @param x1 $\sqrt{x_1}$
+    /// @param y1 $\sqrt{y_1}$
+    /// @param x2 $\sqrt{x_2}$
+    /// @param y2 $\sqrt{y_2}$
+    /// @returns the result of $$ \sqrt{(x_2-x_1)^2 + (y_2-y_1)^2} $$
+    double calculate2DEuclideanDistance(const double x1, const double y1, const double x2, const double y2);
+  )";
+
+  const hdoc::types::Index index = runOverCode(code);
+  checkIndexSizes(index, 0, 1, 0, 0);
+
+  hdoc::types::FunctionSymbol s = index.functions.entries.begin()->second;
+  CHECK(s.name == "calculate2DEuclideanDistance");
+  CHECK(s.briefComment == "");
+  CHECK(s.docComment == R"(Calculate Euclidean distance in $\R^2$. Corresponds to the following formula: $$ d(x,y) = \sqrt{(x_2-x_1)^2 + (y_2-y_1)^2} $$)");
+  CHECK(s.ID.str().size() == 16);
+  CHECK(s.parentNamespaceID.raw() == 0);
+
+  CHECK(s.isRecordMember == false);
+  CHECK(s.isConstexpr == false);
+  CHECK(s.isConsteval == false);
+  CHECK(s.isInline == false);
+  CHECK(s.isConst == false);
+  CHECK(s.isVolatile == false);
+  CHECK(s.isRestrict == false);
+  CHECK(s.isVirtual == false);
+  CHECK(s.isVariadic == false);
+  CHECK(s.isNoExcept == false);
+  CHECK(s.hasTrailingReturn == false);
+  CHECK(s.isCtorOrDtor == false);
+
+  CHECK(s.access == clang::AS_none);
+  CHECK(s.storageClass == clang::SC_None);
+  CHECK(s.refQualifier == clang::RQ_None);
+
+  CHECK(s.proto == "double calculate2DEuclideanDistance(const double x1, const double y1, const double x2, const double y2)");
+  CHECK(s.returnType.name == "double");
+  CHECK(s.returnType.id.raw() == 0);
+  CHECK(s.returnTypeDocComment == R"(the result of $$ \sqrt{(x_2-x_1)^2 + (y_2-y_1)^2} $$)");
+
+  CHECK(s.params.size() == 4);
+  CHECK(s.params[0].name == "x1");
+  CHECK(s.params[0].type.name == "const double");
+  CHECK(s.params[0].type.id.raw() == 0);
+  CHECK(s.params[0].docComment == R"($\sqrt{x_1}$)");
+  CHECK(s.params[0].defaultValue == "");
+
+  CHECK(s.params[1].name == "y1");
+  CHECK(s.params[1].type.name == "const double");
+  CHECK(s.params[1].type.id.raw() == 0);
+  CHECK(s.params[1].docComment == R"($\sqrt{y_1}$)");
+  CHECK(s.params[1].defaultValue == "");
+
+  CHECK(s.params[2].name == "x2");
+  CHECK(s.params[2].type.name == "const double");
+  CHECK(s.params[2].type.id.raw() == 0);
+  CHECK(s.params[2].docComment == R"($\sqrt{x_2}$)");
+  CHECK(s.params[2].defaultValue == "");
+
+  CHECK(s.params[3].name == "y2");
+  CHECK(s.params[3].type.name == "const double");
+  CHECK(s.params[3].type.id.raw() == 0);
+  CHECK(s.params[3].docComment == R"($\sqrt{y_2}$)");
+  CHECK(s.params[3].defaultValue == "");
+}

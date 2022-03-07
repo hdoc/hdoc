@@ -27,6 +27,8 @@ The contents of this repository are a subset of a private repository where hdoc'
 
 ## Quick start
 
+### Linux
+
 hdoc depends on LLVM/Clang and OpenSSL, and all other dependencies are vendored in `subprojects/`.
 hdoc also comes with a Nix Flake which sets up a development environment for you with all of the needed dependencies, and should work on all Linux distributions.
 Follow the instructions below to build hdoc.
@@ -37,6 +39,29 @@ meson build             # Configure the build directory
 ninja -C build          # Compile hdoc binaries and tests
 ./build/hdoc --verbose  # Run hdoc over itself, saving the HTML documentation to ./hdoc-output/
 ```
+
+### Windows
+
+Thanks for project MinGW, Cygwin and MSYS2, we are able to compile hdoc into native applications on Windows platform without any code changed.
+
+In order to compile windows-native hdoc, an environment of `MSYS2` and `MinGW-w64-x86_64-gcc` is needed to be prepared. Then, follow the instructions below to build.
+
+```sh
+# Install dependent packages for MinGW
+pacman -S groff
+pacman -S unzip
+pacman -S mingw-w64-x86_64-meson
+pacman -S mingw-w64-x86_64-cmake
+pacman -S mingw-w64-x86_64-clang
+pacman -S mingw-w64-x86_64-clang-analyzer
+pacman -S mingw-w64-x86_64-clang-tools-extra
+# Build hdoc
+meson build             # Configure the build directory
+ninja -C build          # Compile hdoc binaries and tests
+./build/hdoc --verbose  # Run hdoc over itself, saving the HTML documentation to ./hdoc-output/
+```
+
+It takes a long time to link hdoc.exe, but it will finally finish and works well on Windows platform.
 
 More instructions for using hdoc can be found at [hdoc.io/docs](https://hdoc.io/docs).
 
@@ -65,16 +90,16 @@ hdoc
 ├── assets       # Static HTML/CSS/Favicons used in the generated HTML docs
 ├── site         # Source code for hdoc.io and hdoc's documentation
 ├── src          # C++ source code
-│   ├── frontend   # Parses configuration file and CLI arguments
-│   ├── indexer    # Parses a codebase and extracts documentation from it into an index
-│   ├── serde      # Serialization/Deserialization of hdoc's index into HTML and other formats
-│   ├── support    # Ancillary code used to parallelize indexing
-│   └── types      # Types used by hdoc
+│   ├── frontend   # Parses configuration file and CLI arguments
+│   ├── indexer    # Parses a codebase and extracts documentation from it into an index
+│   ├── serde      # Serialization/Deserialization of hdoc's index into HTML and other formats
+│   ├── support    # Ancillary code used to parallelize indexing
+│   └── types      # Types used by hdoc
 ├── subprojects  # Vendored dependencies
 └── tests        # Testing code
-    ├── index-tests  # Unit tests of hdoc's indexing functionality
-    ├── integration-tests # Integration testing scripts
-    └── unit-tests  # Unit tests for a small portion of hdoc's codebase
+    ├── index-tests  # Unit tests of hdoc's indexing functionality
+    ├── integration-tests # Integration testing scripts
+    └── unit-tests  # Unit tests for a small portion of hdoc's codebase
 ```
 
 ## Attribution

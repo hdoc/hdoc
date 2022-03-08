@@ -63,7 +63,11 @@ ninja -C build          # Compile hdoc binaries and tests
 ./build/hdoc --verbose  # Run hdoc over itself, saving the HTML documentation to ./hdoc-output/
 ```
 
-It takes a long time (maybe hours) to build hdoc.exe, but it will finally finish and works well on Windows platform.  
+It takes a long time (maybe hours) to build & link, so you need to be patient.    
+
+> Though finally hdoc.exe will work well as a native win32 program, there are more work to do to solve some problems on Windows support. 
+>
+> The compile will fail when constructing libhdoc.a, which prevents the build of hdoc-client.exe in MSYS2. But hdoc.exe has no problem and you can just ignore this problem temporarily now.
 
 More instructions for using hdoc can be found at [hdoc.io/docs](https://hdoc.io/docs).
 

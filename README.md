@@ -40,9 +40,9 @@ ninja -C build          # Compile hdoc binaries and tests
 ./build/hdoc --verbose  # Run hdoc over itself, saving the HTML documentation to ./hdoc-output/
 ```
 
-### Windows
+### Windows ( unofficial support )
 
-Thanks for project MinGW, Cygwin and MSYS2, we are able to compile hdoc into native applications on Windows platform without any code changed.
+Thanks for project MinGW, Cygwin and MSYS2, we are able to compile hdoc into native applications on Windows platform without any code changed. 
 
 In order to compile windows-native hdoc, an environment of `MSYS2` and `MinGW-w64-x86_64-gcc` is needed to be prepared. Then, follow the instructions below to build.
 
@@ -68,6 +68,8 @@ It takes a long time (maybe hours) to build & link, so you need to be patient.
 > Though finally hdoc.exe will work well as a native win32 program, there are more work to do to solve some problems on Windows support. 
 >
 > The compile will fail when constructing libhdoc.a, which prevents the build of hdoc-client.exe in MSYS2. But hdoc.exe has no problem and you can just ignore this problem temporarily now.
+
+**Tips:** Windows support of hdoc isn't officially maintained, because the hdoc organization do not develop or actively work on Windows platform. If faced with any problem, you can come to Github for help.
 
 More instructions for using hdoc can be found at [hdoc.io/docs](https://hdoc.io/docs).
 

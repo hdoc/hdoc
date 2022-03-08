@@ -44,7 +44,7 @@ ninja -C build          # Compile hdoc binaries and tests
 
 Thanks for project MinGW, Cygwin and MSYS2, we are able to compile hdoc into native applications on Windows platform without any code changed.
 
-In order to compile windows-native hdoc, an environment of `MSYS2` and `MinGW-w64-x86_64-gcc` is needed to be prepared. Then, follow the instructions below to build.
+In order to compile windows-native hdoc, an environment of `MSYS2` and `MinGW-w64-x86_64-gcc` is needed to be prepared. Then, follow the instructions below to build.
 
 ```sh
 # Install dependent packages for MinGW
@@ -55,13 +55,15 @@ pacman -S mingw-w64-x86_64-cmake
 pacman -S mingw-w64-x86_64-clang
 pacman -S mingw-w64-x86_64-clang-analyzer
 pacman -S mingw-w64-x86_64-clang-tools-extra
+# Set PATH
+export PATH=/mingw64/bin:/mingw64/lib:$PATH		# You can also add this line into ~/.bashrc
 # Build hdoc
 meson build             # Configure the build directory
 ninja -C build          # Compile hdoc binaries and tests
 ./build/hdoc --verbose  # Run hdoc over itself, saving the HTML documentation to ./hdoc-output/
 ```
 
-It takes a long time to link hdoc.exe, but it will finally finish and works well on Windows platform.
+It takes a long time (maybe hours) to build hdoc.exe, but it will finally finish and works well on Windows platform.  
 
 More instructions for using hdoc can be found at [hdoc.io/docs](https://hdoc.io/docs).
 

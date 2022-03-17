@@ -6,6 +6,20 @@ date = 2020-01-01
 description = "What's changed between each release of hdoc, including new features, fixes, and improvements."
 +++
 
+# Version 1.2.2 (17 March 2022)
+
+## New Features
+* Unofficial Windows support and build instructions.
+  - Thank you [@yqs112358](https://github.com/yqs112358) for contributing this!
+
+## Fixes
+* Users will now be warned if `output_dir` is specified in `.hdoc.toml` but they are running the client version of hdoc
+  - Thank you [@ShulkMaster](https://github.com/ShulkMaster) for reporting [this bug](https://github.com/hdoc/hdoc/issues/10).
+* hdoc will now immediately halt if the `output_dir` option is missing when it is otherwise required.
+
+## Internal changes
+* cmark-gfm updated to version 0.29.0.gfm.3 because of [a security vulnerability](https://github.com/github/cmark-gfm/security/advisories/GHSA-mc3g-88wq-6f4x).
+
 # Version 1.2.1 (15 October 2021)
 
 ## New Features

@@ -1,6 +1,6 @@
 [project]
 name = "hdoc"
-version = "1.2.1"
+version = "1.2.2"
 git_repo_url = "https://github.com/hdoc/hdoc/blob/master/"
 
 [paths]

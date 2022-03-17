@@ -90,7 +90,7 @@ template <class Archive> static void serialize(Archive& archive, hdoc::types::Na
 }
 
 template <class Archive> static void serialize(Archive& archive, hdoc::types::Config& s) {
-  archive(s.projectName, s.projectVersion, s.timestamp, s.hdocVersion, s.gitRepoURL);
+  archive(s.projectName, s.projectVersion, s.timestamp, s.hdocVersion, s.gitRepoURL, s.binaryType);
 }
 
 template <class Archive, typename T> static void serialize(Archive& archive, hdoc::types::Database<T>& s) {
@@ -239,7 +239,7 @@ void uploadDocs(const std::string& data) {
   httplib::Headers headers{
       {"Authorization", "Api-Key " + api_key},
       {"Content-Disposition", "inline;filename=docs.archive"},
-      {"X-Schema-Version", "v2"},
+      {"X-Schema-Version", "v3"},
   };
 
   const auto res = cli.Put("/api/upload/", headers, data.data(), data.size(), "application/octet-stream");

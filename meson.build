@@ -1,4 +1,4 @@
-project('hdoc', 'cpp', version: '1.2.1', default_options: ['cpp_std=c++17', 'warning_level=3'])
+project('hdoc', 'cpp', version: '1.2.2', default_options: ['cpp_std=c++17', 'warning_level=3'])
 
 dep_llvm = dependency('LLVM', include_type: 'system')
 clang_modules = [

@@ -64,20 +64,20 @@ static std::vector<hdoc::types::SymbolID> getSortedIDs(const std::vector<hdoc::t
   return sortedIDs;
 }
 
-extern uint8_t  ___assets_styles_css[];
-extern uint8_t  ___assets_favicon_ico[];
-extern uint8_t  ___assets_favicon_32x32_png[];
-extern uint8_t  ___assets_favicon_16x16_png[];
-extern uint8_t  ___assets_apple_touch_icon_png[];
-extern uint8_t  ___assets_search_js[];
-extern uint8_t  ___assets_worker_js[];
-extern uint64_t ___assets_styles_css_len;
-extern uint64_t ___assets_favicon_ico_len;
-extern uint64_t ___assets_favicon_32x32_png_len;
-extern uint64_t ___assets_favicon_16x16_png_len;
-extern uint64_t ___assets_apple_touch_icon_png_len;
-extern uint64_t ___assets_search_js_len;
-extern uint64_t ___assets_worker_js_len;
+extern uint8_t      ___assets_styles_css[];
+extern uint8_t      ___assets_favicon_ico[];
+extern uint8_t      ___assets_favicon_32x32_png[];
+extern uint8_t      ___assets_favicon_16x16_png[];
+extern uint8_t      ___assets_apple_touch_icon_png[];
+extern uint8_t      ___assets_search_js[];
+extern uint8_t      ___assets_worker_js[];
+extern unsigned int ___assets_styles_css_len;
+extern unsigned int ___assets_favicon_ico_len;
+extern unsigned int ___assets_favicon_32x32_png_len;
+extern unsigned int ___assets_favicon_16x16_png_len;
+extern unsigned int ___assets_apple_touch_icon_png_len;
+extern unsigned int ___assets_search_js_len;
+extern unsigned int ___assets_worker_js_len;
 
 hdoc::serde::HTMLWriter::HTMLWriter(const hdoc::types::Index*  index,
                                     const hdoc::types::Config* cfg,
@@ -92,42 +92,27 @@ hdoc::serde::HTMLWriter::HTMLWriter(const hdoc::types::Index*  index,
     }
   }
 
-  // hdoc bundles assets (favicons, CSS) with the executable to simplify deployment
+  // hdoc bundles assets (favicons, CSS) with the executable to simplify deployment.
   // The following code collects the files (converted to char arrays in the build process)
-  // and outputs them. The process looks janky but it's simple and it works
-  const uint64_t lens[] = {
-      ___assets_apple_touch_icon_png_len,
-      ___assets_favicon_16x16_png_len,
-      ___assets_favicon_32x32_png_len,
-      ___assets_favicon_ico_len,
-      ___assets_styles_css_len,
-      ___assets_search_js_len,
-      ___assets_worker_js_len,
+  // and outputs them. The process looks janky but it's simple and it works.
+  struct BundledFile {
+    const unsigned int          len;
+    const uint8_t*              file;
+    const std::filesystem::path path;
   };
 
-  const uint8_t* files[] = {
-      ___assets_apple_touch_icon_png,
-      ___assets_favicon_16x16_png,
-      ___assets_favicon_32x32_png,
-      ___assets_favicon_ico,
-      ___assets_styles_css,
-      ___assets_search_js,
-      ___assets_worker_js,
-  };
+  std::vector<BundledFile> bundledFiles = {
+      {___assets_apple_touch_icon_png_len, ___assets_apple_touch_icon_png, cfg->outputDir / "apple-touch-icon.png"},
+      {___assets_favicon_16x16_png_len, ___assets_favicon_16x16_png, cfg->outputDir / "favicon-16x16.png"},
+      {___assets_favicon_32x32_png_len, ___assets_favicon_32x32_png, cfg->outputDir / "favicon-32x32.png"},
+      {___assets_favicon_ico_len, ___assets_favicon_ico, cfg->outputDir / "favicon.ico"},
+      {___assets_styles_css_len, ___assets_styles_css, cfg->outputDir / "styles.css"},
+      {___assets_search_js_len, ___assets_search_js, cfg->outputDir / "search.js"},
+      {___assets_worker_js_len, ___assets_worker_js, cfg->outputDir / "worker.js"}};
 
-  const std::filesystem::path paths[] = {
-      cfg->outputDir / "apple-touch-icon.png",
-      cfg->outputDir / "favicon-16x16.png",
-      cfg->outputDir / "favicon-32x32.png",
-      cfg->outputDir / "favicon.ico",
-      cfg->outputDir / "styles.css",
-      cfg->outputDir / "search.js",
-      cfg->outputDir / "worker.js",
-  };
-
-  for (std::size_t i = 0; i < std::size(paths); i++) {
-    std::ofstream out(paths[i], std::ios::binary);
-    out.write((char*)files[i], lens[i]);
+  for (const auto& file : bundledFiles) {
+    std::ofstream out(file.path, std::ios::binary);
+    out.write((char*)file.file, file.len);
     out.close();
   }
 }
@@ -511,14 +496,14 @@ void hdoc::serde::HTMLWriter::printFunctions() const {
   main.AddChild(CTML::Node("h1", "Functions"));
 
   // Print a bullet list of functions
-  uint64_t numFunctions = 0; // Number of functions that aren't methods
+  uint64_t   numFunctions = 0; // Number of functions that aren't methods
   CTML::Node ul("ul");
   for (const auto& id : getSortedIDs(map2vec(this->index->functions), this->index->functions)) {
     const auto& f = this->index->functions.entries.at(id);
     if (f.isRecordMember) {
       continue;
     }
-    numFunctions +=1;
+    numFunctions += 1;
     ul.AddChild(CTML::Node("li")
                     .AddChild(CTML::Node("a.is-family-code", f.name).SetAttr("href", f.url()))
                     .AppendText(getSymbolBlurb(f)));

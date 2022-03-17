@@ -95,7 +95,7 @@ The directory does not need to exist prior to running hdoc.
 If it does not exist, hdoc will create it automatically.
 It is a string that represents a path on your filesystem.
 The path can be absolute, or relative to the location of the `.hdoc.toml` file.
-It is required.
+It is required for full versions of hdoc, but optional for "client" versions of hdoc.
 
 ```toml
 [paths]

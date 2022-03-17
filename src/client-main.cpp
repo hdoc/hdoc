@@ -13,7 +13,8 @@ int main(int argc, char** argv) {
   // Print stack trace on failure
   llvm::sys::PrintStackTraceOnErrorSignal(argv[0]);
 
-  hdoc::types::Config      cfg;
+  hdoc::types::Config cfg;
+  cfg.binaryType = hdoc::types::BinaryType::Client;
   hdoc::frontend::Frontend frontend(argc, argv, &cfg);
 
   // Check if user is verified prior to indexing everything

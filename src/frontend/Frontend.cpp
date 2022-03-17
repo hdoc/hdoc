@@ -81,7 +81,20 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
     return;
   }
 
-  // Get other arguments from
+  // Check if the output directory is specified. Print a warning if it's specified for client versions of hdoc,
+  // and throw an error if it's specified for full versions of hdoc because we need to know where to save the docs.
+  std::optional<std::string_view> output_dir = toml["paths"]["output_dir"].value<std::string_view>();
+  if (output_dir != std::nullopt && cfg->binaryType == hdoc::types::BinaryType::Client) {
+    spdlog::warn(
+        "'output_dir' specified in .hdoc.toml but you are running a version of hdoc downloaded from hdoc.io. "
+        "Your documentation will be uploaded to docs.hdoc.io instead of being saved locally.");
+  } else if (output_dir == std::nullopt && cfg->binaryType == hdoc::types::BinaryType::Full) {
+    spdlog::error(
+        "No 'output_dir' specified in .hdoc.toml. It is required so that documentation can be saved locally.");
+    return;
+  }
+
+  // Get other arguments from the .hdoc.toml file.
   cfg->outputDir      = std::filesystem::path(toml["paths"]["output_dir"].value_or(""));
   cfg->projectName    = toml["project"]["name"].value_or("");
   cfg->projectVersion = toml["project"]["version"].value_or("");
@@ -197,7 +210,9 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
   spdlog::info("hdoc version: {}", cfg->hdocVersion);
   spdlog::info("Timestamp: {}", cfg->timestamp);
   spdlog::info("Root directory: {}", cfg->rootDir.string());
-  spdlog::info("Output directory: {}", cfg->outputDir.string());
+  if (cfg->binaryType != hdoc::types::BinaryType::Client) {
+    spdlog::info("Output directory: {}", cfg->outputDir.string());
+  }
   spdlog::info("Project name: {}", cfg->projectName);
   spdlog::info("Project version: {}", cfg->projectVersion);
   spdlog::info("Indexing using {} threads",

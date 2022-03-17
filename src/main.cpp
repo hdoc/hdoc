@@ -14,6 +14,7 @@ int main(int argc, char** argv) {
   llvm::sys::PrintStackTraceOnErrorSignal(argv[0]);
 
   hdoc::types::Config      cfg;
+  cfg.binaryType = hdoc::types::BinaryType::Full;
   hdoc::frontend::Frontend frontend(argc, argv, &cfg);
 
   // Ensure that cfg was properly initialized

@@ -27,6 +27,8 @@ The contents of this repository are a subset of a private repository where hdoc'
 
 ## Quick start
 
+### Linux
+
 hdoc depends on LLVM/Clang and OpenSSL, and all other dependencies are vendored in `subprojects/`.
 hdoc also comes with a Nix Flake which sets up a development environment for you with all of the needed dependencies, and should work on all Linux distributions.
 Follow the instructions below to build hdoc.
@@ -39,6 +41,38 @@ ninja -C build          # Compile hdoc binaries and tests
 ```
 
 More instructions for using hdoc can be found at [hdoc.io/docs](https://hdoc.io/docs).
+
+### Windows (Unofficial Support)
+
+Windows support for hdoc is unofficial and was contributed by [@yqs112358](https://github.com/yqs112358/).
+Windows is unofficially supported as the hdoc team does not use it for development.
+hdoc is not tested on Windows and no guarantee is made for its functionality there.
+However, the following instructions for compiling hdoc on Windows.
+
+`MSYS2` and `MinGW-w64-x86_64-gcc` must be installed in order to compile hdoc on Windows.
+Once the prerequisites have been installed, follow the instructions below to build hdoc:
+
+```sh
+# Install dependent packages for MinGW
+pacman -S groff
+pacman -S unzip
+pacman -S mingw-w64-x86_64-meson
+pacman -S mingw-w64-x86_64-cmake
+pacman -S mingw-w64-x86_64-clang
+pacman -S mingw-w64-x86_64-clang-analyzer
+pacman -S mingw-w64-x86_64-clang-tools-extra
+
+# Set PATH
+export PATH=/mingw64/bin:/mingw64/lib:$PATH		# You can also add this line into ~/.bashrc
+
+# Build hdoc
+meson build             # Configure the build directory
+ninja -C build          # Compile hdoc binaries and tests
+./build/hdoc --verbose  # Run hdoc over itself, saving the HTML documentation to ./hdoc-output/
+```
+
+Reportedly, `hdoc-client.exe` does not currently work on Windows due to a linking problem.
+However, `hdoc.exe` should work.
 
 ## Running tests
 

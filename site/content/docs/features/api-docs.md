@@ -40,7 +40,7 @@ For enums:
 
 hdoc will also include other documentation attached to a declaration assuming it's using a supported comment syntax.
 For example, the function declaration below will parse the `@brief`, `@param`, and `@returns` commands.
-It will also extract the comment about n-dimentional imaginary matrix transforms and attach it to the page for this function.
+It will also extract the comment about n-dimensional imaginary matrix transforms and attach it to the page for this function.
 
 ```cpp
 /// @brief Applies Foo's algorithm on x
@@ -48,7 +48,7 @@ It will also extract the comment about n-dimentional imaginary matrix transforms
 /// This is a n-dimensional imaginary matrix transform that is
 /// that makes our flux capacitor work.
 ///
-/// @param x the distilled essense of the matrix Z
+/// @param x the distilled essence of the matrix Z
 /// @returns The hypercombobulated entangled version of x
 int foobar(int x) { return x + 1; }
 ```

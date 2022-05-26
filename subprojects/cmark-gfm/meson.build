@@ -1,4 +1,4 @@
-project('cmark-gfm', 'c', default_options: ['warning_level=3'])
+project('cmark-gfm', 'c', version: '0.29.0.gfm.3', default_options: ['warning_level=3'])
 
 src = [
   'src/cmark.c',

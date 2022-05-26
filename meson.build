@@ -1,4 +1,4 @@
-project('hdoc', 'cpp', version: '1.2.2', default_options: ['cpp_std=c++17', 'warning_level=3'])
+project('hdoc', 'cpp', version: '1.2.3', default_options: ['cpp_std=c++17', 'warning_level=3'])
 
 dep_llvm = dependency('LLVM', include_type: 'system')
 clang_modules = [
@@ -46,7 +46,6 @@ deps += dependency('threads')
 deps += dependency('openssl')
 deps += subproject('cmark-gfm').get_variable('dep')
 deps += subproject('spdlog').get_variable('dep')
-deps += subproject('tiny-process-library').get_variable('dep')
 deps += subproject('ctml').get_variable('dep')
 deps += subproject('argparse').get_variable('dep')
 deps += subproject('toml++').get_variable('dep')

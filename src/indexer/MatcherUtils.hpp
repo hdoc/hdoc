@@ -1,4 +1,4 @@
-// Copyright 2019-2021 hdoc
+// Copyright 2019-2022 hdoc
 // SPDX-License-Identifier: AGPL-3.0-only
 
 #pragma once
@@ -15,9 +15,9 @@ void fillOutSymbol(hdoc::types::Symbol& s, const clang::NamedDecl* d, const std:
 void findParentNamespace(hdoc::types::Symbol& s, const clang::NamedDecl* d);
 
 /// @brief Check if a decl is defined in a non-existent file or in the set of ignored paths
-bool isInBlacklist(const clang::Decl*              d,
-                   const std::vector<std::string>& ignorePaths,
-                   const std::filesystem::path&    rootDir);
+bool isInIgnoreList(const clang::Decl*              d,
+                    const std::vector<std::string>& ignorePaths,
+                    const std::filesystem::path&    rootDir);
 
 /// @brief Check if the decl is in an anonymous namespace
 bool isInAnonymousNamespace(const clang::Decl* d);

@@ -1,4 +1,4 @@
-// Copyright 2019-2021 hdoc
+// Copyright 2019-2022 hdoc
 // SPDX-License-Identifier: AGPL-3.0-only
 
 #include "MatcherUtils.hpp"
@@ -70,9 +70,9 @@ void findParentNamespace(hdoc::types::Symbol& s, const clang::NamedDecl* d) {
   }
 }
 
-bool isInBlacklist(const clang::Decl*              d,
-                   const std::vector<std::string>& ignorePaths,
-                   const std::filesystem::path&    rootDir) {
+bool isInIgnoreList(const clang::Decl*              d,
+                    const std::vector<std::string>& ignorePaths,
+                    const std::filesystem::path&    rootDir) {
   const auto rawPath = std::filesystem::path(d->getASTContext().getSourceManager().getFilename(d->getLocation()).str());
 
   // If the decl has an empty path, it's probably compiler-generated so we ignore it
@@ -86,7 +86,7 @@ bool isInBlacklist(const clang::Decl*              d,
     return true;
   }
 
-  // Blacklist paths outside of the rootDir
+  // Ignore paths outside of the rootDir
   // ".." is used as a janky way to determine if the path is outside of rootDir since the canonicalized path
   // should not have any ".."s in it
   const std::string relPath = std::filesystem::relative(std::filesystem::path(*absPath), rootDir).string();
@@ -246,7 +246,7 @@ std::string getCommandName(const unsigned& CommandID) {
 
 std::string getParaCommentContents(const clang::comments::Comment* comment, clang::ASTContext& ctx) {
   std::string text;
-  bool prevCommentWasDoxygenCommand = false;
+  bool        prevCommentWasDoxygenCommand = false;
   for (auto c = comment->child_begin(); c != comment->child_end(); ++c) {
     if (const auto* icc = llvm::dyn_cast<clang::comments::InlineCommandComment>(*c)) {
       text += clang::Lexer::getSourceText(clang::CharSourceRange::getTokenRange(icc->getCommandNameRange()),

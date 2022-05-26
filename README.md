@@ -129,7 +129,6 @@ These are listed below in alphabetical order:
 - [LLVM](https://llvm.org/)
 - [minisearch](https://github.com/lucaong/minisearch)
 - [spdlog](https://github.com/gabime/spdlog)
-- [tiny-process-library](https://gitlab.com/eidheim/tiny-process-library)
 - [toml++](https://marzer.github.io/tomlplusplus/)
 
 More information, including licenses, can be found at [hdoc.io/oss](https://hdoc.io/oss/).

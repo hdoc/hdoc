@@ -1,4 +1,4 @@
-// Copyright 2019-2021 hdoc
+// Copyright 2019-2022 hdoc
 // SPDX-License-Identifier: AGPL-3.0-only
 
 #include "common.hpp"

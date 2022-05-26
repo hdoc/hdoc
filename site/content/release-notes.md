@@ -6,6 +6,29 @@ date = 2020-01-01
 description = "What's changed between each release of hdoc, including new features, fixes, and improvements."
 +++
 
+# Version 1.2.3 (25 May 2022)
+
+## New Features
+* hdoc now has an integration with GitHub to generate documentation directly from GitHub Actions. This makes automatically generating documentation for your project easier than ever.
+  - See the [blog post](@/blog/hdoc-github-actions-beta.md) for more details.
+* Users can now ignore private member variables and private member functions by setting the `ignore_private_members` variable to `true` in `.hdoc.toml`.
+  - By default, private members are included in the documentation which matches the behavior of hdoc prior to this change.
+  - More documentation about this feature is available in the [Configuration File Reference](@/docs/reference/config-file-reference.md#ignore-private-members).
+  - Thank you to [jm4games](https://github.com/jm4games) for bringing this issue to our attention and [jtbandes](https://github.com/jtbandes) for providing the impetus to mainline this.
+
+## Fixes
+* Documentation URL is printed to stdout even if `--verbose` option is not specified.
+  - This only applies to the prebuilt static binaries built provided by us on hdoc.io
+
+## Internal changes
+* The `tiny-process-library` dependency was removed and replaced with LLVM functionality that accomplished the same task.
+* Several internal dependencies were updated:
+  - toml++ was updated to 3.1.0.
+  - doctest was updated to 2.4.8
+  - cpp-httplib was updated to 0.10.6
+  - cereal was updated to 1.3.2
+  - argparse was updated to 2.4
+
 # Version 1.2.2 (17 March 2022)
 
 ## New Features

@@ -1,4 +1,4 @@
-// Copyright 2019-2021 hdoc
+// Copyright 2019-2022 hdoc
 // SPDX-License-Identifier: AGPL-3.0-only
 
 #include "serde/Serialization.hpp"
@@ -251,7 +251,11 @@ void uploadDocs(const std::string& data) {
   if (res->status != 200) {
     spdlog::error("Documentation upload failed (status={}): {}", res->status, res->reason);
   } else {
+    // Temporarily set the log level to the info level so that the URL to the documentation is
+    // printed to the terminal.
+    spdlog::set_level(spdlog::level::info);
     spdlog::info("{}", res->body);
+    spdlog::set_level(spdlog::level::warn);
   }
 }
 

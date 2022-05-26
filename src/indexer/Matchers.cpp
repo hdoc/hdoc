@@ -1,4 +1,4 @@
-// Copyright 2019-2021 hdoc
+// Copyright 2019-2022 hdoc
 // SPDX-License-Identifier: AGPL-3.0-only
 
 #include "Matchers.hpp"
@@ -29,9 +29,10 @@ void hdoc::indexer::matchers::FunctionMatcher::run(const clang::ast_matchers::Ma
   this->index->functions.numMatches++;
 
   // Ignore invalid matches, matches in ignored files, and static functions
-  if (res == nullptr || res->isOverloadedOperator() || isInBlacklist(res, this->cfg->ignorePaths, this->cfg->rootDir) ||
-      !res->getSourceRange().isValid() || (res->isStatic() && !res->isCXXClassMember()) ||
-      isInAnonymousNamespace(res)) {
+  if (res == nullptr || res->isOverloadedOperator() ||
+      isInIgnoreList(res, this->cfg->ignorePaths, this->cfg->rootDir) || !res->getSourceRange().isValid() ||
+      (res->isStatic() && !res->isCXXClassMember()) || isInAnonymousNamespace(res) ||
+      (res->getAccess() == clang::AS_private && cfg->ignorePrivateMembers == true)) {
     return;
   }
 
@@ -86,7 +87,7 @@ void hdoc::indexer::matchers::FunctionMatcher::run(const clang::ast_matchers::Ma
     processFunctionComment(f, comment, res->getASTContext());
   }
 
-  // Don't print "void" return type for constructors and destructors
+  // Don't print "void" return type for constructors and destructorss.
   f.isCtorOrDtor = clang::isa<clang::CXXConstructorDecl>(res) || clang::isa<clang::CXXDestructorDecl>(res);
   if (f.isCtorOrDtor == false) {
     f.returnType.name = res->getReturnType().getAsString(pp);
@@ -107,7 +108,7 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
 
   // Ignore invalid matches
   if (res == nullptr || !res->isCompleteDefinition() || !res->getSourceRange().isValid() ||
-      isInBlacklist(res, this->cfg->ignorePaths, this->cfg->rootDir) || isInAnonymousNamespace(res)) {
+      isInIgnoreList(res, this->cfg->ignorePaths, this->cfg->rootDir) || isInAnonymousNamespace(res)) {
     return;
   }
 
@@ -153,7 +154,7 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
   // Get methods and decls (what's the difference?) for this record
   for (const auto* m : res->methods()) {
     if (m == nullptr || m->isImplicit() || m->isOverloadedOperator() ||
-        isInBlacklist(m, this->cfg->ignorePaths, this->cfg->rootDir) || isInAnonymousNamespace(m)) {
+        isInIgnoreList(m, this->cfg->ignorePaths, this->cfg->rootDir) || isInAnonymousNamespace(m)) {
       continue;
     }
     c.methodIDs.push_back(buildID(m->getCanonicalDecl()));
@@ -161,7 +162,7 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
   for (const auto* d : res->decls()) {
     if (const auto* ftd = llvm::dyn_cast<clang::FunctionTemplateDecl>(d)) {
       if (ftd == nullptr || ftd->isImplicit() || ftd->getAsFunction()->isOverloadedOperator() ||
-          isInBlacklist(ftd, this->cfg->ignorePaths, this->cfg->rootDir) || isInAnonymousNamespace(ftd)) {
+          isInIgnoreList(ftd, this->cfg->ignorePaths, this->cfg->rootDir) || isInAnonymousNamespace(ftd)) {
         continue;
       }
       c.methodIDs.push_back(buildID(ftd));
@@ -237,6 +238,10 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
 
   // TODO: refactor the member variables and static member variable blocks to consolidate duplicated code
   for (const auto* field : res->fields()) {
+    if (field->getAccess() == clang::AS_private && cfg->ignorePrivateMembers == true) {
+      continue;
+    }
+
     hdoc::types::MemberVariable mv;
     mv.isStatic     = false;
     mv.name         = field->getNameAsString();
@@ -268,7 +273,7 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
   // Get static members that aren't caught by res->fields()
   for (const auto* d : res->decls()) {
     if (const auto* vd = llvm::dyn_cast<clang::VarDecl>(d)) {
-      if (vd == nullptr) {
+      if (vd == nullptr || (vd->getAccess() == clang::AS_private && cfg->ignorePrivateMembers == true)) {
         continue;
       }
 
@@ -316,7 +321,7 @@ void hdoc::indexer::matchers::EnumMatcher::run(const clang::ast_matchers::MatchF
 
   // Ignore invalid matches and anonymous enums
   if (res == nullptr || res->getNameAsString() == "" ||
-      isInBlacklist(res, this->cfg->ignorePaths, this->cfg->rootDir) || isInAnonymousNamespace(res)) {
+      isInIgnoreList(res, this->cfg->ignorePaths, this->cfg->rootDir) || isInAnonymousNamespace(res)) {
     return;
   }
 
@@ -378,7 +383,7 @@ void hdoc::indexer::matchers::NamespaceMatcher::run(const clang::ast_matchers::M
 
   // Ignore invalid matches and anonymous enums
   if (res == nullptr || res->getNameAsString() == "" ||
-      isInBlacklist(res, this->cfg->ignorePaths, this->cfg->rootDir) || isInAnonymousNamespace(res)) {
+      isInIgnoreList(res, this->cfg->ignorePaths, this->cfg->rootDir) || isInAnonymousNamespace(res)) {
     return;
   }
 

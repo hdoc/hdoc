@@ -154,7 +154,8 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
   // Get methods and decls (what's the difference?) for this record
   for (const auto* m : res->methods()) {
     if (m == nullptr || m->isImplicit() || m->isOverloadedOperator() ||
-        isInIgnoreList(m, this->cfg->ignorePaths, this->cfg->rootDir) || isInAnonymousNamespace(m)) {
+        isInIgnoreList(m, this->cfg->ignorePaths, this->cfg->rootDir) || isInAnonymousNamespace(m) ||
+        (m->getAccess() == clang::AS_private && cfg->ignorePrivateMembers == true)) {
       continue;
     }
     c.methodIDs.push_back(buildID(m->getCanonicalDecl()));
@@ -162,7 +163,8 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
   for (const auto* d : res->decls()) {
     if (const auto* ftd = llvm::dyn_cast<clang::FunctionTemplateDecl>(d)) {
       if (ftd == nullptr || ftd->isImplicit() || ftd->getAsFunction()->isOverloadedOperator() ||
-          isInIgnoreList(ftd, this->cfg->ignorePaths, this->cfg->rootDir) || isInAnonymousNamespace(ftd)) {
+          isInIgnoreList(ftd, this->cfg->ignorePaths, this->cfg->rootDir) || isInAnonymousNamespace(ftd) ||
+          (ftd->getAccess() == clang::AS_private && cfg->ignorePrivateMembers == true)) {
         continue;
       }
       c.methodIDs.push_back(buildID(ftd));

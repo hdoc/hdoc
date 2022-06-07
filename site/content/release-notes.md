@@ -6,6 +6,19 @@ date = 2020-01-01
 description = "What's changed between each release of hdoc, including new features, fixes, and improvements."
 +++
 
+# Version 1.2.4 (6 June 2022)
+
+This is a hotfix release.
+
+## New Features
+* Only the name of the method is made linkable in the method list under each record.
+  - Previously the whole method, including return type and method parameters, was made linkable which was visually busy.
+
+## Fixes
+* A bug where hdoc crashed when the `ignore_private_members` configuration variable was set to `true` was fixed.
+  - Thank you [@jtbandes](https://github.com/jtbandes) for reporting [this issue](https://github.com/hdoc/hdoc/issues/5#issuecomment-1148031717) and supplying reproduction steps.
+* hdoc won't proceed if the output directory can't be created.
+
 # Version 1.2.3 (25 May 2022)
 
 ## New Features
@@ -14,7 +27,7 @@ description = "What's changed between each release of hdoc, including new featur
 * Users can now ignore private member variables and private member functions by setting the `ignore_private_members` variable to `true` in `.hdoc.toml`.
   - By default, private members are included in the documentation which matches the behavior of hdoc prior to this change.
   - More documentation about this feature is available in the [Configuration File Reference](@/docs/reference/config-file-reference.md#ignore-private-members).
-  - Thank you to [jm4games](https://github.com/jm4games) for bringing this issue to our attention and [jtbandes](https://github.com/jtbandes) for providing the impetus to mainline this.
+  - Thank you to [@jm4games](https://github.com/jm4games) for bringing this issue to our attention and [@jtbandes](https://github.com/jtbandes) for providing the impetus to mainline this.
 
 ## Fixes
 * Documentation URL is printed to stdout even if `--verbose` option is not specified.

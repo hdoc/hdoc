@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 #include "common.hpp"
+#include "types/Config.hpp"
 
 TEST_CASE("Class member") {
   const std::string code = R"(
@@ -179,4 +180,64 @@ TEST_CASE("Class with const member function") {
   CHECK(f.params[0].type.id.raw() == 0);
   CHECK(f.params[0].docComment == "");
   CHECK(f.params[0].defaultValue == "");
+}
+
+TEST_CASE("Checking that private members are indexed by default") {
+  const std::string code = R"(
+    struct Foo {
+    private:
+      void m1() {}
+      int v1;
+    public:
+      void m2() {}
+      int v2;
+    };
+  )";
+
+  const hdoc::types::Index index = runOverCode(code);
+  checkIndexSizes(index, 1, 2, 0, 0);
+
+  hdoc::types::RecordSymbol s = index.records.entries.begin()->second;
+  CHECK(s.name == "Foo");
+  CHECK(s.briefComment == "");
+  CHECK(s.docComment == "");
+  CHECK(s.ID.str().size() == 16);
+  CHECK(s.parentNamespaceID.raw() == 0);
+
+  CHECK(s.type == "struct");
+  CHECK(s.proto == "struct Foo");
+  CHECK(s.vars.size() == 2);
+  CHECK(s.methodIDs.size() == 2);
+  CHECK(s.baseRecords.size() == 0);
+}
+
+TEST_CASE("Checking that private members aren't indexed when they're not wanted") {
+  const std::string code = R"(
+    struct Foo {
+    private:
+      void m1() {}
+      int v1;
+    public:
+      void m2() {}
+      int v2;
+    };
+  )";
+
+  hdoc::types::Config cfg;
+  cfg.ignorePrivateMembers       = true;
+  const hdoc::types::Index index = runOverCode(code, cfg);
+  checkIndexSizes(index, 1, 1, 0, 0);
+
+  hdoc::types::RecordSymbol s = index.records.entries.begin()->second;
+  CHECK(s.name == "Foo");
+  CHECK(s.briefComment == "");
+  CHECK(s.docComment == "");
+  CHECK(s.ID.str().size() == 16);
+  CHECK(s.parentNamespaceID.raw() == 0);
+
+  CHECK(s.type == "struct");
+  CHECK(s.proto == "struct Foo");
+  CHECK(s.vars.size() == 1);
+  CHECK(s.methodIDs.size() == 1);
+  CHECK(s.baseRecords.size() == 0);
 }

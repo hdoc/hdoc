@@ -4,11 +4,13 @@
 #pragma once
 
 #include "doctest.hpp"
+#include "types/Config.hpp"
 #include "types/Index.hpp"
+
 #include <optional>
 #include <string>
 
-hdoc::types::Index runOverCode(const std::string& code);
+hdoc::types::Index runOverCode(const std::string& code, const hdoc::types::Config cfg = hdoc::types::Config());
 void               checkIndexSizes(const hdoc::types::Index& index,
                                    const uint32_t            recordsSize,
                                    const uint32_t            functionsSize,

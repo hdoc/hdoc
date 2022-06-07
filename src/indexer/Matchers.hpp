@@ -1,3 +1,6 @@
+// Copyright 2019-2022 hdoc
+// SPDX-License-Identifier: AGPL-3.0-only
+
 #pragma once
 
 #include "clang/ASTMatchers/ASTMatchFinder.h"

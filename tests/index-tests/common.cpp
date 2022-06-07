@@ -9,12 +9,10 @@
 #include "clang/Tooling/Tooling.h"
 
 #include "indexer/Matchers.hpp"
-#include "types/Config.hpp"
 #include "types/Symbols.hpp"
 
-hdoc::types::Index runOverCode(const std::string& code) {
+hdoc::types::Index runOverCode(const std::string& code, const hdoc::types::Config cfg) {
   hdoc::types::Index                        index;
-  hdoc::types::Config                       cfg;
   clang::ast_matchers::MatchFinder          Finder;
   hdoc::indexer::matchers::FunctionMatcher  FunctionFinder(&index, &cfg);
   hdoc::indexer::matchers::RecordMatcher    RecordFinder(&index, &cfg);

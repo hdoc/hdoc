@@ -1,4 +1,4 @@
-project('hdoc', 'cpp', version: '1.2.3', default_options: ['cpp_std=c++17', 'warning_level=3'])
+project('hdoc', 'cpp', version: '1.2.4', default_options: ['cpp_std=c++17', 'warning_level=3'])
 
 dep_llvm = dependency('LLVM', include_type: 'system')
 clang_modules = [
@@ -22,14 +22,14 @@ endif
 
 # Generate char arrays from asset files using xxd -i
 asset_files = [
-    'site/content/oss.md',
-    'assets/apple-touch-icon.png',
-    'assets/favicon-16x16.png',
-    'assets/favicon-32x32.png',
-    'assets/favicon.ico',
-    'assets/styles.css',
-    'assets/search.js',
-    'assets/worker.js',
+  'site/content/oss.md',
+  'assets/apple-touch-icon.png',
+  'assets/favicon-16x16.png',
+  'assets/favicon-32x32.png',
+  'assets/favicon.ico',
+  'assets/styles.css',
+  'assets/search.js',
+  'assets/worker.js',
 ]
 gen = generator(find_program('xxd'),
                 output: '@BASENAME@.cpp',

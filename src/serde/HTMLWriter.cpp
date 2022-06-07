@@ -87,8 +87,10 @@ hdoc::serde::HTMLWriter::HTMLWriter(const hdoc::types::Index*  index,
   std::error_code ec;
   if (std::filesystem::exists(this->cfg->outputDir) == false) {
     if (std::filesystem::create_directories(this->cfg->outputDir, ec) == false) {
-      spdlog::error(
-          "Creation of directory {} failed with error message {}", this->cfg->outputDir.string(), ec.message());
+      spdlog::error("Creation of directory {} failed with the following error message: '{}'. Exiting.",
+                    this->cfg->outputDir.string(),
+                    ec.message());
+      std::exit(1);
     }
   }
 
@@ -723,11 +725,9 @@ void hdoc::serde::HTMLWriter::printRecord(const hdoc::types::RecordSymbol& c) co
       const std::string preName  = to_string(m.access) + " " + m.proto.substr(0, m.nameStart) + " ";
       const std::string postName = m.proto.substr(m.nameStart + nameLen, m.proto.size() - m.nameStart - nameLen);
 
-      const auto li = CTML::Node("li.is-family-code")
-                          .AddChild(CTML::Node("a", preName)
-                                        .SetAttr("href", "#" + m.ID.str())
-                                        .AddChild(CTML::Node("b", m.name))
-                                        .AppendText(postName));
+      const auto li = CTML::Node("li.is-family-code", preName)
+                          .AddChild(CTML::Node("a").SetAttr("href", "#" + m.ID.str()).AddChild(CTML::Node("b", m.name)))
+                          .AppendText(postName);
       ul.AddChild(li);
     }
     main.AddChild(ul);

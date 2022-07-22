@@ -126,37 +126,65 @@ bool isInAnonymousNamespace(const clang::Decl* d) {
   return false;
 }
 
-std::string getFunctionSignature(hdoc::types::FunctionSymbol& f, const clang::FunctionDecl* decl) {
-  std::string       signature;
-  static const auto printingPolicy = decl->getASTContext().getLangOpts();
+std::string getRecordProto(const hdoc::types::RecordSymbol& c) {
+  std::string proto;
+  if (c.templateParams.size() > 0) {
+    std::size_t count = 0;
+    proto += "template <";
+    for (const auto& tparam : c.templateParams) {
+      if (count > 0) {
+        proto += ", ";
+      }
+      if (tparam.templateType == hdoc::types::TemplateParam::TemplateType::TemplateTypeParameter) {
+        proto += tparam.isTypename ? "typename" : "class";
+        proto += tparam.isParameterPack ? "... " : " ";
+        proto += tparam.name;
+        // Get default argument if it exists
+        proto += tparam.defaultValue.size() > 0 ? " = " + tparam.defaultValue : "";
+      } else if (tparam.templateType == hdoc::types::TemplateParam::TemplateType::NonTypeTemplate) {
+        proto += tparam.type;
+        proto += tparam.isParameterPack ? "..." : "";
+        proto += " " + tparam.name;
+        // Get default argument if it exists
+        proto += tparam.defaultValue.size() > 0 ? " = " + tparam.defaultValue : "";
+      } else if (tparam.templateType == hdoc::types::TemplateParam::TemplateType::TemplateTemplateType) {
+        proto += tparam.type;
+        proto += tparam.isParameterPack ? "..." : "";
+        proto += " " + tparam.name;
+      }
+      count++;
+    }
+    proto += "> ";
+  }
+  proto += c.type + " " + c.name;
+  return proto;
+}
 
-  // Print template specifier
-  if (clang::FunctionTemplateDecl* templateDecl = decl->getDescribedFunctionTemplate()) {
+std::string getFunctionSignature(hdoc::types::FunctionSymbol& f) {
+  std::string signature;
+  if (f.templateParams.size() > 0) {
     uint64_t count = 0;
     signature += "template <";
-    for (const auto* parameterDecl : *templateDecl->getTemplateParameters()) {
+    for (const auto& tparam : f.templateParams) {
       signature += count > 0 ? ", " : "";
-      if (const auto* templateType = llvm::dyn_cast<clang::TemplateTypeParmDecl>(parameterDecl)) {
-        signature += templateType->wasDeclaredWithTypename() ? "typename" : "class";
-        signature += templateType->isParameterPack() ? "..." : "";
-        signature += " " + templateType->getNameAsString();
+      if (tparam.templateType == hdoc::types::TemplateParam::TemplateType::TemplateTypeParameter) {
+        signature += tparam.isTypename ? "typename" : "class";
+        signature += tparam.isParameterPack ? "..." : "";
+        signature += " " + tparam.name;
         // Get default argument if it exists
-        signature += templateType->hasDefaultArgument()
-                         ? " = " + templateType->getDefaultArgument().getAsString(printingPolicy)
-                         : "";
-      } else if (const auto* nonTemplateType = llvm::dyn_cast<clang::NonTypeTemplateParmDecl>(parameterDecl)) {
-        signature += nonTemplateType->getType().getAsString(printingPolicy);
-        signature += nonTemplateType->isParameterPack() ? "..." : "";
-        signature += " " + nonTemplateType->getNameAsString();
+        signature += tparam.defaultValue.size() > 0 ? " = " + tparam.defaultValue : "";
+      } else if (tparam.templateType == hdoc::types::TemplateParam::TemplateType::NonTypeTemplate) {
+        signature += tparam.type;
+        signature += tparam.isParameterPack ? "..." : "";
+        signature += " " + tparam.name;
         // Get default argument if it exists
-        signature += nonTemplateType->hasDefaultArgument()
-                         ? " = " + exprToString(nonTemplateType->getDefaultArgument(), printingPolicy)
-                         : "";
+        signature += tparam.defaultValue.size() > 0 ? " = " + tparam.defaultValue : "";
       }
       count++;
     }
     signature += ">";
   }
+
   f.postTemplate = signature.size();
 
   // Various qualifiers
@@ -298,6 +326,15 @@ void processRecordComment(hdoc::types::RecordSymbol&      cs,
         cs.briefComment = getCommentContents(commandComment, ctx);
       }
     }
+
+    if (const auto* tParamComment = llvm::dyn_cast<clang::comments::TParamCommandComment>(*c)) {
+      const std::string tParamName = tParamComment->getParamNameAsWritten().str();
+      for (auto& tparam : cs.templateParams) {
+        if (tparam.name == tParamName) {
+          tparam.docComment = getCommentContents(tParamComment, ctx);
+        }
+      }
+    }
   }
   hdoc::utils::rtrim(cs.briefComment);
   hdoc::utils::rtrim(cs.docComment);
@@ -351,6 +388,16 @@ void processFunctionComment(hdoc::types::FunctionSymbol&    f,
         }
       }
     }
+
+    if (const auto* tParamComment = llvm::dyn_cast<clang::comments::TParamCommandComment>(*c)) {
+      const std::string tParamName = tParamComment->getParamNameAsWritten().str();
+      for (auto& tparam : f.templateParams) {
+        if (tparam.name == tParamName) {
+          tparam.docComment = getCommentContents(tParamComment, ctx);
+        }
+      }
+    }
+
     // Look for \return, \returns, or \brief Doxygen commands
     if (const auto* commandComment = llvm::dyn_cast<clang::comments::BlockCommandComment>(*c)) {
       const std::string commandName = getCommandName(commandComment->getCommandID());

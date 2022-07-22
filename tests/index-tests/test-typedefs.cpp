@@ -41,6 +41,7 @@ TEST_CASE("Typedefed function") {
   CHECK(s.returnType.name == "int");
   CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "");
+  CHECK(s.templateParams.size() == 0);
 
   CHECK(s.params.size() == 2);
   CHECK(s.params[0].name == "");
@@ -79,6 +80,7 @@ TEST_CASE("Type instance with 'using'") {
   CHECK(s.vars.size() == 0);
   CHECK(s.methodIDs.size() == 0);
   CHECK(s.baseRecords.size() == 0);
+  CHECK(s.templateParams.size() == 0);
 
   hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
   CHECK(f.name == "Foo");
@@ -108,6 +110,7 @@ TEST_CASE("Type instance with 'using'") {
   CHECK(f.returnType.name == "void");
   CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
+  CHECK(f.templateParams.size() == 0);
 
   CHECK(f.params.size() == 1);
   CHECK(f.params[0].name == "param");

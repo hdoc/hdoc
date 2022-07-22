@@ -30,6 +30,7 @@ TEST_CASE("Class inherit") {
   CHECK(s1.vars.size() == 0);
   CHECK(s1.methodIDs.size() == 0);
   CHECK(s1.baseRecords.size() == 0);
+  CHECK(s1.templateParams.size() == 0);
 
   hdoc::types::RecordSymbol s2 = *o2;
   CHECK(s2.name == "Derived");
@@ -43,6 +44,7 @@ TEST_CASE("Class inherit") {
   CHECK(s2.vars.size() == 0);
   CHECK(s2.methodIDs.size() == 0);
   CHECK(s2.baseRecords.size() == 1);
+  CHECK(s2.templateParams.size() == 0);
 
   CHECK(s2.baseRecords[0].id == s1.ID);
   CHECK(s2.baseRecords[0].access == clang::AS_public);
@@ -86,6 +88,7 @@ TEST_CASE("Class multiple inherit") {
   CHECK(s1.vars.size() == 0);
   CHECK(s1.methodIDs.size() == 0);
   CHECK(s1.baseRecords.size() == 0);
+  CHECK(s1.templateParams.size() == 0);
 
   CHECK(s2.name == "MiddleA");
   CHECK(s2.briefComment == "");
@@ -98,6 +101,7 @@ TEST_CASE("Class multiple inherit") {
   CHECK(s2.vars.size() == 0);
   CHECK(s2.methodIDs.size() == 0);
   CHECK(s2.baseRecords.size() == 1);
+  CHECK(s2.templateParams.size() == 0);
 
   CHECK(s2.baseRecords[0].id == s1.ID);
   CHECK(s2.baseRecords[0].access == clang::AS_public);
@@ -114,6 +118,7 @@ TEST_CASE("Class multiple inherit") {
   CHECK(s3.vars.size() == 0);
   CHECK(s3.methodIDs.size() == 0);
   CHECK(s3.baseRecords.size() == 1);
+  CHECK(s3.templateParams.size() == 0);
 
   CHECK(s3.baseRecords[0].id == s1.ID);
   CHECK(s3.baseRecords[0].access == clang::AS_public);
@@ -129,6 +134,7 @@ TEST_CASE("Class multiple inherit") {
   CHECK(s4.proto == "class Derived");
   CHECK(s4.vars.size() == 0);
   CHECK(s4.methodIDs.size() == 0);
+  CHECK(s4.templateParams.size() == 0);
   CHECK(s4.baseRecords.size() == 2);
 
   CHECK(s4.baseRecords[0].id == s2.ID);
@@ -173,6 +179,7 @@ TEST_CASE("Function override") {
   CHECK(s1.vars.size() == 0);
   CHECK(s1.methodIDs.size() == 1);
   CHECK(s1.baseRecords.size() == 0);
+  CHECK(s1.templateParams.size() == 0);
 
   hdoc::types::FunctionSymbol f1 = index.functions.entries.at(s1.methodIDs[0]);
   CHECK(f1.name == "foo");
@@ -203,6 +210,7 @@ TEST_CASE("Function override") {
   CHECK(f1.returnType.id.raw() == 0);
   CHECK(f1.returnTypeDocComment == "");
   CHECK(f1.params.size() == 0);
+  CHECK(f1.templateParams.size() == 0);
 
   CHECK(s2.name == "Derived");
   CHECK(s2.briefComment == "");
@@ -215,6 +223,7 @@ TEST_CASE("Function override") {
   CHECK(s2.vars.size() == 0);
   CHECK(s2.methodIDs.size() == 1);
   CHECK(s2.baseRecords.size() == 1);
+  CHECK(s2.templateParams.size() == 0);
 
   CHECK(s2.baseRecords[0].id == s1.ID);
   CHECK(s2.baseRecords[0].access == clang::AS_public);
@@ -249,6 +258,7 @@ TEST_CASE("Function override") {
   CHECK(f2.returnType.id.raw() == 0);
   CHECK(f2.returnTypeDocComment == "");
   CHECK(f2.params.size() == 0);
+  CHECK(f2.templateParams.size() == 0);
 }
 
 TEST_CASE("Interface pure virtual") {
@@ -273,6 +283,7 @@ TEST_CASE("Interface pure virtual") {
   CHECK(s.vars.size() == 0);
   CHECK(s.methodIDs.size() == 1);
   CHECK(s.baseRecords.size() == 0);
+  CHECK(s.templateParams.size() == 0);
 
   hdoc::types::FunctionSymbol f = index.functions.entries.at(s.methodIDs[0]);
   CHECK(f.name == "foo");
@@ -303,6 +314,7 @@ TEST_CASE("Interface pure virtual") {
   CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
+  CHECK(f.templateParams.size() == 0);
 }
 
 TEST_CASE("Multiple base functions") {
@@ -344,6 +356,7 @@ TEST_CASE("Multiple base functions") {
   CHECK(s1.vars.size() == 0);
   CHECK(s1.methodIDs.size() == 1);
   CHECK(s1.baseRecords.size() == 0);
+  CHECK(s1.templateParams.size() == 0);
 
   hdoc::types::FunctionSymbol f1 = index.functions.entries.at(s1.methodIDs[0]);
   CHECK(f1.name == "~Base0");
@@ -374,6 +387,7 @@ TEST_CASE("Multiple base functions") {
   CHECK(f1.returnType.id.raw() == 0);
   CHECK(f1.returnTypeDocComment == "");
   CHECK(f1.params.size() == 0);
+  CHECK(f1.templateParams.size() == 0);
 
   CHECK(s2.name == "Base1");
   CHECK(s2.briefComment == "");
@@ -386,6 +400,7 @@ TEST_CASE("Multiple base functions") {
   CHECK(s2.vars.size() == 0);
   CHECK(s2.methodIDs.size() == 1);
   CHECK(s2.baseRecords.size() == 0);
+  CHECK(s2.templateParams.size() == 0);
 
   hdoc::types::FunctionSymbol f2 = index.functions.entries.at(s2.methodIDs[0]);
   CHECK(f2.name == "~Base1");
@@ -416,6 +431,7 @@ TEST_CASE("Multiple base functions") {
   CHECK(f2.returnType.id.raw() == 0);
   CHECK(f2.returnTypeDocComment == "");
   CHECK(f2.params.size() == 0);
+  CHECK(f2.templateParams.size() == 0);
 
   CHECK(s3.name == "Derived");
   CHECK(s3.briefComment == "");
@@ -427,6 +443,7 @@ TEST_CASE("Multiple base functions") {
   CHECK(s3.proto == "struct Derived");
   CHECK(s3.vars.size() == 0);
   CHECK(s3.methodIDs.size() == 1);
+  CHECK(s3.templateParams.size() == 0);
   CHECK(s3.baseRecords.size() == 2);
 
   CHECK(s3.baseRecords[0].id == s1.ID);
@@ -466,4 +483,5 @@ TEST_CASE("Multiple base functions") {
   CHECK(f3.returnType.id.raw() == 0);
   CHECK(f3.returnTypeDocComment == "");
   CHECK(f3.params.size() == 0);
+  CHECK(f3.templateParams.size() == 0);
 }

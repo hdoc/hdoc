@@ -23,7 +23,10 @@ bool isInIgnoreList(const clang::Decl*              d,
 bool isInAnonymousNamespace(const clang::Decl* d);
 
 /// @brief Update FunctionSymbol.proto with the full prototype
-std::string getFunctionSignature(hdoc::types::FunctionSymbol& f, const clang::FunctionDecl* function);
+std::string getFunctionSignature(hdoc::types::FunctionSymbol& f);
+
+/// @brief Get the full prototype for a record, including templates.
+std::string getRecordProto(const hdoc::types::RecordSymbol& c);
 
 /// @brief Convert a clang::Expr to a string, like clang::Decl->getNameAsString()
 std::string exprToString(const clang::Expr* expr, clang::PrintingPolicy printingPolicy);

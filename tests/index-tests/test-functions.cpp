@@ -40,6 +40,7 @@ TEST_CASE("Function with struct as a parameter") {
   CHECK(s.returnType.name == "void");
   CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "");
+  CHECK(s.templateParams.size() == 0);
 
   CHECK(s.params.size() == 2);
   CHECK(s.params[0].name == "p0");
@@ -91,6 +92,7 @@ TEST_CASE("Function with unnamed parameters") {
   CHECK(s.returnType.name == "void");
   CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "");
+  CHECK(s.templateParams.size() == 0);
 
   CHECK(s.params.size() == 2);
   CHECK(s.params[0].name == "");
@@ -142,6 +144,7 @@ TEST_CASE("Function default values for parameters") {
   CHECK(s.returnType.name == "void");
   CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "");
+  CHECK(s.templateParams.size() == 0);
 
   CHECK(s.params.size() == 2);
   CHECK(s.params[0].name == "a");
@@ -193,6 +196,7 @@ TEST_CASE("Function with trailing return type syntax") {
   CHECK(s.returnType.name == "int");
   CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "");
+  CHECK(s.templateParams.size() == 0);
 
   CHECK(s.params.size() == 2);
   CHECK(s.params[0].name == "x");
@@ -246,6 +250,7 @@ TEST_CASE("Function with constexpr") {
   CHECK(s.returnType.name == "int");
   CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "");
+  CHECK(s.templateParams.size() == 0);
 
   CHECK(s.params.size() == 2);
   CHECK(s.params[0].name == "a");
@@ -301,6 +306,7 @@ TEST_CASE("Member function marked volatile") {
   CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
+  CHECK(s.templateParams.size() == 0);
 }
 
 TEST_CASE("Member function with lvalue ref qualifier") {
@@ -343,6 +349,7 @@ TEST_CASE("Member function with lvalue ref qualifier") {
   CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
+  CHECK(s.templateParams.size() == 0);
 }
 
 TEST_CASE("Member function with rvalue ref qualifier") {
@@ -385,6 +392,7 @@ TEST_CASE("Member function with rvalue ref qualifier") {
   CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
+  CHECK(s.templateParams.size() == 0);
 }
 
 TEST_CASE("Member function with const lvalue ref qualifier") {
@@ -427,6 +435,7 @@ TEST_CASE("Member function with const lvalue ref qualifier") {
   CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
+  CHECK(s.templateParams.size() == 0);
 }
 
 TEST_CASE("Member function with const rvalue ref qualifier") {
@@ -469,6 +478,7 @@ TEST_CASE("Member function with const rvalue ref qualifier") {
   CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
+  CHECK(f.templateParams.size() == 0);
 }
 
 TEST_CASE("Noexcept function 1") {
@@ -508,6 +518,7 @@ TEST_CASE("Noexcept function 1") {
   CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
+  CHECK(f.templateParams.size() == 0);
 }
 
 TEST_CASE("Noexcept function 2") {
@@ -547,6 +558,7 @@ TEST_CASE("Noexcept function 2") {
   CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
+  CHECK(f.templateParams.size() == 0);
 }
 
 TEST_CASE("Variadic function") {
@@ -584,8 +596,9 @@ TEST_CASE("Variadic function") {
   CHECK(f.proto == "void simple_printf(const char * fmt, ...)");
   CHECK(f.returnType.name == "void");
   CHECK(f.returnTypeDocComment == "");
-  CHECK(f.params.size() == 1);
+  CHECK(f.templateParams.size() == 0);
 
+  CHECK(f.params.size() == 1);
   CHECK(f.params[0].name == "fmt");
   CHECK(f.params[0].type.name == "const char *");
   CHECK(f.params[0].type.id.raw() == 0);
@@ -631,8 +644,9 @@ TEST_CASE("Inline function") {
   CHECK(f.returnType.name == "int");
   CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
-  CHECK(f.params.size() == 1);
+  CHECK(f.templateParams.size() == 0);
 
+  CHECK(f.params.size() == 1);
   CHECK(f.params[0].name == "s");
   CHECK(f.params[0].type.name == "int");
   CHECK(f.params[0].type.id.raw() == 0);
@@ -681,6 +695,7 @@ TEST_CASE("Member function with trailing return type, noexcept, and rvalue refer
   CHECK(f.returnType.id == c.ID);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
+  CHECK(f.templateParams.size() == 0);
 }
 
 TEST_CASE("Const member function with trailing return type, noexcept, and const lvalue reference") {
@@ -724,6 +739,7 @@ TEST_CASE("Const member function with trailing return type, noexcept, and const 
   CHECK(f.returnType.id == c.ID);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
+  CHECK(f.templateParams.size() == 0);
 }
 
 

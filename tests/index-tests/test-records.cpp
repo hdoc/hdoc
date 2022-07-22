@@ -25,6 +25,7 @@ TEST_CASE("Class member") {
   CHECK(s.proto == "class Foo");
   CHECK(s.vars.size() == 1);
   CHECK(s.methodIDs.size() == 0);
+  CHECK(s.templateParams.size() == 0);
   CHECK(s.baseRecords.size() == 0);
 
   CHECK(s.vars[0].isStatic == false);
@@ -58,6 +59,7 @@ TEST_CASE("Class members with default values") {
   CHECK(s.proto == "class Foo");
   CHECK(s.vars.size() == 2);
   CHECK(s.methodIDs.size() == 0);
+  CHECK(s.templateParams.size() == 0);
   CHECK(s.baseRecords.size() == 0);
 
   CHECK(s.vars[0].isStatic == false);
@@ -98,6 +100,7 @@ TEST_CASE("Class with static member") {
   CHECK(s.proto == "class Foo");
   CHECK(s.vars.size() == 1);
   CHECK(s.methodIDs.size() == 0);
+  CHECK(s.templateParams.size() == 0);
   CHECK(s.baseRecords.size() == 0);
 
   CHECK(s.vars[0].isStatic == true);
@@ -143,6 +146,7 @@ TEST_CASE("Class with const member function") {
   CHECK(s.proto == "class Foo");
   CHECK(s.vars.size() == 0);
   CHECK(s.methodIDs.size() == 1);
+  CHECK(s.templateParams.size() == 0);
   CHECK(s.baseRecords.size() == 0);
 
   hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
@@ -173,6 +177,7 @@ TEST_CASE("Class with const member function") {
   CHECK(f.returnType.name == "void");
   CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
+  CHECK(f.templateParams.size() == 0);
 
   CHECK(f.params.size() == 1);
   CHECK(f.params[0].name == "a");
@@ -209,6 +214,7 @@ TEST_CASE("Checking that private members are indexed by default") {
   CHECK(s.vars.size() == 2);
   CHECK(s.methodIDs.size() == 2);
   CHECK(s.baseRecords.size() == 0);
+  CHECK(s.templateParams.size() == 0);
 }
 
 TEST_CASE("Checking that private members aren't indexed when they're not wanted") {
@@ -240,4 +246,5 @@ TEST_CASE("Checking that private members aren't indexed when they're not wanted"
   CHECK(s.vars.size() == 1);
   CHECK(s.methodIDs.size() == 1);
   CHECK(s.baseRecords.size() == 0);
+  CHECK(s.templateParams.size() == 0);
 }

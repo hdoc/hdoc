@@ -1,4 +1,4 @@
-project('hdoc', 'cpp', version: '1.2.4', default_options: ['cpp_std=c++17', 'warning_level=3'])
+project('hdoc', 'c', 'cpp', version: '1.3.0', default_options: ['cpp_std=c++17', 'warning_level=3'])
 
 dep_llvm = dependency('LLVM', include_type: 'system')
 clang_modules = [
@@ -94,5 +94,6 @@ test_src = [
   'tests/index-tests/test-comments-functions.cpp',
   'tests/index-tests/test-comments-enums.cpp',
   'tests/index-tests/test-comments-namespaces.cpp',
+  'tests/index-tests/test-comments-templates.cpp',
 ]
 executable('index-tests', sources: test_src, dependencies: libdeps, cpp_args: '-DHDOC_TEST_CODE')

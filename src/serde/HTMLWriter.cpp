@@ -137,14 +137,10 @@ static void printNewPage(const hdoc::types::Config&   cfg,
   // Use our custom css which is a modified version of bulma
   html.AppendNodeToHead(CTML::Node("link").SetAttr("rel", "stylesheet").SetAttr("href", "styles.css"));
 
-  // highlight.js stylesheet and scripts
+  // highlight.js scripts
   html.AppendNodeToHead(
-      CTML::Node("link")
-          .SetAttr("rel", "stylesheet")
-          .SetAttr("href", "//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/foundation.min.css"));
-  html.AppendNodeToHead(
-      CTML::Node("script").SetAttr("src", "//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js"));
-  html.AppendNodeToHead(CTML::Node("script", "hljs.initHighlightingOnLoad();"));
+      CTML::Node("script").SetAttr("src", "//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.3/highlight.min.js"));
+  html.AppendNodeToHead(CTML::Node("script", "hljs.highlightAll();"));
 
   // KaTeX configuration
   html.AppendNodeToHead(CTML::Node("link")
@@ -449,8 +445,13 @@ getBreadcrumbNode(const std::string& prefix, const hdoc::types::Symbol& s, const
 static void printFunction(const hdoc::types::FunctionSymbol& f, CTML::Node& main, const std::string& gitRepoURL) {
   // Print function return type, name, and parameters as section header
   std::string proto = hdoc::serde::getHyperlinkedFunctionProto(hdoc::serde::clangFormat(f.proto), f);
-  auto        inner = CTML::Node("code.language-cpp").AppendRawHTML(proto);
-  main.AddChild(CTML::Node("h3#" + f.ID.str()).AddChild(CTML::Node("pre").AddChild(inner)));
+  auto        inner = CTML::Node("code.hdoc-function-code.language-cpp").AppendRawHTML(proto);
+  main.AddChild(CTML::Node("h3#" + f.ID.str())
+                    .AddChild(CTML::Node("pre.p-0.hdoc-pre-parent")
+                                  .AddChild(CTML::Node("a.is-size-4", "¶")
+                                                .SetAttr("class", "hdoc-permalink-icon")
+                                                .SetAttr("href", "#" + f.ID.str()))
+                                  .AddChild(inner)));
 
   // Print function description only if there's an associated comment
   if (f.briefComment != "" || f.docComment != "") {
@@ -464,6 +465,26 @@ static void printFunction(const hdoc::types::FunctionSymbol& f, CTML::Node& main
     main.AddChild(CTML::Node("p", f.docComment));
   }
   main.AddChild(getDeclaredAtNode(f, gitRepoURL));
+
+  // Print function parameters (with type, name, default value, and comment) as a list
+  if (f.templateParams.size() > 0) {
+    main.AddChild(CTML::Node("h4", "Templates"));
+    CTML::Node dl("dl");
+
+    for (auto tparam : f.templateParams) {
+      auto dt = CTML::Node("dt.is-family-code").AppendRawHTML(tparam.type);
+      dt.AddChild(CTML::Node("b", " " + tparam.name));
+
+      if (tparam.defaultValue != "") {
+        dt.AppendText(" = " + tparam.defaultValue);
+      }
+      dl.AddChild(dt);
+      if (tparam.docComment != "") {
+        dl.AddChild(CTML::Node("dd", tparam.docComment));
+      }
+    }
+    main.AddChild(dl);
+  }
 
   // Print function parameters (with type, name, default value, and comment) as a list
   if (f.params.size() > 0) {
@@ -657,8 +678,9 @@ void hdoc::serde::HTMLWriter::printRecord(const hdoc::types::RecordSymbol& c) co
 
   // Full declaration
   main.AddChild(CTML::Node("h2", "Declaration"));
-  main.AddChild(CTML::Node("pre").AddChild(
-      CTML::Node("code.language-cpp", hdoc::serde::clangFormat(c.proto, 70) + " { /* full declaration omitted */ };")));
+  main.AddChild(CTML::Node("pre.p-0").AddChild(
+      CTML::Node("code.hdoc-record-code.language-cpp",
+                 hdoc::serde::clangFormat(c.proto, 70) + " { /* full declaration omitted */ };")));
 
   if (c.briefComment != "" || c.docComment != "") {
     main.AddChild(CTML::Node("h2", "Description"));
@@ -689,6 +711,26 @@ void hdoc::serde::HTMLWriter::printRecord(const hdoc::types::RecordSymbol& c) co
       count++;
     }
     main.AddChild(baseP);
+  }
+
+  // Print function parameters (with type, name, default value, and comment) as a list
+  if (c.templateParams.size() > 0) {
+    main.AddChild(CTML::Node("h4", "Templates"));
+    CTML::Node dl("dl");
+
+    for (auto tparam : c.templateParams) {
+      auto dt = CTML::Node("dt.is-family-code").AppendRawHTML(tparam.type);
+      dt.AddChild(CTML::Node("b", " " + tparam.name));
+
+      if (tparam.defaultValue != "") {
+        dt.AppendText(" = " + tparam.defaultValue);
+      }
+      dl.AddChild(dt);
+      if (tparam.docComment != "") {
+        dl.AddChild(CTML::Node("dd", tparam.docComment));
+      }
+    }
+    main.AddChild(dl);
   }
 
   // Print regular member variables
@@ -937,7 +979,7 @@ We have left the Javascript code unminified so that you are able to inspect it y
                          .SetAttr("style", "display: none");
   main.AddChild(input);
   main.AddChild(CTML::Node("p#info", "Loading index of all symbols. This may take time for large codebases."));
-  main.AddChild(CTML::Node("div.list is-hoverable#results").SetAttr("style", "display: none"));
+  main.AddChild(CTML::Node("div.panel is-hoverable#results").SetAttr("style", "display: none"));
   main.AddChild(
       CTML::Node("script").SetAttr("src", "https://cdn.jsdelivr.net/npm/minisearch@2.4.1/dist/umd/index.min.js"));
   main.AddChild(CTML::Node("script").SetAttr("src", "search.js"));

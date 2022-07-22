@@ -53,11 +53,20 @@ TEST_CASE("Function template declaration") {
   CHECK(f.params[1].type.id.raw() == 0);
   CHECK(f.params[1].docComment == "");
   CHECK(f.params[1].defaultValue == "");
+
+  CHECK(f.templateParams.size() == 1);
+  CHECK(f.templateParams[0].templateType == hdoc::types::TemplateParam::TemplateType::TemplateTypeParameter);
+  CHECK(f.templateParams[0].name == "T");
+  CHECK(f.templateParams[0].type == "");
+  CHECK(f.templateParams[0].docComment == "");
+  CHECK(f.templateParams[0].defaultValue == "");
+  CHECK(f.templateParams[0].isParameterPack == false);
+  CHECK(f.templateParams[0].isTypename == false);
 }
 
 TEST_CASE("Function template definition") {
   const std::string code = R"(
-    template<class T>
+    template<typename T>
     void foo(T& a, T& b) {}
   )";
 
@@ -88,7 +97,7 @@ TEST_CASE("Function template definition") {
   CHECK(f.storageClass == clang::SC_None);
   CHECK(f.refQualifier == clang::RQ_None);
 
-  CHECK(f.proto == "template <class T>void foo(T & a, T & b)");
+  CHECK(f.proto == "template <typename T>void foo(T & a, T & b)");
   CHECK(f.returnType.name == "void");
   CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
@@ -105,6 +114,15 @@ TEST_CASE("Function template definition") {
   CHECK(f.params[1].type.id.raw() == 0);
   CHECK(f.params[1].docComment == "");
   CHECK(f.params[1].defaultValue == "");
+
+  CHECK(f.templateParams.size() == 1);
+  CHECK(f.templateParams[0].templateType == hdoc::types::TemplateParam::TemplateType::TemplateTypeParameter);
+  CHECK(f.templateParams[0].name == "T");
+  CHECK(f.templateParams[0].type == "");
+  CHECK(f.templateParams[0].docComment == "");
+  CHECK(f.templateParams[0].defaultValue == "");
+  CHECK(f.templateParams[0].isParameterPack == false);
+  CHECK(f.templateParams[0].isTypename == true);
 }
 
 TEST_CASE("Function with variadic template") {
@@ -151,6 +169,15 @@ TEST_CASE("Function with variadic template") {
   CHECK(f.params[0].type.id.raw() == 0);
   CHECK(f.params[0].docComment == "");
   CHECK(f.params[0].defaultValue == "");
+
+  CHECK(f.templateParams.size() == 1);
+  CHECK(f.templateParams[0].templateType == hdoc::types::TemplateParam::TemplateType::TemplateTypeParameter);
+  CHECK(f.templateParams[0].name == "Ts");
+  CHECK(f.templateParams[0].type == "");
+  CHECK(f.templateParams[0].docComment == "");
+  CHECK(f.templateParams[0].defaultValue == "");
+  CHECK(f.templateParams[0].isParameterPack == true);
+  CHECK(f.templateParams[0].isTypename == true);
 }
 
 TEST_CASE("Function specialized template parameter") {
@@ -187,6 +214,15 @@ TEST_CASE("Function specialized template parameter") {
   CHECK(s1.methodIDs.size() == 0);
   CHECK(s1.baseRecords.size() == 0);
 
+  CHECK(s1.templateParams.size() == 1);
+  CHECK(s1.templateParams[0].templateType == hdoc::types::TemplateParam::TemplateType::TemplateTypeParameter);
+  CHECK(s1.templateParams[0].name == "T");
+  CHECK(s1.templateParams[0].type == "");
+  CHECK(s1.templateParams[0].docComment == "");
+  CHECK(s1.templateParams[0].defaultValue == "");
+  CHECK(s1.templateParams[0].isParameterPack == false);
+  CHECK(s1.templateParams[0].isTypename == false);
+
   hdoc::types::RecordSymbol s2 = *o2;
   CHECK(s2.name == "Foo");
   CHECK(s2.briefComment == "");
@@ -199,6 +235,7 @@ TEST_CASE("Function specialized template parameter") {
   CHECK(s2.vars.size() == 0);
   CHECK(s2.methodIDs.size() == 1);
   CHECK(s2.baseRecords.size() == 0);
+  CHECK(s2.templateParams.size() == 0);
 
   hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
   CHECK(f.name == "Bar");
@@ -228,8 +265,9 @@ TEST_CASE("Function specialized template parameter") {
   CHECK(f.returnType.name == "void");
   CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
-  CHECK(f.params.size() == 1);
+  CHECK(f.templateParams.size() == 0);
 
+  CHECK(f.params.size() == 1);
   CHECK(f.params[0].name == "");
   CHECK(f.params[0].type.name == "Template<double> &");
   // CHECK(f.params[0].type.id == s1.ID); // TODO: figure out why this doesn't work
@@ -269,6 +307,15 @@ TEST_CASE("Templated class with templated member variable") {
   CHECK(s.vars[0].defaultValue == "");
   CHECK(s.vars[0].docComment == "");
   CHECK(s.vars[0].access == clang::AS_public);
+
+  CHECK(s.templateParams.size() == 1);
+  CHECK(s.templateParams[0].templateType == hdoc::types::TemplateParam::TemplateType::TemplateTypeParameter);
+  CHECK(s.templateParams[0].name == "T");
+  CHECK(s.templateParams[0].type == "");
+  CHECK(s.templateParams[0].docComment == "");
+  CHECK(s.templateParams[0].defaultValue == "");
+  CHECK(s.templateParams[0].isParameterPack == false);
+  CHECK(s.templateParams[0].isTypename == false);
 
   hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
   CHECK(f.name == "bar");
@@ -331,6 +378,15 @@ TEST_CASE("Namespace and templated class") {
   CHECK(s.vars.size() == 0);
   CHECK(s.methodIDs.size() == 0);
   CHECK(s.baseRecords.size() == 0);
+
+  CHECK(s.templateParams.size() == 1);
+  CHECK(s.templateParams[0].templateType == hdoc::types::TemplateParam::TemplateType::TemplateTypeParameter);
+  CHECK(s.templateParams[0].name == "T");
+  CHECK(s.templateParams[0].type == "");
+  CHECK(s.templateParams[0].docComment == "");
+  CHECK(s.templateParams[0].defaultValue == "");
+  CHECK(s.templateParams[0].isParameterPack == false);
+  CHECK(s.templateParams[0].isTypename == true);
 }
 
 TEST_CASE("Specialized function definition") {
@@ -363,6 +419,15 @@ TEST_CASE("Specialized function definition") {
   CHECK(s.methodIDs.size() == 1);
   CHECK(s.baseRecords.size() == 0);
 
+  CHECK(s.templateParams.size() == 1);
+  CHECK(s.templateParams[0].templateType == hdoc::types::TemplateParam::TemplateType::TemplateTypeParameter);
+  CHECK(s.templateParams[0].name == "T");
+  CHECK(s.templateParams[0].type == "");
+  CHECK(s.templateParams[0].docComment == "");
+  CHECK(s.templateParams[0].defaultValue == "");
+  CHECK(s.templateParams[0].isParameterPack == false);
+  CHECK(s.templateParams[0].isTypename == false);
+
   hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
   CHECK(f.name == "Foo");
   CHECK(f.briefComment == "");
@@ -392,6 +457,7 @@ TEST_CASE("Specialized function definition") {
   CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
+  CHECK(f.templateParams.size() == 0);
 }
 
 // TODO: figure out why there are 3 CXXMethodDecls in this code block

@@ -160,8 +160,8 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
     llvm::Optional<llvm::StringRef>    redirects[]   = {llvm::None, {"/dev/null"}, {tempFile}}; // stdin, stdout, stderr
 
     std::string errMsg = "";
-    if (int rc =
-            llvm::sys::ExecuteAndWait(compilerPath.get(), compilerFlags, llvm::None, redirects, 10, 0, &errMsg) != 0) {
+    int rc = llvm::sys::ExecuteAndWait(compilerPath.get(), compilerFlags, llvm::None, redirects, 10, 0, &errMsg);
+    if (rc != 0) {
       spdlog::error("Failed to determine the system include paths ({}, {}).", rc, errMsg);
       return;
     }

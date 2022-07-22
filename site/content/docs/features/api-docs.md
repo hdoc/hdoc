@@ -27,6 +27,7 @@ For functions and methods:
 - `@brief`
 - `@param`
 - `@returns`
+- `@tparam`
 
 For classes, structs, and unions:
 - `@brief`

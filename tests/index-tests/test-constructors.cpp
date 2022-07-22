@@ -31,6 +31,7 @@ TEST_CASE("Class with constructor definition") {
   CHECK(s.vars.size() == 0);
   CHECK(s.methodIDs.size() == 1);
   CHECK(s.baseRecords.size() == 0);
+  CHECK(s.templateParams.size() == 0);
 
   std::optional<hdoc::types::FunctionSymbol> o1 = findByName(index.functions, "Foo");
   std::optional<hdoc::types::FunctionSymbol> o2 = findByName(index.functions, "bar");

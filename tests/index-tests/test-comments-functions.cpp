@@ -41,6 +41,7 @@ TEST_CASE("Function with docComment only (style 1)") {
   CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "");
   CHECK(s.params.size() == 0);
+  CHECK(s.templateParams.size() == 0);
 }
 
 TEST_CASE("Function with docComment only (style 2)") {
@@ -83,6 +84,7 @@ TEST_CASE("Function with docComment only (style 2)") {
   CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "");
   CHECK(s.params.size() == 0);
+  CHECK(s.templateParams.size() == 0);
 }
 
 TEST_CASE("Function with docComment only (style 3, ignored)") {
@@ -122,6 +124,7 @@ TEST_CASE("Function with docComment only (style 3, ignored)") {
   CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "");
   CHECK(s.params.size() == 0);
+  CHECK(s.templateParams.size() == 0);
 }
 
 TEST_CASE("Function with trailing return type syntax and comments") {
@@ -165,6 +168,7 @@ TEST_CASE("Function with trailing return type syntax and comments") {
   CHECK(s.returnType.name == "int");
   CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "boo");
+  CHECK(s.templateParams.size() == 0);
 
   CHECK(s.params.size() == 2);
   CHECK(s.params[0].name == "x");
@@ -222,6 +226,7 @@ TEST_CASE("Function with trailing return type syntax, comments, and an extra err
   CHECK(s.returnType.name == "int");
   CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "boo");
+  CHECK(s.templateParams.size() == 0);
 
   CHECK(s.params.size() == 2);
   CHECK(s.params[0].name == "x");
@@ -287,6 +292,7 @@ TEST_CASE("Function that uses many unsupported doxygen commands") {
   CHECK(s.returnType.name == "void");
   CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == "Void");
+  CHECK(s.templateParams.size() == 0);
 
   CHECK(s.params.size() == 3);
   CHECK(s.params[0].name == "n");
@@ -352,6 +358,7 @@ TEST_CASE("Function has math commands in function and parameter names") {
   CHECK(s.returnType.name == "double");
   CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == R"(the result of $$ \sqrt{(x_2-x_1)^2 + (y_2-y_1)^2} $$)");
+  CHECK(s.templateParams.size() == 0);
 
   CHECK(s.params.size() == 4);
   CHECK(s.params[0].name == "x1");

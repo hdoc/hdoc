@@ -29,6 +29,10 @@ template <class Archive> static void serialize(Archive& archive, hdoc::types::Sy
   archive(s.hashValue);
 }
 
+template <class Archive> static void serialize(Archive& archive, hdoc::types::TemplateParam& s) {
+  archive(s.name, s.type, s.templateType, s.docComment, s.defaultValue, s.isParameterPack, s.isTypename);
+}
+
 template <class Archive> static void serialize(Archive& archive, hdoc::types::Symbol& s) {
   archive(s.name, s.briefComment, s.docComment, s.ID, s.file, s.line, s.parentNamespaceID);
 }
@@ -42,7 +46,13 @@ template <class Archive> static void serialize(Archive& archive, hdoc::types::Re
 }
 
 template <class Archive> static void serialize(Archive& archive, hdoc::types::RecordSymbol& s) {
-  archive(cereal::base_class<hdoc::types::Symbol>(&s), s.type, s.proto, s.vars, s.methodIDs, s.baseRecords);
+  archive(cereal::base_class<hdoc::types::Symbol>(&s),
+          s.type,
+          s.proto,
+          s.vars,
+          s.methodIDs,
+          s.baseRecords,
+          s.templateParams);
 }
 
 template <class Archive> static void serialize(Archive& archive, hdoc::types::FunctionParam& s) {
@@ -74,7 +84,8 @@ template <class Archive> static void serialize(Archive& archive, hdoc::types::Fu
           s.proto,
           s.returnType,
           s.returnTypeDocComment,
-          s.params);
+          s.params,
+          s.templateParams);
 }
 
 template <class Archive> static void serialize(Archive& archive, hdoc::types::EnumMember& s) {
@@ -239,7 +250,7 @@ void uploadDocs(const std::string& data) {
   httplib::Headers headers{
       {"Authorization", "Api-Key " + api_key},
       {"Content-Disposition", "inline;filename=docs.archive"},
-      {"X-Schema-Version", "v3"},
+      {"X-Schema-Version", "v4"},
   };
 
   const auto res = cli.Put("/api/upload/", headers, data.data(), data.size(), "application/octet-stream");

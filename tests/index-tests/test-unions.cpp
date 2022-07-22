@@ -157,7 +157,7 @@ TEST_CASE("Anonymous struct in a union") {
 
   CHECK(s.vars[1].isStatic == false);
   CHECK(s.vars[1].name == "v");
-  CHECK(s.vars[1].type.name == "float [3]");
+  CHECK(s.vars[1].type.name == "float[3]");
   CHECK(s.vars[1].type.id.raw() == 0);
   CHECK(s.vars[1].defaultValue == "");
   CHECK(s.vars[1].docComment == "");

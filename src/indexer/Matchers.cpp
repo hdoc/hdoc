@@ -82,18 +82,41 @@ void hdoc::indexer::matchers::FunctionMatcher::run(const clang::ast_matchers::Ma
     }
     f.params.push_back(a);
   }
+
+  if (clang::FunctionTemplateDecl* templateDecl = res->getDescribedFunctionTemplate()) {
+    for (const auto* parameterDecl : *templateDecl->getTemplateParameters()) {
+      hdoc::types::TemplateParam tparam;
+      if (const auto* templateType = llvm::dyn_cast<clang::TemplateTypeParmDecl>(parameterDecl)) {
+        tparam.templateType    = hdoc::types::TemplateParam::TemplateType::TemplateTypeParameter;
+        tparam.isParameterPack = templateType->isParameterPack();
+        tparam.isTypename      = templateType->wasDeclaredWithTypename();
+        tparam.name            = templateType->getNameAsString();
+        tparam.defaultValue =
+            templateType->hasDefaultArgument() ? templateType->getDefaultArgument().getAsString(pp) : "";
+      } else if (const auto* nonTypeTemplate = llvm::dyn_cast<clang::NonTypeTemplateParmDecl>(parameterDecl)) {
+        tparam.templateType    = hdoc::types::TemplateParam::TemplateType::NonTypeTemplate;
+        tparam.isParameterPack = nonTypeTemplate->isParameterPack();
+        tparam.name            = nonTypeTemplate->getNameAsString();
+        tparam.defaultValue =
+            nonTypeTemplate->hasDefaultArgument() ? exprToString(nonTypeTemplate->getDefaultArgument(), pp) : "";
+        tparam.type = nonTypeTemplate->getType().getAsString(pp);
+      }
+      f.templateParams.push_back(tparam);
+    }
+  }
+
   const clang::comments::Comment* comment = res->getASTContext().getCommentForDecl(res, nullptr);
   if (comment != nullptr) {
     processFunctionComment(f, comment, res->getASTContext());
   }
 
-  // Don't print "void" return type for constructors and destructorss.
+  // Don't print "void" return type for constructors and destructors.
   f.isCtorOrDtor = clang::isa<clang::CXXConstructorDecl>(res) || clang::isa<clang::CXXDestructorDecl>(res);
   if (f.isCtorOrDtor == false) {
     f.returnType.name = res->getReturnType().getAsString(pp);
     f.returnType.id   = getTypeSymbolID(res->getReturnType());
   }
-  f.proto          = getFunctionSignature(f, res);
+  f.proto          = getFunctionSignature(f);
   f.isRecordMember = res->isCXXClassMember();
 
   findParentNamespace(f, res);
@@ -188,45 +211,44 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
     }
   }
 
+  // Determine record type
+  c.type = res->getKindName();
+
   // Get full declaration including templates
   clang::PrintingPolicy pp(res->getASTContext().getLangOpts());
-  std::size_t           count = 0;
   if (const auto* templateDecl = res->getDescribedClassTemplate()) {
-    c.proto += "template <";
     for (const auto* paramDecl : *templateDecl->getTemplateParameters()) {
-      if (count > 0) {
-        c.proto += ", ";
-      }
+      hdoc::types::TemplateParam tparam;
       if (const auto& templateType = llvm::dyn_cast<clang::TemplateTypeParmDecl>(paramDecl)) {
-        c.proto += templateType->wasDeclaredWithTypename() ? "typename" : "class";
-        c.proto += templateType->isParameterPack() ? "... " : " ";
-        c.proto += templateType->getNameAsString();
+        tparam.templateType    = hdoc::types::TemplateParam::TemplateType::TemplateTypeParameter;
+        tparam.isTypename      = templateType->wasDeclaredWithTypename();
+        tparam.isParameterPack = templateType->isParameterPack();
+        tparam.name            = templateType->getNameAsString();
         // Get default argument if it exists
-        c.proto += templateType->hasDefaultArgument() ? " = " + templateType->getDefaultArgument().getAsString(pp) : "";
-      } else if (const auto* nonTemplateType = llvm::dyn_cast<clang::NonTypeTemplateParmDecl>(paramDecl)) {
-        c.proto += nonTemplateType->getType().getAsString(pp);
-        c.proto += nonTemplateType->isParameterPack() ? "..." : "";
-        c.proto += " " + nonTemplateType->getNameAsString();
+        tparam.defaultValue =
+            templateType->hasDefaultArgument() ? templateType->getDefaultArgument().getAsString(pp) : "";
+      } else if (const auto* nonTypeTemplate = llvm::dyn_cast<clang::NonTypeTemplateParmDecl>(paramDecl)) {
+        tparam.templateType    = hdoc::types::TemplateParam::TemplateType::NonTypeTemplate;
+        tparam.type            = nonTypeTemplate->getType().getAsString(pp);
+        tparam.isParameterPack = nonTypeTemplate->isParameterPack();
+        tparam.name            = nonTypeTemplate->getNameAsString();
         // Get default argument if it exists
-        c.proto += nonTemplateType->hasDefaultArgument()
-                       ? " = " + exprToString(nonTemplateType->getDefaultArgument(), pp)
-                       : "";
+        tparam.defaultValue =
+            nonTypeTemplate->hasDefaultArgument() ? exprToString(nonTypeTemplate->getDefaultArgument(), pp) : "";
       } else if (const auto* templateTemplateType = llvm::dyn_cast<clang::TemplateTemplateParmDecl>(paramDecl)) {
-        c.proto +=
+        tparam.templateType = hdoc::types::TemplateParam::TemplateType::TemplateTemplateType;
+        tparam.type =
             clang::Lexer::getSourceText(clang::CharSourceRange::getCharRange(templateTemplateType->getSourceRange()),
                                         res->getASTContext().getSourceManager(),
                                         res->getASTContext().getLangOpts());
-        c.proto += templateTemplateType->isParameterPack() ? "..." : "";
-        c.proto += " " + templateTemplateType->getNameAsString();
+        tparam.name            = templateTemplateType->getNameAsString();
+        tparam.isParameterPack = templateTemplateType->isParameterPack() ? "..." : "";
       }
-      count++;
+      c.templateParams.push_back(tparam);
     }
-    c.proto += "> ";
   }
-  c.proto += res->getKindName().str() + " " + c.name;
 
-  // Determine record type
-  c.type = res->getKindName();
+  c.proto = getRecordProto(c);
 
   // TODO: fix this hack
   // If there is an anonymous struct/enum/union declared as a member variable of a record, clang

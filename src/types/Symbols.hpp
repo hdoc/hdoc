@@ -74,14 +74,31 @@ struct TypeRef {
   std::string           name; ///< Name of the type
 };
 
+/// @brief Represents a function parameter
+struct TemplateParam {
+  enum class TemplateType {
+    TemplateTypeParameter,
+    TemplateTemplateType,
+    NonTypeTemplate,
+  };
+  TemplateType templateType;
+
+  std::string name;                    ///< Name given to the parameter
+  std::string type;                    ///< Type given to the parameter (if any)
+  std::string docComment;              ///< Any comment attached to this param using @tparam or \tparam
+  std::string defaultValue;            ///< The default value for this param, if it exists
+  bool        isParameterPack = false; ///< Is this template a parameter pack, i.e. "typename..."
+  bool        isTypename      = false; ///< Was this template declared with "typename" or "class"?
+};
+
 /// @brief Represents a member variable of a record
 struct MemberVariable {
-  bool                   isStatic = false; ///< Is this member variable marked static?
-  std::string            name;             ///< Name of the member variable
-  hdoc::types::TypeRef   type;             ///< Type of the string, i.e. int or a struct name
-  std::string            defaultValue;     ///< Default value, usually an int
-  std::string            docComment;       ///< Any comment attached to this decl
-  clang::AccessSpecifier access;           ///< Access type, i.e. public/protected/private
+  bool                   isStatic = false;           ///< Is this member variable marked static?
+  std::string            name;                       ///< Name of the member variable
+  hdoc::types::TypeRef   type;                       ///< Type of the string, i.e. int or a struct name
+  std::string            defaultValue;               ///< Default value, usually an int
+  std::string            docComment;                 ///< Any comment attached to this decl
+  clang::AccessSpecifier access = clang::AS_private; ///< Access type, i.e. public/protected/private
 };
 
 /// @brief Describes a record, such as a struct, class, or union
@@ -93,11 +110,12 @@ struct RecordSymbol : public Symbol {
     std::string            name;   ///< Name of the record, used only for base records in std:: which aren't indexed
   };
 
-  std::string                        type;        ///< i.e. struct/class/union
-  std::string                        proto;       ///< Full class prototype, including
-  std::vector<MemberVariable>        vars;        ///< All of this record's member variables
-  std::vector<hdoc::types::SymbolID> methodIDs;   ///< All of this record's methods
-  std::vector<BaseRecord>            baseRecords; ///< All of the records this record inherits from
+  std::string                        type;           ///< i.e. struct/class/union
+  std::string                        proto;          ///< Full class prototype, including
+  std::vector<MemberVariable>        vars;           ///< All of this record's member variables
+  std::vector<hdoc::types::SymbolID> methodIDs;      ///< All of this record's methods
+  std::vector<BaseRecord>            baseRecords;    ///< All of the records this record inherits from
+  std::vector<TemplateParam>         templateParams; ///< All of the template parameters for this record
 
   std::string url() const {
     return "r" + this->ID.str() + ".html";
@@ -128,14 +146,15 @@ public:
   bool                       hasTrailingReturn = false; ///< Does use the funky `auto func() -> int {}` syntax?
   bool                       isCtorOrDtor      = false; ///< Is it a record constructor or destructor
   uint64_t                   nameStart         = 0;     ///< Position of the first character of the name
-  uint64_t                   postTemplate      = 0;     ///< Position of the first character after all the template magic
+  uint64_t                   postTemplate      = 0; ///< Position of the first character after all the template magic
   clang::AccessSpecifier     access            = clang::AS_public; ///< Is the function public/protected/private
-  clang::StorageClass        storageClass;                         ///< Is this function marked static or extern;
-  clang::RefQualifierKind    refQualifier; ///< Refqualifier of this function, if any, ex. void get() &
-  std::string                proto;        ///< Function prototype, including template, return type, name, and params
-  hdoc::types::TypeRef       returnType;   ///< Return type of the function, ex. "int"
+  clang::StorageClass        storageClass      = clang::SC_None;   ///< Is this function marked static or extern;
+  clang::RefQualifierKind    refQualifier = clang::RQ_None; ///< Refqualifier of this function, if any, ex. void get() &
+  std::string                proto;      ///< Function prototype, including template, return type, name, and params
+  hdoc::types::TypeRef       returnType; ///< Return type of the function, ex. "int"
   std::string                returnTypeDocComment; ///< Any comment attached to a @return(s) or \return(s) command
-  std::vector<FunctionParam> params;               ///< All of the parameters for this function
+  std::vector<FunctionParam> params;               ///< All of the template parameters for this function
+  std::vector<TemplateParam> templateParams;       ///< All of the parameters for this function
 
   std::string url() const {
     return "f" + this->ID.str() + ".html";

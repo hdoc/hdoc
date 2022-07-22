@@ -32,6 +32,7 @@ TEST_CASE("Record with commented member variables") {
   CHECK(s.ID.str().size() == 16);
   CHECK(s.parentNamespaceID.raw() == 0);
   CHECK(s.vars.size() == 4);
+  CHECK(s.templateParams.size() == 0);
 
   CHECK(s.vars[0].isStatic == false);
   CHECK(s.vars[0].name == "m_sample_rate");

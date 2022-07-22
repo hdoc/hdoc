@@ -9,7 +9,7 @@
 static const char* cppreferenceURL = "https://en.cppreference.com/w/cpp/";
 
 /// Map of std:: types to their cppreference.com URLs.
-/// The full URL is made by concating the value for a given key with cppreferenceURL.
+/// The full URL is made by concatenating the value for a given key with cppreferenceURL.
 static std::unordered_map<std::string, std::string> StdTypeURLMap = {
     {"std::array", "container/array"},
     {"std::vector", "container/vector"},
@@ -47,7 +47,6 @@ static std::unordered_map<std::string, std::string> StdTypeURLMap = {
     {"std::filesystem::recursive_directory_iterator", "filesystem/recursive_directory_iterator"},
     {"std::filesystem::file_status", "filesystem/file_status"},
     {"std::filesystem::space_info", "filesystem/space_info"},
-    {"std::filesystem::directory_entry", "filesystem/directory_entry"},
     {"std::filesystem::file_type", "filesystem/file_type"},
     {"std::filesystem::perms", "filesystem/perms"},
     {"std::filesystem::perm_options", "filesystem/perm_options"},

@@ -162,6 +162,7 @@ TEST_CASE("Function declaration in namespace") {
   CHECK(f.returnType.name == "void");
   CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
+  CHECK(f.templateParams.size() == 0);
 
   CHECK(f.params.size() == 2);
   CHECK(f.params[0].name == "a");
@@ -238,6 +239,7 @@ TEST_CASE("Class in namespace with method declaration") {
   CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
+  CHECK(f.templateParams.size() == 0);
 }
 
 TEST_CASE("Class in namespace with outside method definition") {
@@ -273,6 +275,7 @@ TEST_CASE("Class in namespace with outside method definition") {
   CHECK(s.vars.size() == 0);
   CHECK(s.methodIDs.size() == 1);
   CHECK(s.baseRecords.size() == 0);
+  CHECK(s.templateParams.size() == 0);
 
   hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
   CHECK(f.name == "foo");
@@ -303,6 +306,7 @@ TEST_CASE("Class in namespace with outside method definition") {
   CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
+  CHECK(f.templateParams.size() == 0);
 }
 
 TEST_CASE("Class in namespace with in method definition") {
@@ -336,6 +340,7 @@ TEST_CASE("Class in namespace with in method definition") {
   CHECK(s.vars.size() == 0);
   CHECK(s.methodIDs.size() == 1);
   CHECK(s.baseRecords.size() == 0);
+  CHECK(s.templateParams.size() == 0);
 
   hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
   CHECK(f.name == "foo");
@@ -366,6 +371,7 @@ TEST_CASE("Class in namespace with in method definition") {
   CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
+  CHECK(f.templateParams.size() == 0);
 }
 
 TEST_CASE("Function declaration in nested namespaces") {
@@ -429,6 +435,7 @@ TEST_CASE("Function declaration in nested namespaces") {
   CHECK(f.returnType.id.raw() == 0);
   CHECK(f.returnTypeDocComment == "");
   CHECK(f.params.size() == 0);
+  CHECK(f.templateParams.size() == 0);
 }
 
 TEST_CASE("Namespace alias") {

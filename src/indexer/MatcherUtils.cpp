@@ -47,6 +47,10 @@ static llvm::Optional<std::string> getCanonicalPath(const clang::Decl* d) {
   return path.str().str();
 }
 
+template <typename T> static bool isParamAndHasName(T* param) {
+  return param != nullptr && param->hasParamName();
+}
+
 /// This is used across all types of symbols (Function, Record, Namespace, etc.) to get the
 /// vital information of the symbol
 void fillOutSymbol(hdoc::types::Symbol& s, const clang::NamedDecl* d, const std::filesystem::path& rootDir) {
@@ -327,7 +331,8 @@ void processRecordComment(hdoc::types::RecordSymbol&      cs,
       }
     }
 
-    if (const auto* tParamComment = llvm::dyn_cast<clang::comments::TParamCommandComment>(*c)) {
+    if (const auto* tParamComment = llvm::dyn_cast<clang::comments::TParamCommandComment>(*c);
+        isParamAndHasName(tParamComment)) {
       const std::string tParamName = tParamComment->getParamNameAsWritten().str();
       for (auto& tparam : cs.templateParams) {
         if (tparam.name == tParamName) {
@@ -380,7 +385,8 @@ void processFunctionComment(hdoc::types::FunctionSymbol&    f,
     }
 
     // Match function parameter names with params in FunctionSymbol
-    if (const auto* paramComment = llvm::dyn_cast<clang::comments::ParamCommandComment>(*c)) {
+    if (const auto* paramComment = llvm::dyn_cast<clang::comments::ParamCommandComment>(*c);
+        isParamAndHasName(paramComment)) {
       const std::string paramName = paramComment->getParamNameAsWritten().str();
       for (auto& param : f.params) {
         if (param.name == paramName) {
@@ -389,7 +395,8 @@ void processFunctionComment(hdoc::types::FunctionSymbol&    f,
       }
     }
 
-    if (const auto* tParamComment = llvm::dyn_cast<clang::comments::TParamCommandComment>(*c)) {
+    if (const auto* tParamComment = llvm::dyn_cast<clang::comments::TParamCommandComment>(*c);
+        isParamAndHasName(tParamComment)) {
       const std::string tParamName = tParamComment->getParamNameAsWritten().str();
       for (auto& tparam : f.templateParams) {
         if (tparam.name == tParamName) {

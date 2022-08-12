@@ -203,3 +203,19 @@ TEST_CASE("Test a templated class with multiple tparam comments") {
   CHECK(s.templateParams[1].isParameterPack == false);
   CHECK(s.templateParams[1].isTypename == false);
 }
+
+TEST_CASE("Test a templated class with an empty tparam comment") {
+  const std::string code = R"(
+    /// \brief decoy brief comment
+    /// \tparam T1 a comment
+    /// \tparam
+    template <class T1> class Test {};
+  )";
+
+  const hdoc::types::Index index = runOverCode(code);
+  checkIndexSizes(index, 1, 0, 0, 0);
+
+  hdoc::types::RecordSymbol s = index.records.entries.begin()->second;
+  CHECK(s.name == "Test");
+  CHECK(s.templateParams.size() == 1);
+}

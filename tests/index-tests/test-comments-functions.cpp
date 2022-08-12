@@ -385,3 +385,21 @@ TEST_CASE("Function has math commands in function and parameter names") {
   CHECK(s.params[3].docComment == R"($\sqrt{y_2}$)");
   CHECK(s.params[3].defaultValue == "");
 }
+
+TEST_CASE("Function with empty parameter comment") {
+  const std::string code = R"(
+    /// @brief does foo to x
+    ///
+    /// @param x bar
+    /// @param
+    /// @returns boo
+    int foo(int x);
+  )";
+
+  const hdoc::types::Index index = runOverCode(code);
+  checkIndexSizes(index, 0, 1, 0, 0);
+
+  hdoc::types::FunctionSymbol s = index.functions.entries.begin()->second;
+  CHECK(s.name == "foo");
+  CHECK(s.params.size() == 1);
+}

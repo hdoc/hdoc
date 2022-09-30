@@ -6,6 +6,12 @@ date = 2020-01-01
 description = "What's changed between each release of hdoc, including new features, fixes, and improvements."
 +++
 
+# Version 1.3.2 (30 September 2022)
+
+## Fixes
+* Fixed a bug where the new loading spinner on search pages was not visible in light mode.
+  - Thank you [@jtbandes](https://github.com/jtbandes) for [the reporting this bug](https://github.com/hdoc/hdoc/issues/24).
+
 # Version 1.3.1 (29 September 2022)
 
 ## New Features

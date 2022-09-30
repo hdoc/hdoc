@@ -36,8 +36,8 @@ private:
   const hdoc::types::Config* cfg;
   llvm::ThreadPool&          pool;
 };
-std::string getHyperlinkedFunctionProto(const std::string& proto, const hdoc::types::FunctionSymbol& f);
-std::string clangFormat(const std::string& s, const uint64_t& columnLimit = 50);
-std::string getBareTypeName(const std::string& typeName);
+std::string getHyperlinkedFunctionProto(const std::string_view proto, const hdoc::types::FunctionSymbol& f);
+std::string clangFormat(const std::string_view s, const uint64_t& columnLimit = 50);
+std::string getBareTypeName(const std::string_view typeName);
 } // namespace serde
 } // namespace hdoc

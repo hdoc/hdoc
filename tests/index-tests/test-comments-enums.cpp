@@ -14,7 +14,8 @@ TEST_CASE("Enum class decl with comments") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 0, 1, 0);
 
   hdoc::types::EnumSymbol s = index.enums.entries.begin()->second;
@@ -46,7 +47,8 @@ TEST_CASE("Enum class decl with comments") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 0, 1, 0);
 
   hdoc::types::EnumSymbol s = index.enums.entries.begin()->second;
@@ -78,7 +80,8 @@ TEST_CASE("Enum class decl with comments") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 0, 1, 0);
 
   hdoc::types::EnumSymbol s = index.enums.entries.begin()->second;
@@ -115,7 +118,8 @@ TEST_CASE("Enum class decl with long doc comment") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 0, 1, 0);
 
   hdoc::types::EnumSymbol s = index.enums.entries.begin()->second;
@@ -147,7 +151,8 @@ TEST_CASE("Enum class decl with comments (alternate style)") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 0, 1, 0);
 
   hdoc::types::EnumSymbol s = index.enums.entries.begin()->second;
@@ -166,4 +171,27 @@ TEST_CASE("Enum class decl with comments (alternate style)") {
   CHECK(s.members[1].value == 0x01);
   CHECK(s.members[1].name == "B");
   CHECK(s.members[1].docComment == "bar");
+}
+
+TEST_CASE("Enum with inline command comments") {
+  const std::string code = R"(
+    /// @brief Testing if inline command comments, like @a varX, work.
+    ///
+    /// Let's see if they work in docComments @b makeMeBold.
+    enum class Foo {
+        /// foo
+        A = 0x00,
+        /// bar
+        B = 0x01,
+    };
+  )";
+
+  hdoc::types::Index index;
+  runOverCode(code, index);
+  checkIndexSizes(index, 0, 0, 1, 0);
+
+  hdoc::types::EnumSymbol s = index.enums.entries.begin()->second;
+  CHECK(s.name == "Foo");
+  CHECK(s.briefComment == "Testing if inline command comments, like @a varX, work.");
+  CHECK(s.docComment == "Let's see if they work in docComments @b makeMeBold.");
 }

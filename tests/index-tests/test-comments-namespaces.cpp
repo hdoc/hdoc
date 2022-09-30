@@ -12,7 +12,8 @@ TEST_CASE("Namespace with ignored brief comment") {
     namespace foo {}
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 0, 0, 1);
 
   hdoc::types::NamespaceSymbol s = index.namespaces.entries.begin()->second;
@@ -29,7 +30,8 @@ TEST_CASE("Namespace with ignored comment") {
     namespace foo {}
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 0, 0, 1);
 
   hdoc::types::NamespaceSymbol s = index.namespaces.entries.begin()->second;

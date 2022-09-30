@@ -9,7 +9,8 @@ TEST_CASE("Function template declaration") {
     void foo(T& a, T& b);
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
@@ -70,7 +71,8 @@ TEST_CASE("Function template definition") {
     void foo(T& a, T& b) {}
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
@@ -131,7 +133,8 @@ TEST_CASE("Function with variadic template") {
     void ignore(Ts... ts) {}
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
@@ -192,7 +195,8 @@ TEST_CASE("Function specialized template parameter") {
     void Foo::Bar(Template<double>&) {}
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 2, 1, 0, 0);
 
   std::optional<hdoc::types::RecordSymbol> o1 = findByName(index.records, "Template");
@@ -270,7 +274,7 @@ TEST_CASE("Function specialized template parameter") {
   CHECK(f.params.size() == 1);
   CHECK(f.params[0].name == "");
   CHECK(f.params[0].type.name == "Template<double> &");
-  // CHECK(f.params[0].type.id == s1.ID); // TODO: figure out why this doesn't work
+  CHECK(f.params[0].type.id == s1.ID);
   CHECK(f.params[0].docComment == "");
   CHECK(f.params[0].defaultValue == "");
 }
@@ -284,7 +288,8 @@ TEST_CASE("Templated class with templated member variable") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 1, 0, 0);
 
   hdoc::types::RecordSymbol s = index.records.entries.begin()->second;
@@ -356,7 +361,8 @@ TEST_CASE("Namespace and templated class") {
     }
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 0, 0, 1);
 
   hdoc::types::NamespaceSymbol n = index.namespaces.entries.begin()->second;
@@ -403,7 +409,8 @@ TEST_CASE("Specialized function definition") {
     void Template<void>::Foo() {}
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 1, 0, 0);
 
   hdoc::types::RecordSymbol s = index.records.entries.begin()->second;
@@ -460,6 +467,225 @@ TEST_CASE("Specialized function definition") {
   CHECK(f.templateParams.size() == 0);
 }
 
+TEST_CASE("Function that takes specialized template argument has correct TypeIDs") {
+  const std::string code = R"(
+    template<class T>
+    class TemplatedClass {};
+
+    void function(TemplatedClass<double> arg) {}
+  )";
+
+  hdoc::types::Index index;
+  runOverCode(code, index);
+  checkIndexSizes(index, 1, 1, 0, 0);
+
+  hdoc::types::RecordSymbol s = index.records.entries.begin()->second;
+  CHECK(s.name == "TemplatedClass");
+  CHECK(s.briefComment == "");
+  CHECK(s.docComment == "");
+  CHECK(s.ID.str().size() == 16);
+  CHECK(s.parentNamespaceID.raw() == 0);
+
+  CHECK(s.type == "class");
+  CHECK(s.proto == "template <class T> class TemplatedClass");
+  CHECK(s.vars.size() == 0);
+  CHECK(s.methodIDs.size() == 0);
+  CHECK(s.baseRecords.size() == 0);
+
+  CHECK(s.templateParams.size() == 1);
+  CHECK(s.templateParams[0].templateType == hdoc::types::TemplateParam::TemplateType::TemplateTypeParameter);
+  CHECK(s.templateParams[0].name == "T");
+  CHECK(s.templateParams[0].type == "");
+  CHECK(s.templateParams[0].docComment == "");
+  CHECK(s.templateParams[0].defaultValue == "");
+  CHECK(s.templateParams[0].isParameterPack == false);
+  CHECK(s.templateParams[0].isTypename == false);
+
+  hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
+  CHECK(f.name == "function");
+  CHECK(f.briefComment == "");
+  CHECK(f.docComment == "");
+  CHECK(f.ID.str().size() == 16);
+  CHECK(f.parentNamespaceID.raw() == 0);
+
+  CHECK(f.isRecordMember == false);
+  CHECK(f.isConstexpr == false);
+  CHECK(f.isConsteval == false);
+  CHECK(f.isInline == false);
+  CHECK(f.isConst == false);
+  CHECK(f.isVolatile == false);
+  CHECK(f.isRestrict == false);
+  CHECK(f.isVirtual == false);
+  CHECK(f.isVariadic == false);
+  CHECK(f.isNoExcept == false);
+  CHECK(f.hasTrailingReturn == false);
+  CHECK(f.isCtorOrDtor == false);
+
+  CHECK(f.access == clang::AS_none);
+  CHECK(f.storageClass == clang::SC_None);
+  CHECK(f.refQualifier == clang::RQ_None);
+
+  CHECK(f.proto == "void function(TemplatedClass<double> arg)");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
+  CHECK(f.returnTypeDocComment == "");
+  CHECK(f.params.size() == 1);
+  CHECK(f.templateParams.size() == 0);
+
+  CHECK(f.params.size() == 1);
+  CHECK(f.params[0].name == "arg");
+  CHECK(f.params[0].type.name == "TemplatedClass<double>");
+  CHECK(f.params[0].type.id == s.ID);
+  CHECK(f.params[0].docComment == "");
+  CHECK(f.params[0].defaultValue == "");
+}
+
+TEST_CASE("Function that takes specialized template argument with reference has correct TypeIDs") {
+  const std::string code = R"(
+    template<class T>
+    class TemplatedClass {};
+
+    void function(TemplatedClass<double>& arg) {}
+  )";
+
+  hdoc::types::Index index;
+  runOverCode(code, index);
+  checkIndexSizes(index, 1, 1, 0, 0);
+
+  hdoc::types::RecordSymbol s = index.records.entries.begin()->second;
+  CHECK(s.name == "TemplatedClass");
+  CHECK(s.briefComment == "");
+  CHECK(s.docComment == "");
+  CHECK(s.ID.str().size() == 16);
+  CHECK(s.parentNamespaceID.raw() == 0);
+
+  CHECK(s.type == "class");
+  CHECK(s.proto == "template <class T> class TemplatedClass");
+  CHECK(s.vars.size() == 0);
+  CHECK(s.methodIDs.size() == 0);
+  CHECK(s.baseRecords.size() == 0);
+
+  CHECK(s.templateParams.size() == 1);
+  CHECK(s.templateParams[0].templateType == hdoc::types::TemplateParam::TemplateType::TemplateTypeParameter);
+  CHECK(s.templateParams[0].name == "T");
+  CHECK(s.templateParams[0].type == "");
+  CHECK(s.templateParams[0].docComment == "");
+  CHECK(s.templateParams[0].defaultValue == "");
+  CHECK(s.templateParams[0].isParameterPack == false);
+  CHECK(s.templateParams[0].isTypename == false);
+
+  hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
+  CHECK(f.name == "function");
+  CHECK(f.briefComment == "");
+  CHECK(f.docComment == "");
+  CHECK(f.ID.str().size() == 16);
+  CHECK(f.parentNamespaceID.raw() == 0);
+
+  CHECK(f.isRecordMember == false);
+  CHECK(f.isConstexpr == false);
+  CHECK(f.isConsteval == false);
+  CHECK(f.isInline == false);
+  CHECK(f.isConst == false);
+  CHECK(f.isVolatile == false);
+  CHECK(f.isRestrict == false);
+  CHECK(f.isVirtual == false);
+  CHECK(f.isVariadic == false);
+  CHECK(f.isNoExcept == false);
+  CHECK(f.hasTrailingReturn == false);
+  CHECK(f.isCtorOrDtor == false);
+
+  CHECK(f.access == clang::AS_none);
+  CHECK(f.storageClass == clang::SC_None);
+  CHECK(f.refQualifier == clang::RQ_None);
+
+  CHECK(f.proto == "void function(TemplatedClass<double> & arg)");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
+  CHECK(f.returnTypeDocComment == "");
+  CHECK(f.params.size() == 1);
+  CHECK(f.templateParams.size() == 0);
+
+  CHECK(f.params.size() == 1);
+  CHECK(f.params[0].name == "arg");
+  CHECK(f.params[0].type.name == "TemplatedClass<double> &");
+  CHECK(f.params[0].type.id == s.ID);
+  CHECK(f.params[0].docComment == "");
+  CHECK(f.params[0].defaultValue == "");
+}
+
+TEST_CASE("Function that takes specialized template argument with pointer has correct TypeIDs") {
+  const std::string code = R"(
+    template<class T>
+    class TemplatedClass {};
+
+    void function(TemplatedClass<double>* arg) {}
+  )";
+
+  hdoc::types::Index index;
+  runOverCode(code, index);
+  checkIndexSizes(index, 1, 1, 0, 0);
+
+  hdoc::types::RecordSymbol s = index.records.entries.begin()->second;
+  CHECK(s.name == "TemplatedClass");
+  CHECK(s.briefComment == "");
+  CHECK(s.docComment == "");
+  CHECK(s.ID.str().size() == 16);
+  CHECK(s.parentNamespaceID.raw() == 0);
+
+  CHECK(s.type == "class");
+  CHECK(s.proto == "template <class T> class TemplatedClass");
+  CHECK(s.vars.size() == 0);
+  CHECK(s.methodIDs.size() == 0);
+  CHECK(s.baseRecords.size() == 0);
+
+  CHECK(s.templateParams.size() == 1);
+  CHECK(s.templateParams[0].templateType == hdoc::types::TemplateParam::TemplateType::TemplateTypeParameter);
+  CHECK(s.templateParams[0].name == "T");
+  CHECK(s.templateParams[0].type == "");
+  CHECK(s.templateParams[0].docComment == "");
+  CHECK(s.templateParams[0].defaultValue == "");
+  CHECK(s.templateParams[0].isParameterPack == false);
+  CHECK(s.templateParams[0].isTypename == false);
+
+  hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
+  CHECK(f.name == "function");
+  CHECK(f.briefComment == "");
+  CHECK(f.docComment == "");
+  CHECK(f.ID.str().size() == 16);
+  CHECK(f.parentNamespaceID.raw() == 0);
+
+  CHECK(f.isRecordMember == false);
+  CHECK(f.isConstexpr == false);
+  CHECK(f.isConsteval == false);
+  CHECK(f.isInline == false);
+  CHECK(f.isConst == false);
+  CHECK(f.isVolatile == false);
+  CHECK(f.isRestrict == false);
+  CHECK(f.isVirtual == false);
+  CHECK(f.isVariadic == false);
+  CHECK(f.isNoExcept == false);
+  CHECK(f.hasTrailingReturn == false);
+  CHECK(f.isCtorOrDtor == false);
+
+  CHECK(f.access == clang::AS_none);
+  CHECK(f.storageClass == clang::SC_None);
+  CHECK(f.refQualifier == clang::RQ_None);
+
+  CHECK(f.proto == "void function(TemplatedClass<double> * arg)");
+  CHECK(f.returnType.name == "void");
+  CHECK(f.returnType.id.raw() == 0);
+  CHECK(f.returnTypeDocComment == "");
+  CHECK(f.params.size() == 1);
+  CHECK(f.templateParams.size() == 0);
+
+  CHECK(f.params.size() == 1);
+  CHECK(f.params[0].name == "arg");
+  CHECK(f.params[0].type.name == "TemplatedClass<double> *");
+  CHECK(f.params[0].type.id == s.ID);
+  CHECK(f.params[0].docComment == "");
+  CHECK(f.params[0].defaultValue == "");
+}
+
 // TODO: figure out why there are 3 CXXMethodDecls in this code block
 // TEST_CASE("what the fuck") {
 //   const std::string code = R"(
@@ -473,6 +699,7 @@ TEST_CASE("Specialized function definition") {
 //     int b = Foo<bool>::foo<double>();
 //   )";
 
-//   const hdoc::types::Index index = runOverCode(code);
+//   hdoc::types::Index index;
+//   runOverCode(code, index);
 //   checkIndexSizes(index, 1, 1, 0, 0);
 // }

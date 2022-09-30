@@ -13,7 +13,8 @@ TEST_CASE("Test a function with tparam comments") {
     }
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol s = index.functions.entries.begin()->second;
@@ -67,7 +68,8 @@ TEST_CASE("Test a function with multiple tparam comments") {
     }
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol s = index.functions.entries.begin()->second;
@@ -127,7 +129,8 @@ TEST_CASE("Test a templated class with a tparam comment") {
     template <class T1, class T2> class Test {};
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 0, 0, 0);
 
   hdoc::types::RecordSymbol s = index.records.entries.begin()->second;
@@ -170,7 +173,8 @@ TEST_CASE("Test a templated class with multiple tparam comments") {
     template <class T1, class T2> class Test {};
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 0, 0, 0);
 
   hdoc::types::RecordSymbol s = index.records.entries.begin()->second;
@@ -202,4 +206,21 @@ TEST_CASE("Test a templated class with multiple tparam comments") {
   CHECK(s.templateParams[1].defaultValue == "");
   CHECK(s.templateParams[1].isParameterPack == false);
   CHECK(s.templateParams[1].isTypename == false);
+}
+
+TEST_CASE("Test a templated class with an empty tparam comment") {
+  const std::string code = R"(
+    /// \brief decoy brief comment
+    /// \tparam T1 a comment
+    /// \tparam
+    template <class T1> class Test {};
+  )";
+
+  hdoc::types::Index index;
+  runOverCode(code, index);
+  checkIndexSizes(index, 1, 0, 0, 0);
+
+  hdoc::types::RecordSymbol s = index.records.entries.begin()->second;
+  CHECK(s.name == "Test");
+  CHECK(s.templateParams.size() == 1);
 }

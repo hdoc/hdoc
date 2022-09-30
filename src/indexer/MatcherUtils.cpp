@@ -47,6 +47,10 @@ static llvm::Optional<std::string> getCanonicalPath(const clang::Decl* d) {
   return path.str().str();
 }
 
+template <typename T> static bool isParamAndHasName(const T* param) {
+  return (param != nullptr) && param->hasParamName();
+}
+
 /// This is used across all types of symbols (Function, Record, Namespace, etc.) to get the
 /// vital information of the symbol
 void fillOutSymbol(hdoc::types::Symbol& s, const clang::NamedDecl* d, const std::filesystem::path& rootDir) {
@@ -282,6 +286,16 @@ std::string getParaCommentContents(const clang::comments::Comment* comment, clan
                                           ctx.getLangOpts())
                   .drop_front() // there seems to be a leading space before the command name by default
                   .str();
+      // We ignore cases where there is more than 1 argument.
+      if (icc->getNumArgs() == 1) {
+        std::string argText = clang::Lexer::getSourceText(clang::CharSourceRange::getTokenRange(icc->getArgRange(0)),
+                                                          ctx.getSourceManager(),
+                                                          ctx.getLangOpts())
+                                  .str();
+        if (argText != "") {
+          text += " " + argText + " ";
+        }
+      }
       prevCommentWasDoxygenCommand = true;
     } else if (const auto* tc = llvm::dyn_cast<clang::comments::TextComment>(*c)) {
       if (!tc->isWhitespace()) {
@@ -296,6 +310,7 @@ std::string getParaCommentContents(const clang::comments::Comment* comment, clan
       }
     }
   }
+  hdoc::utils::rtrim(text);
   return text;
 }
 
@@ -307,93 +322,39 @@ std::string getCommentContents(const clang::comments::Comment* comment, clang::A
   return wholeText;
 }
 
-void processRecordComment(hdoc::types::RecordSymbol&      cs,
-                          const clang::comments::Comment* comment,
-                          clang::ASTContext&              ctx) {
-  for (auto c = comment->child_begin(); c != comment->child_end(); ++c) {
-    // Top-level paragraph comment is typically the object description
-    if (const auto* paraComment = llvm::dyn_cast<clang::comments::ParagraphComment>(*c)) {
-      if (paraComment->isWhitespace()) {
-        continue;
-      }
-      cs.docComment += getParaCommentContents(paraComment, ctx) + " ";
-    }
-
-    // Only look for \brief doxygen command
-    if (auto commandComment = llvm::dyn_cast<clang::comments::BlockCommandComment>(*c)) {
-      const std::string commandName = getCommandName(commandComment->getCommandID());
-      if (commandName == "brief") {
-        cs.briefComment = getCommentContents(commandComment, ctx);
-      }
-    }
-
-    if (const auto* tParamComment = llvm::dyn_cast<clang::comments::TParamCommandComment>(*c)) {
-      const std::string tParamName = tParamComment->getParamNameAsWritten().str();
-      for (auto& tparam : cs.templateParams) {
-        if (tparam.name == tParamName) {
-          tparam.docComment = getCommentContents(tParamComment, ctx);
-        }
-      }
-    }
-  }
-  hdoc::utils::rtrim(cs.briefComment);
-  hdoc::utils::rtrim(cs.docComment);
-}
-
-void processEnumComment(hdoc::types::EnumSymbol& e, const clang::comments::Comment* comment, clang::ASTContext& ctx) {
-  for (auto c = comment->child_begin(); c != comment->child_end(); ++c) {
-    // Top-level paragraph comment is typically the object description
-    if (const auto* paraComment = llvm::dyn_cast<clang::comments::ParagraphComment>(*c)) {
-      if (paraComment->isWhitespace()) {
-        continue;
-      }
-      e.docComment += getParaCommentContents(paraComment, ctx) + " ";
-    }
-
-    // Get verbatim comments
-    if (const auto* verbatimComment = llvm::dyn_cast<clang::comments::VerbatimLineComment>(*c)) {
-      e.docComment += verbatimComment->getText();
-    }
-
-    // Only look for \brief Doxygen commands
-    if (const auto* commandComment = llvm::dyn_cast<clang::comments::BlockCommandComment>(*c)) {
-      std::string commandName = getCommandName(commandComment->getCommandID());
-      if (commandName == "brief") {
-        e.briefComment = getCommentContents(commandComment, ctx);
-      }
-    }
-  }
-  hdoc::utils::rtrim(e.briefComment);
-  hdoc::utils::rtrim(e.docComment);
-}
-
-void processFunctionComment(hdoc::types::FunctionSymbol&    f,
-                            const clang::comments::Comment* comment,
-                            clang::ASTContext&              ctx) {
+template <typename T>
+void processSymbolComment(T& sym, const clang::comments::Comment* comment, clang::ASTContext& ctx) {
   for (auto c = comment->child_begin(); c != comment->child_end(); ++c) {
     // Top-level paragraph comment is typically function description
     if (const auto* paraComment = llvm::dyn_cast<clang::comments::ParagraphComment>(*c)) {
       if (paraComment->isWhitespace()) {
         continue;
       }
-      f.docComment += getParaCommentContents(paraComment, ctx) + " ";
+      sym.docComment += getParaCommentContents(paraComment, ctx) + " ";
     }
 
     // Match function parameter names with params in FunctionSymbol
-    if (const auto* paramComment = llvm::dyn_cast<clang::comments::ParamCommandComment>(*c)) {
-      const std::string paramName = paramComment->getParamNameAsWritten().str();
-      for (auto& param : f.params) {
-        if (param.name == paramName) {
-          param.docComment = getCommentContents(paramComment, ctx);
+    if constexpr (requires { sym.params; }) {
+      if (const auto* paramComment = llvm::dyn_cast<clang::comments::ParamCommandComment>(*c);
+          isParamAndHasName(paramComment)) {
+        const std::string paramName = paramComment->getParamNameAsWritten().str();
+        for (auto& param : sym.params) {
+          if (param.name == paramName) {
+            param.docComment = getCommentContents(paramComment, ctx);
+          }
         }
       }
     }
 
-    if (const auto* tParamComment = llvm::dyn_cast<clang::comments::TParamCommandComment>(*c)) {
-      const std::string tParamName = tParamComment->getParamNameAsWritten().str();
-      for (auto& tparam : f.templateParams) {
-        if (tparam.name == tParamName) {
-          tparam.docComment = getCommentContents(tParamComment, ctx);
+    // Handle template parameters in functions and records
+    if constexpr (requires { sym.templateParams; }) {
+      if (const auto* tParamComment = llvm::dyn_cast<clang::comments::TParamCommandComment>(*c);
+          isParamAndHasName(tParamComment)) {
+        const std::string tParamName = tParamComment->getParamNameAsWritten().str();
+        for (auto& tparam : sym.templateParams) {
+          if (tparam.name == tParamName) {
+            tparam.docComment = getCommentContents(tParamComment, ctx);
+          }
         }
       }
     }
@@ -401,13 +362,27 @@ void processFunctionComment(hdoc::types::FunctionSymbol&    f,
     // Look for \return, \returns, or \brief Doxygen commands
     if (const auto* commandComment = llvm::dyn_cast<clang::comments::BlockCommandComment>(*c)) {
       const std::string commandName = getCommandName(commandComment->getCommandID());
-      if (commandName == "return" || commandName == "returns") {
-        f.returnTypeDocComment = getCommentContents(commandComment, ctx);
-      } else if (commandName == "brief") {
-        f.briefComment = getCommentContents(commandComment, ctx);
+
+      if constexpr (requires { sym.returnTypeDocComment; }) {
+        if (commandName == "return" || commandName == "returns") {
+          sym.returnTypeDocComment = getCommentContents(commandComment, ctx);
+        }
+      }
+      if (commandName == "brief") {
+        sym.briefComment = getCommentContents(commandComment, ctx);
       }
     }
   }
-  hdoc::utils::rtrim(f.briefComment);
-  hdoc::utils::rtrim(f.docComment);
+  hdoc::utils::rtrim(sym.briefComment);
+  hdoc::utils::rtrim(sym.docComment);
 }
+
+template void processSymbolComment<hdoc::types::FunctionSymbol>(hdoc::types::FunctionSymbol&    sym,
+                                                                const clang::comments::Comment* comment,
+                                                                clang::ASTContext&              ctx);
+template void processSymbolComment<hdoc::types::EnumSymbol>(hdoc::types::EnumSymbol&        sym,
+                                                            const clang::comments::Comment* comment,
+                                                            clang::ASTContext&              ctx);
+template void processSymbolComment<hdoc::types::RecordSymbol>(hdoc::types::RecordSymbol&      sym,
+                                                              const clang::comments::Comment* comment,
+                                                              clang::ASTContext&              ctx);

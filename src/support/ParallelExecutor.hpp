@@ -17,8 +17,9 @@ public:
   /// Args holds ArgumentAdjusters that will be applied to the parser, typically includes header search paths.
   ParallelExecutor(const clang::tooling::CompilationDatabase&            cmpdb,
                    const std::vector<clang::tooling::ArgumentsAdjuster>& args,
-                   llvm::ThreadPool&                                     pool)
-      : cmpdb(cmpdb), args(args), pool(pool) {}
+                   llvm::ThreadPool&                                     pool,
+                   const uint32_t                                        debugLimitNumIndexedFiles)
+      : cmpdb(cmpdb), args(args), pool(pool), debugLimitNumIndexedFiles(debugLimitNumIndexedFiles) {}
 
   void execute(std::unique_ptr<clang::tooling::FrontendActionFactory> action);
 
@@ -26,5 +27,6 @@ private:
   const clang::tooling::CompilationDatabase&            cmpdb;
   const std::vector<clang::tooling::ArgumentsAdjuster>& args;
   llvm::ThreadPool&                                     pool;
+  const uint32_t                                        debugLimitNumIndexedFiles = 0;
 };
 } // namespace hdoc::indexer

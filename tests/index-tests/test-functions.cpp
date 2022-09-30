@@ -9,7 +9,8 @@ TEST_CASE("Function with struct as a parameter") {
     void foo(Foo* p0, Foo* p1) {}
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol s = index.functions.entries.begin()->second;
@@ -61,7 +62,8 @@ TEST_CASE("Function with unnamed parameters") {
     void foo(int, int) {}
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol s = index.functions.entries.begin()->second;
@@ -113,7 +115,8 @@ TEST_CASE("Function default values for parameters") {
     void foo(int a = 0, int b = 100) {}
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol s = index.functions.entries.begin()->second;
@@ -165,7 +168,8 @@ TEST_CASE("Function with trailing return type syntax") {
     auto foo(int x, int y) -> int;
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol s = index.functions.entries.begin()->second;
@@ -219,7 +223,8 @@ TEST_CASE("Function with constexpr") {
     }
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol s = index.functions.entries.begin()->second;
@@ -273,7 +278,8 @@ TEST_CASE("Member function marked volatile") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 1, 0, 0);
 
   hdoc::types::RecordSymbol   s = index.records.entries.begin()->second;
@@ -316,7 +322,8 @@ TEST_CASE("Member function with lvalue ref qualifier") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 1, 0, 0);
 
   hdoc::types::RecordSymbol   s = index.records.entries.begin()->second;
@@ -359,7 +366,8 @@ TEST_CASE("Member function with rvalue ref qualifier") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 1, 0, 0);
 
   hdoc::types::RecordSymbol   s = index.records.entries.begin()->second;
@@ -402,7 +410,8 @@ TEST_CASE("Member function with const lvalue ref qualifier") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 1, 0, 0);
 
   hdoc::types::RecordSymbol   s = index.records.entries.begin()->second;
@@ -445,7 +454,8 @@ TEST_CASE("Member function with const rvalue ref qualifier") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 1, 0, 0);
 
   hdoc::types::RecordSymbol   s = index.records.entries.begin()->second;
@@ -486,7 +496,8 @@ TEST_CASE("Noexcept function 1") {
     void foo() noexcept;
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
@@ -526,7 +537,8 @@ TEST_CASE("Noexcept function 2") {
     void foo() noexcept(true);
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
@@ -566,7 +578,8 @@ TEST_CASE("Variadic function") {
     void simple_printf(const char* fmt...);
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
@@ -613,7 +626,8 @@ TEST_CASE("Inline function") {
     }
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
@@ -662,10 +676,11 @@ TEST_CASE("Member function with trailing return type, noexcept, and rvalue refer
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 1, 0, 0);
 
-  hdoc::types::RecordSymbol c = index.records.entries.begin()->second;
+  hdoc::types::RecordSymbol   c = index.records.entries.begin()->second;
   hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
   CHECK(f.name == "take");
   CHECK(f.briefComment == "");
@@ -706,10 +721,11 @@ TEST_CASE("Const member function with trailing return type, noexcept, and const 
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 1, 0, 0);
 
-  hdoc::types::RecordSymbol c = index.records.entries.begin()->second;
+  hdoc::types::RecordSymbol   c = index.records.entries.begin()->second;
   hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;
   CHECK(f.name == "borrow");
   CHECK(f.briefComment == "");
@@ -742,7 +758,6 @@ TEST_CASE("Const member function with trailing return type, noexcept, and const 
   CHECK(f.templateParams.size() == 0);
 }
 
-
 // TODO: fix this once we're on LLVM/Clang 12
 // on clang 9 the function is marked constexpr and not consteval
 // TEST_CASE("Consteval function") {
@@ -752,7 +767,8 @@ TEST_CASE("Const member function with trailing return type, noexcept, and const 
 //     }
 //   )";
 
-//   const hdoc::types::Index index = runOverCode(code);
+//   hdoc::types::Index index;
+//   runOverCode(code, index);
 //   checkIndexSizes(index, 0, 1, 0, 0);
 
 //   hdoc::types::FunctionSymbol f = index.functions.entries.begin()->second;

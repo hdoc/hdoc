@@ -9,16 +9,47 @@
 
 #include <string>
 
+/// @brief If the type is a specialized template, convert it to the original non-specialized
+/// templated type.
+static const clang::ClassTemplateDecl* getNonSpecializedVersionOfDecl(const clang::TagDecl* tagdecl) {
+  if (const auto* spec = llvm::dyn_cast_or_null<clang::ClassTemplateSpecializationDecl>(tagdecl)) {
+    if (const auto* nonspec = spec->getSpecializedTemplate()) {
+      return nonspec;
+    } else {
+      return NULL;
+    }
+  }
+  return NULL;
+}
+
 /// @brief Try to get a SymbolID from a QualType, and return an empty SymbolID if it's not possible
 static hdoc::types::SymbolID getTypeSymbolID(const clang::QualType& typ) {
+  // Get a TagDecl from the QualType, stripping pointers and references if needed.
+  // Pointers and references look like different types to clang. If we want to
+  // have working links in our documentation, types need to have consistent IDs
+  // regardless if they are pointers, references, or templates (shown below).
+  const clang::TagDecl* ret = NULL;
   if (const clang::TagDecl* decl = typ->getAsTagDecl()) {
-    return buildID(decl);
+    ret = decl;
   } else if (typ->isPointerType() && typ->getPointeeType()->getAsTagDecl()) {
-    return buildID(typ->getPointeeType()->getAsTagDecl());
+    ret = typ->getPointeeType()->getAsTagDecl();
   } else if (typ->isReferenceType() && typ.getNonReferenceType()->getAsTagDecl()) {
-    return buildID(typ.getNonReferenceType()->getAsTagDecl());
+    ret = typ.getNonReferenceType()->getAsTagDecl();
   } else {
+    ret = NULL;
+  }
+
+  // Remove the template, if applicble.
+  // If the type is a specialized template, convert it to the original non-specialized
+  // templated type and use that for the SymbolID.
+  // Otherwise clang will consider the specialized type distinct from the non-specialized
+  // type and unnecessarily give it a different ID.
+  if (const auto* nonspec = getNonSpecializedVersionOfDecl((clang::TagDecl*)ret)) {
+    return buildID(nonspec);
+  } else if (ret == NULL) {
     return hdoc::types::SymbolID();
+  } else {
+    return buildID(ret);
   }
 }
 
@@ -107,7 +138,7 @@ void hdoc::indexer::matchers::FunctionMatcher::run(const clang::ast_matchers::Ma
 
   const clang::comments::Comment* comment = res->getASTContext().getCommentForDecl(res, nullptr);
   if (comment != nullptr) {
-    processFunctionComment(f, comment, res->getASTContext());
+    processSymbolComment(f, comment, res->getASTContext());
   }
 
   // Don't print "void" return type for constructors and destructors.
@@ -330,7 +361,7 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
 
   const clang::comments::Comment* comment = res->getASTContext().getCommentForDecl(res, nullptr);
   if (comment != nullptr) {
-    processRecordComment(c, comment, res->getASTContext());
+    processSymbolComment(c, comment, res->getASTContext());
   }
 
   findParentNamespace(c, res);
@@ -392,7 +423,7 @@ void hdoc::indexer::matchers::EnumMatcher::run(const clang::ast_matchers::MatchF
 
   const clang::comments::Comment* comment = res->getASTContext().getCommentForDecl(res, nullptr);
   if (comment != nullptr) {
-    processEnumComment(e, comment, res->getASTContext());
+    processSymbolComment(e, comment, res->getASTContext());
   }
 
   findParentNamespace(e, res);

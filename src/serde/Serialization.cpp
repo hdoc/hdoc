@@ -237,7 +237,7 @@ bool verify() {
   return true;
 }
 
-void uploadDocs(const std::string& data) {
+void uploadDocs(const std::string_view data) {
   spdlog::info("Uploading documentation for hosting.");
   const char* val     = std::getenv("HDOC_PROJECT_API_KEY");
   std::string api_key = val == NULL ? std::string("") : std::string(val);

@@ -32,6 +32,7 @@ For functions and methods:
 For classes, structs, and unions:
 - `@brief`
 - Comments attached to member variables (i.e. `///<`)
+- `@tparam`
 
 For enums:
 - `@brief`

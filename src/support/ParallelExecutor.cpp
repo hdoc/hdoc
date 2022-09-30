@@ -10,14 +10,21 @@ void hdoc::indexer::ParallelExecutor::execute(std::unique_ptr<clang::tooling::Fr
   std::mutex mutex;
 
   // Add a counter to track progress
-  uint32_t          i                = 0;
-  const std::string totalNumFiles    = std::to_string(this->cmpdb.getAllFiles().size());
-  auto              incrementCounter = [&]() {
+  uint32_t    i                = 0;
+  std::string totalNumFiles    = std::to_string(this->cmpdb.getAllFiles().size());
+  auto        incrementCounter = [&]() {
     std::unique_lock<std::mutex> lock(mutex);
     return ++i;
   };
 
-  for (const std::string& file : this->cmpdb.getAllFiles()) {
+  std::vector<std::string> allFilesInCmpdb = this->cmpdb.getAllFiles();
+
+  if (this->debugLimitNumIndexedFiles > 0) {
+    allFilesInCmpdb.resize(this->debugLimitNumIndexedFiles);
+    totalNumFiles = std::to_string(this->debugLimitNumIndexedFiles);
+  }
+
+  for (const std::string& file : allFilesInCmpdb) {
     this->pool.async(
         [&](const std::string path) {
           spdlog::info("[{}/{}] processing {}", incrementCounter(), totalNumFiles, path);

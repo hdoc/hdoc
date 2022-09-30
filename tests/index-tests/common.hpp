@@ -10,12 +10,15 @@
 #include <optional>
 #include <string>
 
-hdoc::types::Index runOverCode(const std::string& code, const hdoc::types::Config cfg = hdoc::types::Config());
-void               checkIndexSizes(const hdoc::types::Index& index,
-                                   const uint32_t            recordsSize,
-                                   const uint32_t            functionsSize,
-                                   const uint32_t            enumsSize,
-                                   const uint32_t            namespacesSize);
+void runOverCode(const std::string_view    code,
+                 hdoc::types::Index&       index,
+                 const hdoc::types::Config cfg = hdoc::types::Config());
+
+void checkIndexSizes(const hdoc::types::Index& index,
+                     const uint32_t            recordsSize,
+                     const uint32_t            functionsSize,
+                     const uint32_t            enumsSize,
+                     const uint32_t            namespacesSize);
 
 /// Get an element in the database by its name, used in the unit tests when we have multiple symbols
 /// This obviously doesn't work when you have multiple items in the database with the same name

@@ -42,16 +42,6 @@ template <typename T> struct Database {
 
   /// Locks the database during operations that may cause mutations
   mutable std::mutex mutex;
-
-  // The index-tests code requires a copy constructor (which requires a regular ctor)
-  // so we define special ones just for the test code
-#ifdef HDOC_TEST_CODE
-  Database<T>() = default;
-  Database<T>(const Database<T>& other) {
-    this->entries    = other.entries;
-    this->numMatches = other.numMatches.load();
-  }
-#endif
 };
 
 /// @brief hdoc's index, aggregating information for all of the symbols in a codebase

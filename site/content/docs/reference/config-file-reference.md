@@ -33,7 +33,7 @@ name = "myproject"
 
 The project version is the version of your project which is used on the homepage and sidebar to identify your project on the documentation site.
 It is a string.
-It is required.
+It is optional and defaults to an empty string.
 
 ```toml
 [project]
@@ -202,4 +202,22 @@ paths = [
       "docs/ReleaseNotes.md",
       # Other paths as needed
 ]
+```
+
+## `debug`
+
+The debug section contains configuration options meant to be used bringup and debugging of hdoc.
+This is an optional section.
+
+### `limit_num_indexed_files`
+
+A user may want to limit the number of files they index if they have a huge codebase and don't want to wait for hdoc to index the entire codebase.
+This option allows them to only index a limited number of files for more rapid development.
+It is not intended for use in production, only in bring-up.
+It is an integer, which must be greater than or equal to 0.
+It is optional and defaults to 0.
+
+```toml
+[debug]
+limit_num_indexed_files = 10
 ```

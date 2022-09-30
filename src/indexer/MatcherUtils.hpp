@@ -38,10 +38,7 @@ hdoc::types::SymbolID buildID(const clang::NamedDecl* d);
 std::string getCommandName(const unsigned& CommandID);
 std::string getParaCommentContents(const clang::comments::Comment* comment, clang::ASTContext& ctx);
 std::string getCommentContents(const clang::comments::Comment* comment);
-void        processRecordComment(hdoc::types::RecordSymbol&      cs,
-                                 const clang::comments::Comment* comment,
-                                 clang::ASTContext&              ctx);
-void processEnumComment(hdoc::types::EnumSymbol& e, const clang::comments::Comment* comment, clang::ASTContext& ctx);
-void processFunctionComment(hdoc::types::FunctionSymbol&    f,
-                            const clang::comments::Comment* comment,
-                            clang::ASTContext&              ctx);
+
+/// @brief Update the briefComment, docComment, and other comment fields of the symbol (if applicable).
+template <typename T>
+void processSymbolComment(T& sym, const clang::comments::Comment* comment, clang::ASTContext& ctx);

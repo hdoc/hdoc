@@ -9,7 +9,8 @@ TEST_CASE("Function with docComment only (style 1)") {
     void someFunction();
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol s = index.functions.entries.begin()->second;
@@ -52,7 +53,8 @@ TEST_CASE("Function with docComment only (style 2)") {
     void someFunction();
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol s = index.functions.entries.begin()->second;
@@ -92,7 +94,8 @@ TEST_CASE("Function with docComment only (style 3, ignored)") {
     void someFunction(); ///< Some comment
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol s = index.functions.entries.begin()->second;
@@ -137,7 +140,8 @@ TEST_CASE("Function with trailing return type syntax and comments") {
     auto foo(int x, int y) -> int;
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol s = index.functions.entries.begin()->second;
@@ -195,7 +199,8 @@ TEST_CASE("Function with trailing return type syntax, comments, and an extra err
     auto foo(int x, int y) -> int;
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol s = index.functions.entries.begin()->second;
@@ -261,7 +266,8 @@ TEST_CASE("Function that uses many unsupported doxygen commands") {
     void addCurve(int n, const double x[], const double y[]);
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol s = index.functions.entries.begin()->second;
@@ -327,13 +333,16 @@ TEST_CASE("Function has math commands in function and parameter names") {
     double calculate2DEuclideanDistance(const double x1, const double y1, const double x2, const double y2);
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol s = index.functions.entries.begin()->second;
   CHECK(s.name == "calculate2DEuclideanDistance");
   CHECK(s.briefComment == "");
-  CHECK(s.docComment == R"(Calculate Euclidean distance in $\R^2$. Corresponds to the following formula: $$ d(x,y) = \sqrt{(x_2-x_1)^2 + (y_2-y_1)^2} $$)");
+  CHECK(
+      s.docComment ==
+      R"(Calculate Euclidean distance in $\R^2$. Corresponds to the following formula: $$ d(x,y) = \sqrt{(x_2-x_1)^2 + (y_2-y_1)^2} $$)");
   CHECK(s.ID.str().size() == 16);
   CHECK(s.parentNamespaceID.raw() == 0);
 
@@ -354,7 +363,8 @@ TEST_CASE("Function has math commands in function and parameter names") {
   CHECK(s.storageClass == clang::SC_None);
   CHECK(s.refQualifier == clang::RQ_None);
 
-  CHECK(s.proto == "double calculate2DEuclideanDistance(const double x1, const double y1, const double x2, const double y2)");
+  CHECK(s.proto ==
+        "double calculate2DEuclideanDistance(const double x1, const double y1, const double x2, const double y2)");
   CHECK(s.returnType.name == "double");
   CHECK(s.returnType.id.raw() == 0);
   CHECK(s.returnTypeDocComment == R"(the result of $$ \sqrt{(x_2-x_1)^2 + (y_2-y_1)^2} $$)");
@@ -384,4 +394,59 @@ TEST_CASE("Function has math commands in function and parameter names") {
   CHECK(s.params[3].type.id.raw() == 0);
   CHECK(s.params[3].docComment == R"($\sqrt{y_2}$)");
   CHECK(s.params[3].defaultValue == "");
+}
+
+TEST_CASE("Function with empty parameter comment") {
+  const std::string code = R"(
+    /// @brief does foo to x
+    ///
+    /// @param x bar
+    /// @param
+    /// @returns boo
+    int foo(int x);
+  )";
+
+  hdoc::types::Index index;
+  runOverCode(code, index);
+  checkIndexSizes(index, 0, 1, 0, 0);
+
+  hdoc::types::FunctionSymbol s = index.functions.entries.begin()->second;
+  CHECK(s.name == "foo");
+  CHECK(s.params.size() == 1);
+}
+
+TEST_CASE("Function with inline command comments") {
+  const std::string code = R"(
+    /// @brief Testing if inline command comments, like @a varX, work.
+    ///
+    /// Let's see if they work in docComments @b makeMeBold.
+    int foo(int varX);
+  )";
+
+  hdoc::types::Index index;
+  runOverCode(code, index);
+  checkIndexSizes(index, 0, 1, 0, 0);
+
+  hdoc::types::FunctionSymbol s = index.functions.entries.begin()->second;
+  CHECK(s.name == "foo");
+  CHECK(s.briefComment == "Testing if inline command comments, like @a varX, work.");
+  CHECK(s.docComment == "Let's see if they work in docComments @b makeMeBold.");
+  CHECK(s.params.size() == 1);
+}
+
+TEST_CASE("Function with inline command comments supplied by a user") {
+  const std::string code = R"(
+    /// Given input @a foo and then..
+    void abc(int foo);
+  )";
+
+  hdoc::types::Index index;
+  runOverCode(code, index);
+  checkIndexSizes(index, 0, 1, 0, 0);
+
+  hdoc::types::FunctionSymbol s = index.functions.entries.begin()->second;
+  CHECK(s.name == "abc");
+  CHECK(s.briefComment == "");
+  CHECK(s.docComment == "Given input @a foo and then..");
+  CHECK(s.params.size() == 1);
 }

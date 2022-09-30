@@ -36,5 +36,21 @@ struct Config {
   bool                     ignorePrivateMembers = false; ///< Should private members of records be ignored?
   std::filesystem::path    homepage;                     ///< Path to "homepage" markdown file
   std::vector<std::filesystem::path> mdPaths;            ///< Paths to markdown pages
+
+  uint32_t debugLimitNumIndexedFiles; ///< Limit the number of files to index (0 == index all files)
+
+  /// @brief Returns a string with the form "PROJECT_NAME PROJECT_VERSION documentation"
+  /// if this->projectVersion has a value, otherwise returns "PROJECT_NAME documentation".
+  ///
+  /// projectVersion is an optional configuration parameter (to accomodate for projects that have an unversioned
+  /// main branch). To avoid having many checks for `if (cfg->projectVersion == "")` in the HTML serializer,
+  /// we have one function here that covers both cases and returns the appropriate string for use in the serializer.
+  std::string getPageTitleSuffix() const {
+    if (this->projectVersion == "") {
+      return this->projectName + " documentation";
+    } else {
+      return this->projectName + " " + this->projectVersion + " documentation";
+    }
+  }
 };
 } // namespace hdoc::types

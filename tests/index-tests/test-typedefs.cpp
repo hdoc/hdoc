@@ -9,7 +9,8 @@ TEST_CASE("Typedefed function") {
     func g;
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 0);
 
   hdoc::types::FunctionSymbol s = index.functions.entries.begin()->second;
@@ -65,7 +66,8 @@ TEST_CASE("Type instance with 'using'") {
     void Foo(F* param) {}
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 1, 0, 0);
 
   hdoc::types::RecordSymbol s = index.records.entries.begin()->second;

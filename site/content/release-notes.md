@@ -6,6 +6,40 @@ date = 2020-01-01
 description = "What's changed between each release of hdoc, including new features, fixes, and improvements."
 +++
 
+# Version 1.3.1 (29 September 2022)
+
+## New Features
+* All third-party JS required for hdoc to work is now bundled in with hdoc instead of being loaded from the internet.
+  - Now users can generate and view their documentation without compromises when they're without an internet connection.
+  - Thank you [@totph](https://github.com/totph) for the suggestion.
+* Users can now limit the number of files that are indexed by hdoc by specifying the `limit_num_indexed_files` variable under the new `[debug]` section of `.hdoc.toml`.
+  - This is intended to make hdoc easier to bring in up large projects with thousands of files which can be slow to index. Users can test hdoc on a subset of the project which is faster than waiting for hdoc to index the whole project.
+  - More documentation about this feature is available in the [Configuration File Reference](@/docs/reference/config-file-reference.md#limit-num-indexed-files).
+  - Thank you [@totph](https://github.com/totph) for the suggestion.
+* A spinner was added on the search page while the search index is loading.
+  - This provides a visual indication of the loading process, whereas previously there was only a static message indicating that the index was loading.
+  - Thank you [@totph](https://github.com/totph) for the suggestion.
+* The order of the sidebar was re-arranged, with links to Markdown documentation pages placed at the top, and API reference links at the bottom. This is the reverse of the previous layout and was done to make written documentation easier to access in projects where there are many written docs.
+  - Thank you [@totph](https://github.com/totph) for the suggestion.
+* The `projectVersion` parameter is now optional.
+  - This is useful for projects that have an unversioned main branch from which their documentation is generated.
+  - Thank you [@totph](https://github.com/totph) for the suggestion.
+
+## Fixes
+* Removed the giant "hdoc" symbol at the top of the documentation sidebar and replaced it with a smaller link at the bottom of the "Navigation" section of the sidebar.
+  - Thank you [@jtbandes](https://github.com/jtbandes) for [the suggestion](https://github.com/hdoc/hdoc/issues/19).
+* Replaced the short form `-v` of the `--verbose` flag to avoid a conflict with the short form of `--version`
+  - Thank you [@totph](https://github.com/totph) for reporting this bug.
+* Fixed a crash when `@param` was used in a doc comment but the actual name of the parameter was left empty.
+  - Thank you [@totph](https://github.com/totph) for [contributing a fix](https://github.com/hdoc/hdoc/pull/22) (with test cases!) for this bug.
+* Fixed an issue where inline command comments, such as `@a`, were being incorrectly parsed and their arguments were being omitted from the HTML output.
+  - Thank you [@totph](https://github.com/totph) for reporting this bug.
+* Fixed an issue where templated types weren't linked in HTML documentation.
+* Fixed an issue where the "Templates" header was the wrong size for Record symbols.
+
+## Internal Changes
+* Improvements and optimizations of AST parsing to reduce time spent parsing code.
+
 # Version 1.3.0 (21 July 2022)
 
 ## New Features

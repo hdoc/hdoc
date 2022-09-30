@@ -10,7 +10,8 @@ TEST_CASE("Function defined in anonymous namespace") {
     }
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 0, 0, 0);
 }
 
@@ -25,7 +26,8 @@ TEST_CASE("Function defined in nested namespaces with anonymous ancestor") {
     }
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 0, 0, 0);
 }
 
@@ -42,7 +44,8 @@ TEST_CASE("Record and method defined in nested namespaces with anonymous ancesto
     }
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 0, 0, 0);
 }
 
@@ -64,7 +67,8 @@ TEST_CASE("Record, method, and enum defined in nested namespaces with anonymous 
     }
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 0, 0, 0);
 }
 
@@ -77,7 +81,8 @@ TEST_CASE("Record defined in anonymous namespace") {
     }
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 0, 0, 0);
 }
 
@@ -96,7 +101,8 @@ TEST_CASE("Enum defined in anonymous namespace") {
     }
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 0, 0, 0);
 }
 
@@ -113,7 +119,8 @@ TEST_CASE("Enum defined in a record in an anonymous namespace") {
     }
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 0, 0, 0);
 }
 
@@ -124,7 +131,8 @@ TEST_CASE("Function declaration in namespace") {
     }
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 1);
 
   hdoc::types::NamespaceSymbol s = index.namespaces.entries.begin()->second;
@@ -187,7 +195,8 @@ TEST_CASE("Class in namespace with method declaration") {
     }
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 1, 0, 1);
 
   hdoc::types::NamespaceSymbol n = index.namespaces.entries.begin()->second;
@@ -253,7 +262,8 @@ TEST_CASE("Class in namespace with outside method definition") {
     }
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 1, 0, 1);
 
   hdoc::types::NamespaceSymbol n = index.namespaces.entries.begin()->second;
@@ -318,7 +328,8 @@ TEST_CASE("Class in namespace with in method definition") {
     }
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 1, 0, 1);
 
   hdoc::types::NamespaceSymbol n = index.namespaces.entries.begin()->second;
@@ -383,7 +394,8 @@ TEST_CASE("Function declaration in nested namespaces") {
     }
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 1, 0, 2);
 
   std::optional<hdoc::types::NamespaceSymbol> o1 = findByName(index.namespaces, "foo");
@@ -451,7 +463,8 @@ TEST_CASE("Namespace alias") {
     namespace fbz = foo::bar::baz;
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 0, 0, 3);
 
   std::optional<hdoc::types::NamespaceSymbol> o1 = findByName(index.namespaces, "foo");

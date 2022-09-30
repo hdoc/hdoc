@@ -11,7 +11,8 @@ TEST_CASE("Union decl") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 0, 0, 0);
 
   hdoc::types::RecordSymbol s = index.records.entries.begin()->second;
@@ -54,7 +55,8 @@ TEST_CASE("Function with union as a parameter") {
     void act(Foo*) {}
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 1, 0, 0);
 
   hdoc::types::RecordSymbol s = index.records.entries.begin()->second;
@@ -131,7 +133,8 @@ TEST_CASE("Anonymous struct in a union") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 0, 0, 0);
 
   hdoc::types::RecordSymbol s = index.records.entries.begin()->second;

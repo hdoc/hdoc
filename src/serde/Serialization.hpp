@@ -17,5 +17,5 @@ void deserialize(hdoc::types::Index& index, hdoc::types::Config& cfg);
 bool verify();
 
 /// @brief Upload the serialized Index to hdoc.io for hosting
-void uploadDocs(const std::string& data);
+void uploadDocs(const std::string_view data);
 } // namespace hdoc::serde

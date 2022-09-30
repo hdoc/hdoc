@@ -20,7 +20,8 @@ TEST_CASE("Enum class decl") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 0, 1, 0);
 
   hdoc::types::EnumSymbol s = index.enums.entries.begin()->second;
@@ -86,7 +87,8 @@ TEST_CASE("Enum class decl with uint8_t") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 0, 1, 0);
 
   hdoc::types::EnumSymbol s = index.enums.entries.begin()->second;
@@ -115,7 +117,8 @@ TEST_CASE("Enum struct decl") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 0, 1, 0);
 
   hdoc::types::EnumSymbol s = index.enums.entries.begin()->second;
@@ -144,7 +147,8 @@ TEST_CASE("Ordinary enum decl") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 0, 1, 0);
 
   hdoc::types::EnumSymbol s = index.enums.entries.begin()->second;

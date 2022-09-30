@@ -35,11 +35,11 @@ void hdoc::indexer::Indexer::run() {
   hdoc::indexer::matchers::RecordMatcher    RecordFinder(&this->index, this->cfg);
   hdoc::indexer::matchers::EnumMatcher      EnumFinder(&this->index, this->cfg);
   hdoc::indexer::matchers::NamespaceMatcher NamespaceFinder(&this->index, this->cfg);
-  clang::ast_matchers::MatchFinder          Finder;
-  Finder.addMatcher(FunctionFinder.matcher, &FunctionFinder);
-  Finder.addMatcher(RecordFinder.matcher, &RecordFinder);
-  Finder.addMatcher(EnumFinder.matcher, &EnumFinder);
-  Finder.addMatcher(NamespaceFinder.matcher, &NamespaceFinder);
+  clang::ast_matchers::MatchFinder Finder;
+  Finder.addMatcher(FunctionFinder.getMatcher(), &FunctionFinder);
+  Finder.addMatcher(RecordFinder.getMatcher(), &RecordFinder);
+  Finder.addMatcher(EnumFinder.getMatcher(), &EnumFinder);
+  Finder.addMatcher(NamespaceFinder.getMatcher(), &NamespaceFinder);
 
   // Add include search paths to clang invocation
   std::vector<clang::tooling::ArgumentsAdjuster> args = {};
@@ -53,7 +53,7 @@ void hdoc::indexer::Indexer::run() {
     args.push_back(clang::tooling::getInsertArgumentAdjuster(("-isystem" + d).c_str()));
   }
 
-  hdoc::indexer::ParallelExecutor tool(*cmpdb, args, this->pool);
+  hdoc::indexer::ParallelExecutor tool(*cmpdb, args, this->pool, this->cfg->debugLimitNumIndexedFiles);
   tool.execute(clang::tooling::newFrontendActionFactory(&Finder));
 }
 

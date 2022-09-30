@@ -1,4 +1,4 @@
-project('hdoc', 'c', 'cpp', version: '1.3.0', default_options: ['cpp_std=c++17', 'warning_level=3'])
+project('hdoc', 'c', 'cpp', version: '1.3.1', default_options: ['cpp_std=c++20', 'warning_level=3'])
 
 dep_llvm = dependency('LLVM', include_type: 'system')
 clang_modules = [
@@ -30,9 +30,14 @@ asset_files = [
   'assets/styles.css',
   'assets/search.js',
   'assets/worker.js',
+  'assets/highlight.min.js',
+  'assets/katex.min.js',
+  'assets/katex.min.css',
+  'assets/auto-render.min.js',
+  'assets/index.min.js',
 ]
 gen = generator(find_program('xxd'),
-                output: '@BASENAME@.cpp',
+                output: '@PLAINNAME@.cpp',
                 arguments: ['-i', '@INPUT@', '@OUTPUT@'])
 assets_src = gen.process(asset_files)
 
@@ -75,7 +80,7 @@ executable('hdoc-client', sources: 'src/client-main.cpp', dependencies: libdeps)
 unit_tests_src = [
   'tests/unit-tests/test.cpp',
 ]
-executable('unit-tests', sources: unit_tests_src, dependencies: libdeps, cpp_args: '-DHDOC_TEST_CODE')
+executable('unit-tests', sources: unit_tests_src, dependencies: libdeps)
 
 test_src = [
   'tests/index-tests/test.cpp',
@@ -96,4 +101,4 @@ test_src = [
   'tests/index-tests/test-comments-namespaces.cpp',
   'tests/index-tests/test-comments-templates.cpp',
 ]
-executable('index-tests', sources: test_src, dependencies: libdeps, cpp_args: '-DHDOC_TEST_CODE')
+executable('index-tests', sources: test_src, dependencies: libdeps)

@@ -9,7 +9,8 @@ TEST_CASE("Class inherit") {
     class Derived : public Parent {};
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 2, 0, 0, 0);
 
   std::optional<hdoc::types::RecordSymbol> o1 = findByName(index.records, "Parent");
@@ -59,7 +60,8 @@ TEST_CASE("Class multiple inherit") {
     class Derived : public MiddleA, public MiddleB {};
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 4, 0, 0, 0);
 
   std::optional<hdoc::types::RecordSymbol> o1 = findByName(index.records, "Root");
@@ -156,7 +158,8 @@ TEST_CASE("Function override") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 2, 2, 0, 0);
 
   std::optional<hdoc::types::RecordSymbol> a1 = findByName(index.records, "Root");
@@ -268,7 +271,8 @@ TEST_CASE("Interface pure virtual") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 1, 0, 0);
 
   hdoc::types::RecordSymbol s = index.records.entries.begin()->second;
@@ -330,7 +334,8 @@ TEST_CASE("Multiple base functions") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 3, 3, 0, 0);
 
   std::optional<hdoc::types::RecordSymbol> o1 = findByName(index.records, "Base0");

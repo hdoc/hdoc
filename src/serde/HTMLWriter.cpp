@@ -71,6 +71,11 @@ extern uint8_t      ___assets_favicon_16x16_png[];
 extern uint8_t      ___assets_apple_touch_icon_png[];
 extern uint8_t      ___assets_search_js[];
 extern uint8_t      ___assets_worker_js[];
+extern uint8_t      ___assets_katex_min_css[];
+extern uint8_t      ___assets_katex_min_js[];
+extern uint8_t      ___assets_auto_render_min_js[];
+extern uint8_t      ___assets_highlight_min_js[];
+extern uint8_t      ___assets_index_min_js[];
 extern unsigned int ___assets_styles_css_len;
 extern unsigned int ___assets_favicon_ico_len;
 extern unsigned int ___assets_favicon_32x32_png_len;
@@ -78,6 +83,11 @@ extern unsigned int ___assets_favicon_16x16_png_len;
 extern unsigned int ___assets_apple_touch_icon_png_len;
 extern unsigned int ___assets_search_js_len;
 extern unsigned int ___assets_worker_js_len;
+extern unsigned int ___assets_katex_min_css_len;
+extern unsigned int ___assets_katex_min_js_len;
+extern unsigned int ___assets_auto_render_min_js_len;
+extern unsigned int ___assets_highlight_min_js_len;
+extern unsigned int ___assets_index_min_js_len;
 
 hdoc::serde::HTMLWriter::HTMLWriter(const hdoc::types::Index*  index,
                                     const hdoc::types::Config* cfg,
@@ -110,7 +120,13 @@ hdoc::serde::HTMLWriter::HTMLWriter(const hdoc::types::Index*  index,
       {___assets_favicon_ico_len, ___assets_favicon_ico, cfg->outputDir / "favicon.ico"},
       {___assets_styles_css_len, ___assets_styles_css, cfg->outputDir / "styles.css"},
       {___assets_search_js_len, ___assets_search_js, cfg->outputDir / "search.js"},
-      {___assets_worker_js_len, ___assets_worker_js, cfg->outputDir / "worker.js"}};
+      {___assets_worker_js_len, ___assets_worker_js, cfg->outputDir / "worker.js"},
+      {___assets_katex_min_css_len, ___assets_katex_min_css, cfg->outputDir / "katex.min.css"},
+      {___assets_katex_min_js_len, ___assets_katex_min_js, cfg->outputDir / "katex.min.js"},
+      {___assets_auto_render_min_js_len, ___assets_auto_render_min_js, cfg->outputDir / "auto-render.min.js"},
+      {___assets_highlight_min_js_len, ___assets_highlight_min_js, cfg->outputDir / "highlight.min.js"},
+      {___assets_index_min_js_len, ___assets_index_min_js, cfg->outputDir / "index.min.js"},
+  };
 
   for (const auto& file : bundledFiles) {
     std::ofstream out(file.path, std::ios::binary);
@@ -124,7 +140,7 @@ hdoc::serde::HTMLWriter::HTMLWriter(const hdoc::types::Index*  index,
 static void printNewPage(const hdoc::types::Config&   cfg,
                          CTML::Node                   main,
                          const std::filesystem::path& path,
-                         const std::string&           pageTitle,
+                         const std::string_view       pageTitle,
                          CTML::Node                   breadcrumbs = CTML::Node()) {
   CTML::Document html;
 
@@ -132,23 +148,19 @@ static void printNewPage(const hdoc::types::Config&   cfg,
   html.AppendNodeToHead(CTML::Node("meta").SetAttr("charset", "utf-8"));
   html.AppendNodeToHead(
       CTML::Node("meta").SetAttr("name", "viewport").SetAttr("content", "width=device-width, initial-scale=1"));
-  html.AppendNodeToHead(CTML::Node("title", pageTitle));
+  html.AppendNodeToHead(CTML::Node("title", std::string(pageTitle)));
 
   // Use our custom css which is a modified version of bulma
   html.AppendNodeToHead(CTML::Node("link").SetAttr("rel", "stylesheet").SetAttr("href", "styles.css"));
 
   // highlight.js scripts
-  html.AppendNodeToHead(
-      CTML::Node("script").SetAttr("src", "//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.3/highlight.min.js"));
+  html.AppendNodeToHead(CTML::Node("script").SetAttr("src", "highlight.min.js"));
   html.AppendNodeToHead(CTML::Node("script", "hljs.highlightAll();"));
 
   // KaTeX configuration
-  html.AppendNodeToHead(CTML::Node("link")
-                            .SetAttr("rel", "stylesheet")
-                            .SetAttr("href", "//cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css"));
-  html.AppendNodeToHead(CTML::Node("script").SetAttr("src", "//cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"));
-  html.AppendNodeToHead(
-      CTML::Node("script").SetAttr("src", "//cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"));
+  html.AppendNodeToHead(CTML::Node("link").SetAttr("rel", "stylesheet").SetAttr("href", "katex.min.css"));
+  html.AppendNodeToHead(CTML::Node("script").SetAttr("src", "katex.min.js"));
+  html.AppendNodeToHead(CTML::Node("script").SetAttr("src", "auto-render.min.js"));
   const char* katexConfiguration = R"(
     document.addEventListener("DOMContentLoaded", function() {
       renderMathInElement(document.body, {
@@ -187,16 +199,15 @@ static void printNewPage(const hdoc::types::Config&   cfg,
   auto aside      = CTML::Node("aside.column is-one-fifth");
   auto menuUL     = CTML::Node("ul.menu-list");
 
-  aside.AddChild(CTML::Node("a.is-button is-size-1", "hdoc").SetAttr("href", "https://hdoc.io"));
-  menuUL.AddChild(CTML::Node("p.is-size-4", cfg.projectName + " " + cfg.projectVersion));
+  menuUL.AddChild(CTML::Node("p.is-size-4", cfg.projectName + (cfg.projectName == "" ? "" : " " + cfg.projectVersion)));
   menuUL.AddChild(CTML::Node("p.menu-label", "Navigation"));
   menuUL.AddChild(CTML::Node("li").AddChild(CTML::Node("a", "Home").SetAttr("href", "index.html")));
   menuUL.AddChild(CTML::Node("li").AddChild(CTML::Node("a", "Search").SetAttr("href", "search.html")));
-  menuUL.AddChild(CTML::Node("p.menu-label", "API Documentation"));
-  menuUL.AddChild(CTML::Node("li").AddChild(CTML::Node("a", "Functions").SetAttr("href", "functions.html")));
-  menuUL.AddChild(CTML::Node("li").AddChild(CTML::Node("a", "Records").SetAttr("href", "records.html")));
-  menuUL.AddChild(CTML::Node("li").AddChild(CTML::Node("a", "Enums").SetAttr("href", "enums.html")));
-  menuUL.AddChild(CTML::Node("li").AddChild(CTML::Node("a", "Namespaces").SetAttr("href", "namespaces.html")));
+  if (cfg.gitRepoURL != "") {
+    menuUL.AddChild(CTML::Node("li").AddChild(CTML::Node("a", "Repository").SetAttr("href", cfg.gitRepoURL)));
+  }
+  menuUL.AddChild(CTML::Node("li").AddChild(CTML::Node("a", "Made with hdoc").SetAttr("href", "https://hdoc.io")));
+
   // Add paths to markdown pages converted to HTML, if any were provided
   if (cfg.mdPaths.size() > 0) {
     menuUL.AddChild(CTML::Node("p.menu-label", "Pages"));
@@ -206,6 +217,13 @@ static void printNewPage(const hdoc::types::Config&   cfg,
       menuUL.AddChild(CTML::Node("li").AddChild(CTML::Node("a", name).SetAttr("href", path)));
     }
   }
+
+  // Add links to all of the standard sections
+  menuUL.AddChild(CTML::Node("p.menu-label", "API Documentation"));
+  menuUL.AddChild(CTML::Node("li").AddChild(CTML::Node("a", "Functions").SetAttr("href", "functions.html")));
+  menuUL.AddChild(CTML::Node("li").AddChild(CTML::Node("a", "Records").SetAttr("href", "records.html")));
+  menuUL.AddChild(CTML::Node("li").AddChild(CTML::Node("a", "Enums").SetAttr("href", "enums.html")));
+  menuUL.AddChild(CTML::Node("li").AddChild(CTML::Node("a", "Namespaces").SetAttr("href", "namespaces.html")));
   aside.AddChild(menuUL);
 
   columnsDiv.AddChild(aside);
@@ -216,7 +234,8 @@ static void printNewPage(const hdoc::types::Config&   cfg,
   html.AppendNodeToBody(wrapperDiv);
 
   // Create footer with creation date and details
-  CTML::Node p1 = CTML::Node("p", "Documentation for " + cfg.projectName + " " + cfg.projectVersion + ".");
+  CTML::Node p1 = CTML::Node(
+      "p", "Documentation for " + cfg.projectName + (cfg.projectVersion == "" ? "." : " " + cfg.projectVersion + "."));
   CTML::Node p2 = CTML::Node("p", "Generated by ")
                       .AddChild(CTML::Node("a", "hdoc").SetAttr("href", "https://hdoc.io/"))
                       .AppendText(" version " + cfg.hdocVersion + " on " + cfg.timestamp + ".");
@@ -241,7 +260,13 @@ static std::string getSymbolBlurb(const hdoc::types::Symbol& s) {
   }
 
   if (s.briefComment != "") {
-    ret = " - " + s.briefComment;
+    // Despite the name, briefComments may be very long and may need
+    // to be truncated to avoid taking up too much space in the HTML output.
+    if (s.briefComment.size() > 64) {
+      ret = " - " + s.briefComment.substr(0, 63) + "...";
+    } else {
+      ret = " - " + s.briefComment;
+    }
   }
 
   if (ret.find("$$") != std::string::npos) {
@@ -252,7 +277,7 @@ static std::string getSymbolBlurb(const hdoc::types::Symbol& s) {
 }
 
 /// Run clang-format with a custom style over the given string
-std::string hdoc::serde::clangFormat(const std::string& s, const uint64_t& columnLimit) {
+std::string hdoc::serde::clangFormat(const std::string_view s, const uint64_t& columnLimit) {
   // Run clang-format over function name to break width to 50 chars
   auto style              = clang::format::getChromiumStyle(clang::format::FormatStyle::LK_Cpp);
   style.ColumnLimit       = columnLimit;
@@ -266,8 +291,8 @@ std::string hdoc::serde::clangFormat(const std::string& s, const uint64_t& colum
 /// Returns the "bare" type name (i.e. type name with no qualifiers, pointers, or references)
 /// for a given type name.
 /// For example, and input of `const Type<int> **` becomes `Type`
-std::string hdoc::serde::getBareTypeName(const std::string& typeName) {
-  std::string str = typeName;
+std::string hdoc::serde::getBareTypeName(const std::string_view typeName) {
+  std::string str = std::string(typeName);
 
   // Strip away type qualifiers
   hdoc::utils::replaceFirst(str, "const ", "");
@@ -288,8 +313,9 @@ std::string hdoc::serde::getBareTypeName(const std::string& typeName) {
 
 /// Replaces type names in a function proto with hyperlinked references to
 /// those types. Works for indexed records and std:: types found in the map above.
-std::string hdoc::serde::getHyperlinkedFunctionProto(const std::string& proto, const hdoc::types::FunctionSymbol& f) {
-  std::string str = proto;
+std::string hdoc::serde::getHyperlinkedFunctionProto(const std::string_view             proto,
+                                                     const hdoc::types::FunctionSymbol& f) {
+  std::string str = std::string(proto);
 
   // Replace all of the html-sensitive characters with
   str = hdoc::utils::replaceAll(str, "&", "&amp;");
@@ -371,13 +397,13 @@ static std::string getHyperlinkedTypeName(const hdoc::types::TypeRef& type) {
 /// Returns an HTML node indicating where the s is declared.
 /// A hyperlink to the exact line in the source file (for GitHub and GitLab) is returned
 /// if gitRepoURL is provided.
-static CTML::Node getDeclaredAtNode(const hdoc::types::Symbol& s, const std::string& gitRepoURL = "") {
+static CTML::Node getDeclaredAtNode(const hdoc::types::Symbol& s, const std::string_view gitRepoURL = "") {
   auto p = CTML::Node("p", "Declared at: ");
   if (gitRepoURL == "") {
     return p.AddChild(CTML::Node("span.is-family-code", s.file + ":" + std::to_string(s.line)));
   } else {
     return p.AddChild(CTML::Node("a.is-family-code", s.file + ":" + std::to_string(s.line))
-                          .SetAttr("href", gitRepoURL + s.file + "#L" + std::to_string(s.line)));
+                          .SetAttr("href", std::string(gitRepoURL) + s.file + "#L" + std::to_string(s.line)));
   }
 }
 
@@ -442,7 +468,7 @@ getBreadcrumbNode(const std::string& prefix, const hdoc::types::Symbol& s, const
 }
 
 /// Print a function to main
-static void printFunction(const hdoc::types::FunctionSymbol& f, CTML::Node& main, const std::string& gitRepoURL) {
+static void printFunction(const hdoc::types::FunctionSymbol& f, CTML::Node& main, const std::string_view gitRepoURL) {
   // Print function return type, name, and parameters as section header
   std::string proto = hdoc::serde::getHyperlinkedFunctionProto(hdoc::serde::clangFormat(f.proto), f);
   auto        inner = CTML::Node("code.hdoc-function-code.language-cpp").AppendRawHTML(proto);
@@ -537,8 +563,7 @@ void hdoc::serde::HTMLWriter::printFunctions() const {
           printNewPage(*this->cfg,
                        pg,
                        this->cfg->outputDir / func.url(),
-                       "function " + func.name + ": " + this->cfg->projectName + " " + this->cfg->projectVersion +
-                           " documentation",
+                       "function " + func.name + ": " + this->cfg->getPageTitleSuffix(),
                        getBreadcrumbNode("function", func, *this->index));
         },
         f,
@@ -551,10 +576,8 @@ void hdoc::serde::HTMLWriter::printFunctions() const {
   } else {
     main.AddChild(ul);
   }
-  printNewPage(*this->cfg,
-               main,
-               this->cfg->outputDir / "functions.html",
-               "Functions: " + this->cfg->projectName + " " + this->cfg->projectVersion + " documentation");
+  printNewPage(
+      *this->cfg, main, this->cfg->outputDir / "functions.html", "Functions: " + this->cfg->getPageTitleSuffix());
 }
 
 static std::vector<hdoc::types::RecordSymbol::BaseRecord> getInheritedSymbols(const hdoc::types::Index*        index,
@@ -715,7 +738,7 @@ void hdoc::serde::HTMLWriter::printRecord(const hdoc::types::RecordSymbol& c) co
 
   // Print function parameters (with type, name, default value, and comment) as a list
   if (c.templateParams.size() > 0) {
-    main.AddChild(CTML::Node("h4", "Templates"));
+    main.AddChild(CTML::Node("h2", "Templates"));
     CTML::Node dl("dl");
 
     for (auto tparam : c.templateParams) {
@@ -801,7 +824,7 @@ void hdoc::serde::HTMLWriter::printRecord(const hdoc::types::RecordSymbol& c) co
   printNewPage(*this->cfg,
                main,
                this->cfg->outputDir / c.url(),
-               pageTitle + ": " + this->cfg->projectName + " " + this->cfg->projectVersion + " documentation",
+               pageTitle + ": " + this->cfg->getPageTitleSuffix(),
                getBreadcrumbNode(c.type, c, *this->index));
 }
 
@@ -826,10 +849,7 @@ void hdoc::serde::HTMLWriter::printRecords() const {
   } else {
     main.AddChild(ul);
   }
-  printNewPage(*this->cfg,
-               main,
-               this->cfg->outputDir / "records.html",
-               "Records: " + this->cfg->projectName + " " + this->cfg->projectVersion + " documentation");
+  printNewPage(*this->cfg, main, this->cfg->outputDir / "records.html", "Records: " + this->cfg->getPageTitleSuffix());
 }
 
 /// Recursively print an single namespace and all of its children
@@ -885,10 +905,8 @@ void hdoc::serde::HTMLWriter::printNamespaces() const {
   } else {
     main.AddChild(namespaceTree);
   }
-  printNewPage(*this->cfg,
-               main,
-               this->cfg->outputDir / "namespaces.html",
-               "Namespaces: " + this->cfg->projectName + " " + this->cfg->projectVersion + " documentation");
+  printNewPage(
+      *this->cfg, main, this->cfg->outputDir / "namespaces.html", "Namespaces: " + this->cfg->getPageTitleSuffix());
 }
 
 /// Print an enum to main
@@ -934,7 +952,7 @@ void hdoc::serde::HTMLWriter::printEnum(const hdoc::types::EnumSymbol& e) const 
   printNewPage(*this->cfg,
                main,
                this->cfg->outputDir / e.url(),
-               pageTitle + ": " + this->cfg->projectName + " " + this->cfg->projectVersion + " documentation",
+               pageTitle + ": " + this->cfg->getPageTitleSuffix(),
                getBreadcrumbNode(e.type, e, *this->index));
 }
 
@@ -958,10 +976,7 @@ void hdoc::serde::HTMLWriter::printEnums() const {
   } else {
     main.AddChild(ul);
   }
-  printNewPage(*this->cfg,
-               main,
-               this->cfg->outputDir / "enums.html",
-               "Enums: " + this->cfg->projectName + " " + this->cfg->projectVersion + " documentation");
+  printNewPage(*this->cfg, main, this->cfg->outputDir / "enums.html", "Enums: " + this->cfg->getPageTitleSuffix());
 }
 
 void hdoc::serde::HTMLWriter::printSearchPage() const {
@@ -971,22 +986,19 @@ void hdoc::serde::HTMLWriter::printSearchPage() const {
   const auto noscriptTagText = R"(Search requires Javascript to be enabled.
 No data leaves your machine as part of the search process.
 We have left the Javascript code unminified so that you are able to inspect it yourself should you choose to do so.)";
-  main.AddChild(CTML::Node("noscript").AddChild(CTML::Node(noscriptTagText)));
+  main.AddChild(CTML::Node("noscript").AddChild(CTML::Node("p", noscriptTagText)));
   const auto input = CTML::Node("input.input is-primary#search")
                          .SetAttr("type", "search")
                          .SetAttr("autocomplete", "off")
                          .SetAttr("onkeyup", "updateSearchResults()")
                          .SetAttr("style", "display: none");
   main.AddChild(input);
+  main.AddChild(CTML::Node("div#loader").AddChild(CTML::Node("span.loader")));
   main.AddChild(CTML::Node("p#info", "Loading index of all symbols. This may take time for large codebases."));
   main.AddChild(CTML::Node("div.panel is-hoverable#results").SetAttr("style", "display: none"));
-  main.AddChild(
-      CTML::Node("script").SetAttr("src", "https://cdn.jsdelivr.net/npm/minisearch@2.4.1/dist/umd/index.min.js"));
+  main.AddChild(CTML::Node("script").SetAttr("src", "index.min.js"));
   main.AddChild(CTML::Node("script").SetAttr("src", "search.js"));
-  printNewPage(*this->cfg,
-               main,
-               this->cfg->outputDir / "search.html",
-               "Search: " + this->cfg->projectName + " " + this->cfg->projectVersion + " documentation");
+  printNewPage(*this->cfg, main, this->cfg->outputDir / "search.html", "Search: " + this->cfg->getPageTitleSuffix());
 
   std::error_code      ec;
   llvm::raw_fd_ostream jsonPath((cfg->outputDir / "index.json").string(), ec);
@@ -1042,8 +1054,7 @@ We have left the Javascript code unminified so that you are able to inspect it y
 
 /// Print the homepage of the documentation
 void hdoc::serde::HTMLWriter::printProjectIndex() const {
-  CTML::Node        main("main");
-  const std::string pageTitle = this->cfg->projectName + " " + this->cfg->projectVersion + " documentation";
+  CTML::Node main("main");
 
   // If index markdown page was supplied, convert it to markdown and print it
   if (this->cfg->homepage != "") {
@@ -1052,7 +1063,7 @@ void hdoc::serde::HTMLWriter::printProjectIndex() const {
   }
   // Otherwise, create a simple page with links to the documentation
   else {
-    main.AddChild(CTML::Node("h1", pageTitle));
+    main.AddChild(CTML::Node("h1", this->cfg->getPageTitleSuffix()));
     CTML::Node ul("ul");
 
     ul.AddChild(CTML::Node("li").AddChild(CTML::Node("a", "Records").SetAttr("href", "records.html")));
@@ -1062,7 +1073,7 @@ void hdoc::serde::HTMLWriter::printProjectIndex() const {
     main.AddChild(ul);
   }
 
-  printNewPage(*this->cfg, main, this->cfg->outputDir / "index.html", pageTitle);
+  printNewPage(*this->cfg, main, this->cfg->outputDir / "index.html", this->cfg->getPageTitleSuffix());
 }
 
 void hdoc::serde::HTMLWriter::processMarkdownFiles() const {

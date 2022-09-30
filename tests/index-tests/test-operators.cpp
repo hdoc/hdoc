@@ -14,6 +14,7 @@ TEST_CASE("Class with custom operators") {
     Foo &operator += (const Foo&, const int&);
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 0, 0, 0);
 }

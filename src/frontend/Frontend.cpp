@@ -28,11 +28,7 @@ extern uint64_t ___site_content_oss_md_len; ///< Length of the OSS attribution f
 hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* cfg) {
   cfg->hdocVersion = HDOC_VERSION;
   argparse::ArgumentParser program("hdoc", cfg->hdocVersion);
-  program.add_argument("-v", "--verbose")
-      .help("Whether to use verbose output")
-      .default_value(false)
-      .implicit_value(true);
-
+  program.add_argument("--verbose").help("Whether to use verbose output").default_value(false).implicit_value(true);
   program.add_argument("--oss").help("Show open source notices").default_value(false).implicit_value(true);
 
   // Parse command line arguments
@@ -104,10 +100,6 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
   cfg->gitRepoURL     = toml["project"]["git_repo_url"].value_or("");
   if (cfg->projectName == "") {
     spdlog::error("Project name in .hdoc.toml is empty, not a string, or invalid.");
-    return;
-  }
-  if (cfg->projectVersion == "") {
-    spdlog::error("Project version in .hdoc.toml is empty, not a string, or invalid.");
     return;
   }
   if (cfg->gitRepoURL != "" && cfg->gitRepoURL.back() != '/') {
@@ -243,6 +235,12 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
     }
   }
 
+  // A user may want to limit the number of files they index if they have a huge codebase
+  // and don't want to wait for hdoc to index the entire codebase.
+  // This option allows them to only index a limited number of files for more rapid
+  // development. It is not intended for use in production, only in bring-up.
+  cfg->debugLimitNumIndexedFiles = toml["debug"]["limit_num_indexed_files"].value_or(0);
+
   // Get the current timestamp
   const auto        time_t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
   std::stringstream ss;
@@ -262,4 +260,7 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
   spdlog::info("Project version: {}", cfg->projectVersion);
   spdlog::info("Indexing using {} threads",
                cfg->numThreads == 0 ? std::string("all") : std::to_string(cfg->numThreads));
+  if (cfg->debugLimitNumIndexedFiles > 0) {
+    spdlog::info("Only indexing {} files ", std::to_string(cfg->debugLimitNumIndexedFiles));
+  }
 }

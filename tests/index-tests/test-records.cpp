@@ -11,7 +11,8 @@ TEST_CASE("Class member") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 0, 0, 0);
 
   hdoc::types::RecordSymbol s = index.records.entries.begin()->second;
@@ -45,7 +46,8 @@ TEST_CASE("Class members with default values") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 0, 0, 0);
 
   hdoc::types::RecordSymbol s = index.records.entries.begin()->second;
@@ -86,7 +88,8 @@ TEST_CASE("Class with static member") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 0, 0, 0);
 
   hdoc::types::RecordSymbol s = index.records.entries.begin()->second;
@@ -121,7 +124,8 @@ TEST_CASE("Incomplete record definitions") {
     union Baz;
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 0, 0, 0, 0);
 }
 
@@ -132,7 +136,8 @@ TEST_CASE("Class with const member function") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 1, 0, 0);
 
   hdoc::types::RecordSymbol s = index.records.entries.begin()->second;
@@ -199,7 +204,8 @@ TEST_CASE("Checking that private members are indexed by default") {
     };
   )";
 
-  const hdoc::types::Index index = runOverCode(code);
+  hdoc::types::Index index;
+  runOverCode(code, index);
   checkIndexSizes(index, 1, 2, 0, 0);
 
   hdoc::types::RecordSymbol s = index.records.entries.begin()->second;
@@ -230,8 +236,9 @@ TEST_CASE("Checking that private members aren't indexed when they're not wanted"
   )";
 
   hdoc::types::Config cfg;
-  cfg.ignorePrivateMembers       = true;
-  const hdoc::types::Index index = runOverCode(code, cfg);
+  cfg.ignorePrivateMembers = true;
+  hdoc::types::Index  index;
+  runOverCode(code, index, cfg);
   checkIndexSizes(index, 1, 1, 0, 0);
 
   hdoc::types::RecordSymbol s = index.records.entries.begin()->second;

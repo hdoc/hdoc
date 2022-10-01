@@ -1,16 +1,22 @@
 project('hdoc', 'c', 'cpp', version: '1.3.2', default_options: ['cpp_std=c++20', 'warning_level=3'])
 
 dep_llvm = dependency('LLVM', include_type: 'system')
-clang_modules = [
-  'clangTooling',
-  'clangToolingInclusions',
-  'clangToolingCore',
-  'clangFrontend',
-  'clangAST',
-  'clangIndex',
-  'clangBasic',
-]
-dep_clang = dependency('Clang', include_type: 'system', method: 'cmake', modules: clang_modules)
+
+llvm_libdir = dep_llvm.get_variable(cmake: 'LLVM_LIBRARY_DIR', configtool: 'libdir')
+dep_clang = meson.get_compiler('cpp').find_library('clang-cpp', dirs : llvm_libdir, required : false)
+
+if not dep_clang.found()
+  clang_modules = [
+    'clangTooling',
+    'clangToolingInclusions',
+    'clangToolingCore',
+    'clangFrontend',
+    'clangAST',
+    'clangIndex',
+    'clangBasic',
+  ]
+  dep_clang = dependency('Clang', include_type: 'system', method: 'cmake', modules: clang_modules)
+endif
 
 # Disable RTTI
 add_project_arguments('-fno-rtti', language: 'cpp')

@@ -74,8 +74,8 @@ src = [
 lib = static_library('hdoc', sources: src, include_directories: inc, dependencies: deps)
 libdeps = declare_dependency(dependencies: deps, include_directories: inc, link_with: lib)
 
-executable('hdoc', sources: 'src/main.cpp', dependencies: libdeps)
-executable('hdoc-client', sources: 'src/client-main.cpp', dependencies: libdeps)
+executable('hdoc', sources: 'src/main.cpp', dependencies: libdeps, install: true)
+executable('hdoc-client', sources: 'src/client-main.cpp', dependencies: libdeps, install: true)
 
 unit_tests_src = [
   'tests/unit-tests/test.cpp',

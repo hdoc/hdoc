@@ -44,8 +44,12 @@ asset_files = [
 ]
 gen = generator(find_program('xxd'),
                 output: '@PLAINNAME@.cpp',
-                arguments: ['-i', '@INPUT@', '@OUTPUT@'])
-assets_src = gen.process(asset_files)
+                arguments: ['-i', '-name', '@EXTRA_ARGS@', '@INPUT@', '@OUTPUT@'])
+assets_src = []
+
+foreach asset_file : asset_files
+	assets_src += gen.process(asset_file, extra_args: '___' + asset_file.underscorify())
+endforeach
 
 # Enable SSL support
 add_project_arguments('-DCPPHTTPLIB_OPENSSL_SUPPORT', language: 'cpp')

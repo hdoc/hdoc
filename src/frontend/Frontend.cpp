@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
+#include <optional>
 #include <sstream>
 #include <string>
 
@@ -213,8 +214,8 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
     }
   }
 
-  if (const auto& ignorePrivateMembers = toml["ignore"]["ignore_private_members"].as_boolean()) {
-    cfg->ignorePrivateMembers = ignorePrivateMembers;
+  if (std::optional<bool> ignorePrivateMembers = toml["ignore"]["ignore_private_members"].value<bool>()) {
+    cfg->ignorePrivateMembers = *ignorePrivateMembers;
   }
 
   // Collect paths to markdown files

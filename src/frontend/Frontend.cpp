@@ -98,6 +98,7 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
   cfg->projectName    = toml["project"]["name"].value_or("");
   cfg->projectVersion = toml["project"]["version"].value_or("");
   cfg->gitRepoURL     = toml["project"]["git_repo_url"].value_or("");
+  cfg->gitDefaultBranch = toml["project"]["git_default_branch"].value_or("");
   if (cfg->projectName == "") {
     spdlog::error("Project name in .hdoc.toml is empty, not a string, or invalid.");
     return;

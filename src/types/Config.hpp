@@ -31,6 +31,7 @@ struct Config {
   std::string              timestamp;                    ///< Timestamp of this run
   std::string              hdocVersion;                  ///< hdoc git commit hash
   std::string              gitRepoURL;                   ///< URL prefix of a GitHub or GitLab repo for source links
+  std::string              gitDefaultBranch;             ///< default branch of the git repo
   std::vector<std::string> includePaths;                 ///< Include paths passed on to Clang
   std::vector<std::string> ignorePaths;                  ///< Paths from which matches should be ignored
   bool                     ignorePrivateMembers = false; ///< Should private members of records be ignored?

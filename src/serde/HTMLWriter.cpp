@@ -397,13 +397,13 @@ static std::string getHyperlinkedTypeName(const hdoc::types::TypeRef& type) {
 /// Returns an HTML node indicating where the s is declared.
 /// A hyperlink to the exact line in the source file (for GitHub and GitLab) is returned
 /// if gitRepoURL is provided.
-static CTML::Node getDeclaredAtNode(const hdoc::types::Symbol& s, const std::string_view gitRepoURL = "") {
+static CTML::Node getDeclaredAtNode(const hdoc::types::Symbol& s, const std::string_view gitRepoURL = "", const std::string_view gitDefaultBranch = "") {
   auto p = CTML::Node("p", "Declared at: ");
   if (gitRepoURL == "") {
     return p.AddChild(CTML::Node("span.is-family-code", s.file + ":" + std::to_string(s.line)));
   } else {
     return p.AddChild(CTML::Node("a.is-family-code", s.file + ":" + std::to_string(s.line))
-                          .SetAttr("href", std::string(gitRepoURL) + s.file + "#L" + std::to_string(s.line)));
+                          .SetAttr("href", std::string(gitRepoURL) + "blob/" + std::string(gitDefaultBranch) + "/" + s.file + "#L" + std::to_string(s.line)));
   }
 }
 
@@ -468,7 +468,7 @@ getBreadcrumbNode(const std::string& prefix, const hdoc::types::Symbol& s, const
 }
 
 /// Print a function to main
-static void printFunction(const hdoc::types::FunctionSymbol& f, CTML::Node& main, const std::string_view gitRepoURL) {
+static void printFunction(const hdoc::types::FunctionSymbol& f, CTML::Node& main, const std::string_view gitRepoURL, const std::string_view gitDefaultBranch) {
   // Print function return type, name, and parameters as section header
   std::string proto = hdoc::serde::getHyperlinkedFunctionProto(hdoc::serde::clangFormat(f.proto), f);
   auto        inner = CTML::Node("code.hdoc-function-code.language-cpp").AppendRawHTML(proto);
@@ -490,7 +490,7 @@ static void printFunction(const hdoc::types::FunctionSymbol& f, CTML::Node& main
   if (f.docComment != "") {
     main.AddChild(CTML::Node("p", f.docComment));
   }
-  main.AddChild(getDeclaredAtNode(f, gitRepoURL));
+  main.AddChild(getDeclaredAtNode(f, gitRepoURL, gitDefaultBranch));
 
   // Print function parameters (with type, name, default value, and comment) as a list
   if (f.templateParams.size() > 0) {
@@ -559,7 +559,7 @@ void hdoc::serde::HTMLWriter::printFunctions() const {
     CTML::Node page("main");
     this->pool.async(
         [&](const hdoc::types::FunctionSymbol& func, CTML::Node pg) {
-          printFunction(func, pg, this->cfg->gitRepoURL);
+          printFunction(func, pg, this->cfg->gitRepoURL, this->cfg->gitDefaultBranch);
           printNewPage(*this->cfg,
                        pg,
                        this->cfg->outputDir / func.url(),
@@ -714,7 +714,7 @@ void hdoc::serde::HTMLWriter::printRecord(const hdoc::types::RecordSymbol& c) co
   if (c.docComment != "") {
     main.AddChild(CTML::Node("p", c.docComment));
   }
-  main.AddChild(getDeclaredAtNode(c, this->cfg->gitRepoURL));
+  main.AddChild(getDeclaredAtNode(c, this->cfg->gitRepoURL, this->cfg->gitDefaultBranch));
 
   // Base records
   uint64_t count = 0;
@@ -817,7 +817,7 @@ void hdoc::serde::HTMLWriter::printRecord(const hdoc::types::RecordSymbol& c) co
       if (index->functions.contains(methodID) == false) {
         continue;
       }
-      printFunction(this->index->functions.entries.at(methodID), main, this->cfg->gitRepoURL);
+      printFunction(this->index->functions.entries.at(methodID), main, this->cfg->gitRepoURL, this->cfg->gitDefaultBranch);
     }
   }
 
@@ -925,7 +925,7 @@ void hdoc::serde::HTMLWriter::printEnum(const hdoc::types::EnumSymbol& e) const 
   if (e.docComment != "") {
     main.AddChild(CTML::Node("p", e.docComment));
   }
-  main.AddChild(getDeclaredAtNode(e, this->cfg->gitRepoURL));
+  main.AddChild(getDeclaredAtNode(e, this->cfg->gitRepoURL, this->cfg->gitDefaultBranch));
 
   // Enum members in table format
   main.AddChild(CTML::Node("h2", "Enumerators"));

@@ -58,17 +58,29 @@ num_threads = 8
 URL to a GitHub or GitLab repository where source code for the current project is stored.
 This is used to link functions, records, and enums to their original declarations in the source code.
 The URL must end with a trailing slash, and include a commit hash or branch designation.
-The commit hash can be used to pin the documentation to a given version of the code, while using a branch designation (such as "main") will use the latest commit on that branch for all links.
 The value is a string, and is optional.
 If the value is not supplied, declarations will not be linked back to the source code.
 
 ```toml
 [project]
-# Use the latest commit on the main branch
-git_repo_url = "https://github.com/hdoc/hdoc/blob/main/"
+git_repo_url = "https://github.com/hdoc/hdoc/"
+```
+
+### `git_default_branch`
+
+The name of the branch to use when linking to definitions on GitHub or GitLab.
+A commit hash or a tag can be used instead to pin the documentation to a given version of the code, while using a branch designation (such as "main") will use the latest commit on that branch for all links.
+The value is a string, and is optional.
+If the value is not supplied, declarations will not be linked back to the source code.
+
+```toml
+git_default_branch = "master"
 
 # Alternatively, pin all links to the 3d9b3c0... commit
-# git_repo_url = "https://github.com/hdoc/hdoc/blob/3d9b3c0f6d21b7dc79318da394afcdd2d3e077cc/"
+# git_default_branch = "3d9b3c0f6d21b7dc79318da394afcdd2d3e077cc"
+
+# Or pin all links to the 1.3.2 tag
+# git_default_branch = "1.3.2"
 ```
 
 ## `paths`

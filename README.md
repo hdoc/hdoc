@@ -82,9 +82,8 @@ hdoc has a suite of unit and integration tests, which can be run using the instr
 # Assumes you've already built hdoc
 cd build
 
-# Running indexing tests and unit tests
-./index-tests
-./unit-tests
+# Running indexing tests, unit tests, and JSON serialization/deserialization tests
+./hdoc-tests
 
 # Running integration tests
 cd ../tests/integration_tests
@@ -108,7 +107,8 @@ hdoc
 └── tests        # Testing code
     ├── index-tests  # Unit tests of hdoc's indexing functionality
     ├── integration-tests # Integration testing scripts
-    └── unit-tests  # Unit tests for a small portion of hdoc's codebase
+    ├── json-tests   # Tests for JSON serialization and deserialization
+    └── unit-tests   # Unit tests for a small portion of hdoc's codebase
 ```
 
 ## Attribution
@@ -118,7 +118,6 @@ We thank all of the contributors to these projects for their work.
 These are listed below in alphabetical order:
 - [argparse](https://github.com/p-ranav/argparse)
 - [Bulma](https://bulma.io/)
-- [cereal](https://uscilab.github.io/cereal/)
 - [Clang](https://clang.llvm.org/)
 - [cmark-gfm](https://github.com/github/cmark-gfm)
 - [cpp-httplib](https://github.com/yhirose/cpp-httplib)
@@ -128,6 +127,7 @@ These are listed below in alphabetical order:
 - [KaTeX](https://github.com/KaTeX/KaTeX)
 - [LLVM](https://llvm.org/)
 - [minisearch](https://github.com/lucaong/minisearch)
+- [rapidjson](https://github.com/Tencent/rapidjson)
 - [spdlog](https://github.com/gabime/spdlog)
 - [toml++](https://marzer.github.io/tomlplusplus/)
 

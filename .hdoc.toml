@@ -1,7 +1,8 @@
 [project]
 name = "hdoc"
-version = "1.3.2"
-git_repo_url = "https://github.com/hdoc/hdoc/blob/master/"
+version = "1.4.0"
+git_repo_url = "https://github.com/hdoc/hdoc/"
+git_default_branch = "master"
 
 [paths]
 compile_commands = "build/compile_commands.json"

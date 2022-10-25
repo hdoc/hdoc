@@ -80,10 +80,10 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
     return;
   }
 
-  // Check if the output directory is specified. Print a warning if it's specified for client versions of hdoc,
+  // Check if the output directory is specified. Print a warning if it's specified for online versions of hdoc,
   // and throw an error if it's specified for full versions of hdoc because we need to know where to save the docs.
   std::optional<std::string_view> output_dir = toml["paths"]["output_dir"].value<std::string_view>();
-  if (output_dir != std::nullopt && cfg->binaryType == hdoc::types::BinaryType::Client) {
+  if (output_dir != std::nullopt && cfg->binaryType == hdoc::types::BinaryType::Online) {
     spdlog::warn(
         "'output_dir' specified in .hdoc.toml but you are running a version of hdoc downloaded from hdoc.io. "
         "Your documentation will be uploaded to docs.hdoc.io instead of being saved locally.");
@@ -94,10 +94,11 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
   }
 
   // Get other arguments from the .hdoc.toml file.
-  cfg->outputDir      = std::filesystem::path(toml["paths"]["output_dir"].value_or(""));
-  cfg->projectName    = toml["project"]["name"].value_or("");
-  cfg->projectVersion = toml["project"]["version"].value_or("");
-  cfg->gitRepoURL     = toml["project"]["git_repo_url"].value_or("");
+  cfg->outputDir        = std::filesystem::path(toml["paths"]["output_dir"].value_or(""));
+  cfg->projectName      = toml["project"]["name"].value_or("");
+  cfg->projectVersion   = toml["project"]["version"].value_or("");
+  cfg->gitRepoURL       = toml["project"]["git_repo_url"].value_or("");
+  cfg->gitDefaultBranch = toml["project"]["git_default_branch"].value_or("");
   if (cfg->projectName == "") {
     spdlog::error("Project name in .hdoc.toml is empty, not a string, or invalid.");
     return;
@@ -178,7 +179,7 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
       // If we have found the beginning of the include list, filter it to only lines that have include paths.
       if (searchListFound == true) {
         if (line.startswith(" ")) {
-          cfg->includePaths.push_back(std::string(line.trim()));
+          cfg->includePaths.emplace_back(std::string(line.trim()));
         }
       }
 
@@ -197,7 +198,7 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
         spdlog::warn("An include path from .hdoc.toml was malformed, ignoring it.");
         continue;
       }
-      cfg->includePaths.push_back(s);
+      cfg->includePaths.emplace_back(s);
     }
   }
 
@@ -209,12 +210,16 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
         spdlog::warn("An ignore directive from .hdoc.toml was malformed, ignoring it.");
         continue;
       }
-      cfg->ignorePaths.push_back(s);
+      cfg->ignorePaths.emplace_back(s);
     }
   }
 
-  if (const auto& ignorePrivateMembers = toml["ignore"]["ignore_private_members"].as_boolean()) {
-    cfg->ignorePrivateMembers = ignorePrivateMembers;
+  if (const toml::value<bool>* ignorePrivateMembers = toml["ignore"]["ignore_private_members"].as_boolean()) {
+    cfg->ignorePrivateMembers = ignorePrivateMembers->get();
+  }
+
+  if (const toml::value<bool>* debugDumpJSONPayload = toml["debug"]["dump_json_payload"].as_boolean()) {
+    cfg->debugDumpJSONPayload = debugDumpJSONPayload->get();
   }
 
   // Collect paths to markdown files
@@ -231,7 +236,7 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
         spdlog::warn("A path to a markdown file in .hdoc.toml either doesn't exist or isn't a file, ignoring it.");
         continue;
       }
-      cfg->mdPaths.push_back(mdPath);
+      cfg->mdPaths.emplace_back(mdPath);
     }
   }
 
@@ -253,7 +258,7 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
   spdlog::info("hdoc version: {}", cfg->hdocVersion);
   spdlog::info("Timestamp: {}", cfg->timestamp);
   spdlog::info("Root directory: {}", cfg->rootDir.string());
-  if (cfg->binaryType != hdoc::types::BinaryType::Client) {
+  if (cfg->binaryType != hdoc::types::BinaryType::Online) {
     spdlog::info("Output directory: {}", cfg->outputDir.string());
   }
   spdlog::info("Project name: {}", cfg->projectName);
@@ -262,5 +267,8 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
                cfg->numThreads == 0 ? std::string("all") : std::to_string(cfg->numThreads));
   if (cfg->debugLimitNumIndexedFiles > 0) {
     spdlog::info("Only indexing {} files ", std::to_string(cfg->debugLimitNumIndexedFiles));
+  }
+  if (cfg->debugDumpJSONPayload) {
+    spdlog::info("Dumping JSON payload to ./hdoc-payload.json");
   }
 }

@@ -13,7 +13,7 @@ namespace hdoc::types {
 enum class BinaryType {
   Full,   ///< The "full" version of hdoc which is capable of saving documentation locally
           ///< This is produced by compiling hdoc locally, or using the Enterprise edition of hdoc.
-  Client, ///< "hdoc-client", which is the free precompiled binary provided on hdoc.io or compiled locally.
+  Online, ///< "hdoc-online", which is the free precompiled binary provided on hdoc.io or compiled locally.
   Server, ///< For internal hdoc usage.
 };
 
@@ -31,13 +31,15 @@ struct Config {
   std::string              timestamp;                    ///< Timestamp of this run
   std::string              hdocVersion;                  ///< hdoc git commit hash
   std::string              gitRepoURL;                   ///< URL prefix of a GitHub or GitLab repo for source links
+  std::string              gitDefaultBranch;             ///< Default branch of the git repo
   std::vector<std::string> includePaths;                 ///< Include paths passed on to Clang
   std::vector<std::string> ignorePaths;                  ///< Paths from which matches should be ignored
   bool                     ignorePrivateMembers = false; ///< Should private members of records be ignored?
   std::filesystem::path    homepage;                     ///< Path to "homepage" markdown file
   std::vector<std::filesystem::path> mdPaths;            ///< Paths to markdown pages
 
-  uint32_t debugLimitNumIndexedFiles; ///< Limit the number of files to index (0 == index all files)
+  uint32_t debugLimitNumIndexedFiles;    ///< Limit the number of files to index (0 == index all files)
+  bool     debugDumpJSONPayload = false; ///< Dump JSON payload to current working directory
 
   /// @brief Returns a string with the form "PROJECT_NAME PROJECT_VERSION documentation"
   /// if this->projectVersion has a value, otherwise returns "PROJECT_NAME documentation".

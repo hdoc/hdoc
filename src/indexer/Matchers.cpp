@@ -111,7 +111,7 @@ void hdoc::indexer::matchers::FunctionMatcher::run(const clang::ast_matchers::Ma
       a.defaultValue = i->hasUninstantiatedDefaultArg() ? exprToString(i->getUninstantiatedDefaultArg(), pp)
                                                         : exprToString(i->getDefaultArg(), pp);
     }
-    f.params.push_back(a);
+    f.params.emplace_back(a);
   }
 
   if (clang::FunctionTemplateDecl* templateDecl = res->getDescribedFunctionTemplate()) {
@@ -132,7 +132,7 @@ void hdoc::indexer::matchers::FunctionMatcher::run(const clang::ast_matchers::Ma
             nonTypeTemplate->hasDefaultArgument() ? exprToString(nonTypeTemplate->getDefaultArgument(), pp) : "";
         tparam.type = nonTypeTemplate->getType().getAsString(pp);
       }
-      f.templateParams.push_back(tparam);
+      f.templateParams.emplace_back(tparam);
     }
   }
 
@@ -212,7 +212,7 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
         (m->getAccess() == clang::AS_private && cfg->ignorePrivateMembers == true)) {
       continue;
     }
-    c.methodIDs.push_back(buildID(m->getCanonicalDecl()));
+    c.methodIDs.emplace_back(buildID(m->getCanonicalDecl()));
   }
   for (const auto* d : res->decls()) {
     if (const auto* ftd = llvm::dyn_cast<clang::FunctionTemplateDecl>(d)) {
@@ -221,7 +221,7 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
           (ftd->getAccess() == clang::AS_private && cfg->ignorePrivateMembers == true)) {
         continue;
       }
-      c.methodIDs.push_back(buildID(ftd));
+      c.methodIDs.emplace_back(buildID(ftd));
     }
   }
 
@@ -275,7 +275,7 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
         tparam.name            = templateTemplateType->getNameAsString();
         tparam.isParameterPack = templateTemplateType->isParameterPack() ? "..." : "";
       }
-      c.templateParams.push_back(tparam);
+      c.templateParams.emplace_back(tparam);
     }
   }
 
@@ -322,7 +322,7 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
       }
     }
 
-    c.vars.push_back(mv);
+    c.vars.emplace_back(mv);
   }
 
   // Get static members that aren't caught by res->fields()
@@ -355,7 +355,7 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
         }
       }
 
-      c.vars.push_back(mv);
+      c.vars.emplace_back(mv);
     }
   }
 
@@ -418,7 +418,7 @@ void hdoc::indexer::matchers::EnumMatcher::run(const clang::ast_matchers::MatchF
         }
       }
     }
-    e.members.push_back(em);
+    e.members.emplace_back(em);
   }
 
   const clang::comments::Comment* comment = res->getASTContext().getCommentForDecl(res, nullptr);

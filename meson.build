@@ -1,4 +1,4 @@
-project('hdoc', 'c', 'cpp', version: '1.3.2', default_options: ['cpp_std=c++20', 'warning_level=3'])
+project('hdoc', 'c', 'cpp', version: '1.4.0', default_options: ['cpp_std=c++20', 'warning_level=3'])
 
 dep_llvm = dependency('LLVM', include_type: 'system')
 clang_modules = [
@@ -11,14 +11,10 @@ clang_modules = [
   'clangBasic',
 ]
 dep_clang = dependency('Clang', include_type: 'system', method: 'cmake', modules: clang_modules)
+dep_zlib = dependency('zlib')
 
 # Disable RTTI
 add_project_arguments('-fno-rtti', language: 'cpp')
-
-# Add minimum macOS sdk version needed to use std::filesystem on macOS
-if build_machine.system() == 'darwin'
-  add_project_arguments('-mmacosx-version-min=10.15', language : 'cpp')
-endif
 
 # Generate char arrays from asset files using xxd -i
 asset_files = [
@@ -35,27 +31,31 @@ asset_files = [
   'assets/katex.min.css',
   'assets/auto-render.min.js',
   'assets/index.min.js',
+  'schemas/hdoc-payload-schema.json',
 ]
 gen = generator(find_program('xxd'),
                 output: '@PLAINNAME@.cpp',
                 arguments: ['-i', '@INPUT@', '@OUTPUT@'])
 assets_src = gen.process(asset_files)
 
-# Enable SSL support
+# Subproject configuration #defines
 add_project_arguments('-DCPPHTTPLIB_OPENSSL_SUPPORT', language: 'cpp')
+add_project_arguments('-DCPPHTTPLIB_ZLIB_SUPPORT', language: 'cpp')
+add_project_arguments('-DRAPIDJSON_HAS_STDSTRING', language: 'cpp')
 
 deps = []
 deps += dep_llvm
 deps += dep_clang
+deps += dep_zlib
 deps += dependency('threads')
 deps += dependency('openssl')
+deps += subproject('rapidjson').get_variable('dep')
 deps += subproject('cmark-gfm').get_variable('dep')
 deps += subproject('spdlog').get_variable('dep')
 deps += subproject('ctml').get_variable('dep')
 deps += subproject('argparse').get_variable('dep')
 deps += subproject('toml++').get_variable('dep')
 deps += subproject('doctest').get_variable('dep')
-deps += subproject('cereal').get_variable('dep')
 deps += subproject('cpp-httplib').get_variable('dep')
 
 inc = include_directories('src')
@@ -64,6 +64,8 @@ src = [
   'src/indexer/Indexer.cpp',
   'src/indexer/Matchers.cpp',
   'src/indexer/MatcherUtils.cpp',
+  'src/serde/SerdeUtils.cpp',
+  'src/serde/JSONDeserializer.cpp',
   'src/serde/HTMLWriter.cpp',
   'src/serde/Serialization.cpp',
   'src/support/ParallelExecutor.cpp',
@@ -74,17 +76,12 @@ src = [
 lib = static_library('hdoc', sources: src, include_directories: inc, dependencies: deps)
 libdeps = declare_dependency(dependencies: deps, include_directories: inc, link_with: lib)
 
-executable('hdoc', sources: 'src/main.cpp', dependencies: libdeps)
-executable('hdoc-client', sources: 'src/client-main.cpp', dependencies: libdeps)
+executable('hdoc', sources: 'src/main.cpp', dependencies: libdeps, install: true)
+executable('hdoc-online', sources: 'src/hdoc-online-main.cpp', dependencies: libdeps, install: true)
 
-unit_tests_src = [
-  'tests/unit-tests/test.cpp',
-]
-executable('unit-tests', sources: unit_tests_src, dependencies: libdeps)
-
-test_src = [
-  'tests/index-tests/test.cpp',
-  'tests/index-tests/common.cpp',
+tests_src = [
+  'tests/TestUtils.cpp',
+  'tests/hdoc-tests-main.cpp',
   'tests/index-tests/test-records.cpp',
   'tests/index-tests/test-unions.cpp',
   'tests/index-tests/test-functions.cpp',
@@ -100,5 +97,11 @@ test_src = [
   'tests/index-tests/test-comments-enums.cpp',
   'tests/index-tests/test-comments-namespaces.cpp',
   'tests/index-tests/test-comments-templates.cpp',
+  'tests/json-tests/json-tests-records.cpp',
+  'tests/json-tests/json-tests-functions.cpp',
+  'tests/json-tests/json-tests-enums.cpp',
+  'tests/json-tests/json-tests-namespaces.cpp',
+  'tests/json-tests/json-tests-schema-validation.cpp',
+  'tests/unit-tests/test.cpp',
 ]
-executable('index-tests', sources: test_src, dependencies: libdeps)
+executable('hdoc-tests', sources: tests_src, dependencies: libdeps)

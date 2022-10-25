@@ -37,7 +37,7 @@ hdoc::types::SymbolID buildID(const clang::NamedDecl* d);
 /// @brief Get the Doxygen command name (i.e. brief, param, returns) from a CommandID
 std::string getCommandName(const unsigned& CommandID);
 std::string getParaCommentContents(const clang::comments::Comment* comment, clang::ASTContext& ctx);
-std::string getCommentContents(const clang::comments::Comment* comment);
+std::string getCommentContents(const clang::comments::Comment* comment, clang::ASTContext& ctx);
 
 /// @brief Update the briefComment, docComment, and other comment fields of the symbol (if applicable).
 template <typename T>

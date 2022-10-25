@@ -1,7 +1,7 @@
 // Copyright 2019-2022 hdoc
 // SPDX-License-Identifier: AGPL-3.0-only
 
-#include "common.hpp"
+#include "tests/TestUtils.hpp"
 
 TEST_CASE("Function with docComment only (style 1)") {
   const std::string code = R"(

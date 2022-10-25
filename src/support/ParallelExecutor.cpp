@@ -38,13 +38,21 @@ void hdoc::indexer::ParallelExecutor::execute(std::unique_ptr<clang::tooling::Fr
           Tool.appendArgumentsAdjuster(clang::tooling::getClangStripOutputAdjuster());
           Tool.appendArgumentsAdjuster(clang::tooling::getClangStripDependencyFileAdjuster());
           Tool.appendArgumentsAdjuster(clang::tooling::getClangSyntaxOnlyAdjuster());
-          for (const auto& arg : this->args) {
-            Tool.appendArgumentsAdjuster(arg);
-          }
+          Tool.appendArgumentsAdjuster(clang::tooling::getInsertArgumentAdjuster(
+              this->includePaths, clang::tooling::ArgumentInsertPosition::END));
+
+          // Ignore all diagnostics that clang might throw. Clang often has weird diagnostic settings that don't
+          // match what's in compile_commands.json, resulting in spurious errors. Instead of trying to change clang's
+          // behavior, we'll ignore all diagnostics and assume that the user supplied a project that builds on their
+          // machine.
+          clang::IgnoringDiagConsumer ignore;
+          Tool.setDiagnosticConsumer(&ignore);
 
           // Run the tool and print an error message if something goes wrong
           if (Tool.run(action.get())) {
-            spdlog::error("Failed to parse source file: {}", path);
+            spdlog::error(
+                "Clang failed to parse source file: {}. Information from this file may be missing from hdoc's output",
+                path);
           }
         },
         file);

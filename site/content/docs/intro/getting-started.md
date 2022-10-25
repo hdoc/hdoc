@@ -21,7 +21,7 @@ It has no runtime dependencies and runs on all recent Linux systems.
 Before running hdoc, you must make the binary you downloaded executable using the following command:
 
 ```bash
-chmod +x path/to/hdoc
+chmod +x path/to/hdoc-online
 ```
 
 Now you're ready to set up your project with hdoc.
@@ -40,7 +40,8 @@ version = "1.0.0"
 
 # Optional, adding this will enable direct links from the documentation
 # to your source code.
-git_repo_url = "https://github.com/MYUSERNAME/MYPROJECT/blob/main/"
+git_repo_url = "https://github.com/MYUSERNAME/MYPROJECT/"
+git_default_branch = "main"
 
 [paths]
 compile_commands = "build/compile_commands.json"
@@ -78,7 +79,7 @@ Once there, run hdoc as follows:
 
 ```bash
 export HDOC_PROJECT_API_KEY=the.api.key.from.the.hdoc.console
-hdoc --verbose
+hdoc-online --verbose
 ```
 
 The `--verbose` flag will instruct hdoc to print extra information.

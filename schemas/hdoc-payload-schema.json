@@ -1,0 +1,355 @@
+{
+    "$id": "hdoc-paket-schema",
+    "$schema": "http://json-schema.org/draft-04/schema",
+    "description": "A representation of hdoc's internal data structures for a parsed C++ codebase.",
+    "type": "object",
+    "properties": {
+        "config": {
+            "type": "object",
+            "properties": {
+                "projectName": { "type": "string" },
+                "timestamp": { "type": "string" },
+                "hdocVersion": { "type": "string" },
+                "gitRepoURL": { "type": "string" },
+                "gitDefaultBranch": { "type": "string" },
+                "binaryType": { "type": "integer", "minimum": 0, "maximum": 2 }
+            },
+            "additionalProperties": false,
+            "required": ["projectName", "timestamp", "hdocVersion", "gitRepoURL", "gitDefaultBranch", "binaryType"]
+        },
+
+        "index": {
+            "type": "object",
+            "properties": {
+                "functions": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": { "type": "integer", "minimum": 0 },
+                            "name": { "type": "string" },
+                            "docComment": { "type": "string" },
+                            "briefComment": { "type": "string" },
+                            "file": { "type": "string" },
+                            "line": { "type": "integer", "minimum": 0 },
+                            "parentNamespaceID": { "type": "integer", "minimum": 0 },
+
+                            "isRecordMember": { "type": "boolean" },
+                            "isConstexpr": { "type": "boolean" },
+                            "isConsteval": { "type": "boolean" },
+                            "isInline": { "type": "boolean" },
+                            "isConst": { "type": "boolean" },
+                            "isVolatile": { "type": "boolean" },
+                            "isRestrict": { "type": "boolean" },
+                            "isVirtual": { "type": "boolean" },
+                            "isVariadic": { "type": "boolean" },
+                            "isNoExcept": { "type": "boolean" },
+                            "hasTrailingReturn": { "type": "boolean" },
+                            "isCtorOrDtor": { "type": "boolean" },
+                            "nameStart": { "type": "integer", "minimum": 0 },
+                            "postTemplate": { "type": "integer", "minimum": 0 },
+                            "access": { "type": "integer", "minimum": 0, "maximum": 3 },
+                            "storageClass": { "type": "integer", "minimum": 0, "maximum": 5 },
+                            "refQualifier": { "type": "integer", "minimum": 0, "maximum": 2 },
+                            "proto": { "type": "string" },
+                            "returnTypeDocComment": { "type": "string" },
+
+                            "returnType": {
+                                "type": "object",
+                                "properties": {
+                                    "id": { "type": "integer", "minimum": 0 },
+                                    "name": { "type": "string" }
+                                },
+                                "additionalProperties": false,
+                                "required": ["id", "name"]
+                            },
+
+                            "params": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": { "type": "string" },
+                                        "type": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": { "type": "integer", "minimum": 0 },
+                                                "name": { "type": "string" }
+                                            },
+                                            "additionalProperties": false,
+                                            "required": ["id", "name"]
+                                        },
+                                        "docComment": { "type": "string" },
+                                        "defaultValue": { "type": "string" }
+                                    },
+                                    "additionalProperties": false,
+                                    "required": ["name", "type", "docComment", "defaultValue"]
+                                }
+                            },
+
+                            "templateParams": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "templateType": { "type": "integer", "minimum": 0, "maximum": 2 },
+                                        "name": { "type": "string" },
+                                        "type": { "type": "string" },
+                                        "docComment": { "type": "string" },
+                                        "isParameterPack": { "type": "boolean" },
+                                        "isTypename": { "type": "boolean" }
+                                    },
+                                    "additionalProperties": false,
+                                    "required": ["templateType", "name", "type", "docComment", "isParameterPack", "isTypename"]
+                                }
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "id",
+                            "name",
+                            "docComment",
+                            "briefComment",
+                            "file",
+                            "line",
+                            "parentNamespaceID",
+                            "isRecordMember",
+                            "isConstexpr",
+                            "isConsteval",
+                            "isInline",
+                            "isConst",
+                            "isVolatile",
+                            "isRestrict",
+                            "isVirtual",
+                            "isVariadic",
+                            "isNoExcept",
+                            "hasTrailingReturn",
+                            "isCtorOrDtor",
+                            "nameStart",
+                            "postTemplate",
+                            "access",
+                            "storageClass",
+                            "refQualifier",
+                            "proto",
+                            "returnTypeDocComment",
+                            "returnType",
+                            "params",
+                            "templateParams"
+                        ]
+                    }
+                },
+
+                "records": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": { "type": "integer", "minimum": 0 },
+                            "name": { "type": "string" },
+                            "docComment": { "type": "string" },
+                            "briefComment": { "type": "string" },
+                            "file": { "type": "string" },
+                            "line": { "type": "integer", "minimum": 0 },
+                            "parentNamespaceID": { "type": "integer", "minimum": 0 },
+
+                            "type": { "type": "string" },
+                            "proto": { "type": "string" },
+
+                            "vars": {
+                                "type": "array",
+                                "uniqueItems": true,
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "isStatic": { "type": "boolean" },
+                                        "name": { "type": "string" },
+                                        "type": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": { "type": "integer", "minimum": 0 },
+                                                "name": { "type": "string" }
+                                            },
+                                            "additionalProperties": false,
+                                            "required": ["id", "name"]
+                                        },
+                                        "defaultValue": { "type": "string" },
+                                        "docComment": { "type": "string" },
+                                        "access": { "type": "integer", "minimum": 0, "maximum": 3 }
+                                    },
+                                    "additionalProperties": false,
+                                    "required": ["isStatic", "name", "type", "defaultValue", "docComment", "access"]
+                                }
+                            },
+
+                            "methodIDs": {
+                                "type": "array",
+                                "uniqueItems": true,
+                                "items": {
+                                    "type": "integer", "minimum": 0
+                                }
+                            },
+
+                            "baseRecords": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": { "type": "integer", "minimum": 0 },
+                                        "access": { "type": "integer", "minimum": 0, "maximum": 3 },
+                                        "name": { "type": "string" }
+                                    },
+                                    "additionalProperties": false,
+                                    "required": ["id", "access", "name"]
+                                }
+                            },
+
+                            "templateParams": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "templateType": { "type": "integer", "minimum": 0, "maximum": 2 },
+                                        "name": { "type": "string" },
+                                        "type": { "type": "string" },
+                                        "docComment": { "type": "string" },
+                                        "isParameterPack": { "type": "boolean" },
+                                        "isTypename": { "type": "boolean" }
+                                    },
+                                    "additionalProperties": false,
+                                    "required": ["templateType", "name", "type", "docComment", "isParameterPack", "isTypename"]
+                                }
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "id",
+                            "name",
+                            "docComment",
+                            "briefComment",
+                            "file",
+                            "line",
+                            "parentNamespaceID",
+                            "type",
+                            "proto",
+                            "vars",
+                            "methodIDs",
+                            "baseRecords",
+                            "templateParams"
+                        ]
+                    }
+                },
+
+                "enums": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": { "type": "integer", "minimum": 0 },
+                            "name": { "type": "string" },
+                            "docComment": { "type": "string" },
+                            "briefComment": { "type": "string" },
+                            "file": { "type": "string" },
+                            "line": { "type": "integer", "minimum": 0 },
+                            "parentNamespaceID": { "type": "integer", "minimum": 0 },
+
+                            "members": {
+                                "type": "array",
+                                "uniqueItems": true,
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": { "type": "string" },
+                                        "value": { "type": "integer" },
+                                        "docComment": { "type": "string" }
+                                    },
+                                    "additionalProperties": false,
+                                    "required": [ "name", "value", "docComment"]
+                                }
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "id",
+                            "name",
+                            "docComment",
+                            "briefComment",
+                            "file",
+                            "line",
+                            "parentNamespaceID",
+                            "members"
+                        ]
+                    }
+                },
+
+                "namespaces": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": { "type": "integer", "minimum": 0 },
+                            "name": { "type": "string" },
+                            "docComment": { "type": "string" },
+                            "briefComment": { "type": "string" },
+                            "file": { "type": "string" },
+                            "line": { "type": "integer", "minimum": 0 },
+                            "parentNamespaceID": { "type": "integer", "minimum": 0 },
+
+                            "records": {
+                                "type": "array",
+                                "uniqueItems": true,
+                                "items": {
+                                    "type": "integer", "minimum": 0
+                                }
+                            },
+
+                            "enums": {
+                                "type": "array",
+                                "uniqueItems": true,
+                                "items": {
+                                    "type": "integer", "minimum": 0
+                                }
+                            },
+
+                            "namespaces": {
+                                "type": "array",
+                                "uniqueItems": true,
+                                "items": {
+                                    "type": "integer", "minimum": 0
+                                }
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "id",
+                            "name",
+                            "docComment",
+                            "briefComment",
+                            "file",
+                            "line",
+                            "parentNamespaceID",
+                            "records",
+                            "enums",
+                            "namespaces"
+                        ]
+                    }
+                }
+            }
+        },
+
+        "markdownFiles": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "isHomepage": { "type": "boolean" },
+                    "filename": { "type": "string" },
+                    "contents": { "type": "string" }
+                },
+                "additionalProperties": false,
+                "required": ["isHomepage", "filename", "contents"]
+            }
+        }
+    },
+    "additionalProperties": false,
+    "required": ["config", "index", "markdownFiles"]
+}

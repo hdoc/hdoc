@@ -35,14 +35,14 @@ void hdoc::indexer::Indexer::run() {
   hdoc::indexer::matchers::RecordMatcher    RecordFinder(&this->index, this->cfg);
   hdoc::indexer::matchers::EnumMatcher      EnumFinder(&this->index, this->cfg);
   hdoc::indexer::matchers::NamespaceMatcher NamespaceFinder(&this->index, this->cfg);
-  clang::ast_matchers::MatchFinder Finder;
+  clang::ast_matchers::MatchFinder          Finder;
   Finder.addMatcher(FunctionFinder.getMatcher(), &FunctionFinder);
   Finder.addMatcher(RecordFinder.getMatcher(), &RecordFinder);
   Finder.addMatcher(EnumFinder.getMatcher(), &EnumFinder);
   Finder.addMatcher(NamespaceFinder.getMatcher(), &NamespaceFinder);
 
   // Add include search paths to clang invocation
-  std::vector<clang::tooling::ArgumentsAdjuster> args = {};
+  std::vector<std::string> includePaths = {};
   for (const std::string& d : cfg->includePaths) {
     // Ignore include paths that don't exist
     if (!std::filesystem::exists(d)) {
@@ -50,10 +50,10 @@ void hdoc::indexer::Indexer::run() {
       continue;
     }
     spdlog::info("Appending {} to list of include paths.", d);
-    args.push_back(clang::tooling::getInsertArgumentAdjuster(("-isystem" + d).c_str()));
+    includePaths.emplace_back("-isystem" + d);
   }
 
-  hdoc::indexer::ParallelExecutor tool(*cmpdb, args, this->pool, this->cfg->debugLimitNumIndexedFiles);
+  hdoc::indexer::ParallelExecutor tool(*cmpdb, includePaths, this->pool, this->cfg->debugLimitNumIndexedFiles);
   tool.execute(clang::tooling::newFrontendActionFactory(&Finder));
 }
 
@@ -63,17 +63,17 @@ void hdoc::indexer::Indexer::resolveNamespaces() {
     // Add all the direct children of this namespace to its children vector
     for (const auto& [k, v] : this->index.records.entries) {
       if (isChild(ns, v)) {
-        ns.records.push_back(v.ID);
+        ns.records.emplace_back(v.ID);
       }
     }
     for (const auto& [k, v] : this->index.enums.entries) {
       if (isChild(ns, v)) {
-        ns.enums.push_back(v.ID);
+        ns.enums.emplace_back(v.ID);
       }
     }
     for (const auto& [k, v] : this->index.namespaces.entries) {
       if (isChild(ns, v)) {
-        ns.namespaces.push_back(v.ID);
+        ns.namespaces.emplace_back(v.ID);
       }
     }
   }
@@ -146,7 +146,7 @@ void hdoc::indexer::Indexer::pruneMethods() {
   std::vector<hdoc::types::SymbolID> toBePruned;
   for (const auto& [k, v] : this->index.functions.entries) {
     if (v.isRecordMember && !this->index.records.contains(v.parentNamespaceID)) {
-      toBePruned.push_back(k);
+      toBePruned.emplace_back(k);
     }
   }
   // Remove methods from index

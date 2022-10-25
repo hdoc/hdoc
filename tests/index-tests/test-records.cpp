@@ -1,7 +1,7 @@
 // Copyright 2019-2022 hdoc
 // SPDX-License-Identifier: AGPL-3.0-only
 
-#include "common.hpp"
+#include "tests/TestUtils.hpp"
 #include "types/Config.hpp"
 
 TEST_CASE("Class member") {
@@ -237,7 +237,7 @@ TEST_CASE("Checking that private members aren't indexed when they're not wanted"
 
   hdoc::types::Config cfg;
   cfg.ignorePrivateMembers = true;
-  hdoc::types::Index  index;
+  hdoc::types::Index index;
   runOverCode(code, index, cfg);
   checkIndexSizes(index, 1, 1, 0, 0);
 

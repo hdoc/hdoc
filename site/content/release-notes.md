@@ -6,6 +6,28 @@ date = 2020-01-01
 description = "What's changed between each release of hdoc, including new features, fixes, and improvements."
 +++
 
+# Version 1.4.0 (24 October 2022)
+
+# New Features
+* hdoc now uses JSON serialization/deserialization instead of a binary format when uploading to docs.hdoc.io.
+  - JSON can also be dumped to the current working directory by setting the new `debug.dump_json_payload` [configuration option](@/docs/reference/config-file-reference.md#dump-json-payload) to `true`.
+* The version of hdoc which is provided as a pre-compiled binary on hdoc.io and uploads documentation to docs.hdoc.io for public hosting is now called `hdoc-online`.
+  - This binary was previously called `hdoc` or `hdoc-client` which was confusing.
+* There is a new configuration option named `git_default_branch` which allows users to specify the default branch or commit for their project.
+  - Thank you [@no92](https://github.com/no92) for [contributing this feature](https://github.com/hdoc/hdoc/pull/32) with a high quality PR including docs!
+  - This also fixes a bug where the "Repository" link in the sidebar pointed to an invalid link.
+* The Nix flake config is no longer hardcoded for x86_64 Linux.
+
+## Fixes
+* Binaries built as part of hdoc are now marked as installable.
+  - Thank you [@no92](https://github.com/no92) for [contributing this fix](https://github.com/hdoc/hdoc/pull/33).
+* Fixed a bug where the `ignore_private_members` configuration option was being parsed incorrectly.
+  - Thank you [@strager](https://github.com/strager) for [reporting this bug](https://github.com/hdoc/hdoc/pull/31).
+
+## Internal Changes
+* All of hdoc's unit tests are now bundled in one binary: `hdoc-tests`, as opposed to the previous multitude of test binaries that were built (`index-tests`, `unit-tests`)
+* Clang diagnostic output is now ignored.
+
 # Version 1.3.2 (30 September 2022)
 
 ## Fixes
@@ -103,7 +125,7 @@ This is a hotfix release.
   - Thank you [@yqs112358](https://github.com/yqs112358) for contributing this!
 
 ## Fixes
-* Users will now be warned if `output_dir` is specified in `.hdoc.toml` but they are running the client version of hdoc
+* Users will now be warned if `output_dir` is specified in `.hdoc.toml` but they are running the online version of hdoc
   - Thank you [@ShulkMaster](https://github.com/ShulkMaster) for reporting [this bug](https://github.com/hdoc/hdoc/issues/10).
 * hdoc will now immediately halt if the `output_dir` option is missing when it is otherwise required.
 

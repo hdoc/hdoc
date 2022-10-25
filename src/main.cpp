@@ -8,12 +8,14 @@
 #include "frontend/Frontend.hpp"
 #include "indexer/Indexer.hpp"
 #include "serde/HTMLWriter.hpp"
+#include "serde/SerdeUtils.hpp"
+#include "serde/Serialization.hpp"
 
 int main(int argc, char** argv) {
   // Print stack trace on failure
   llvm::sys::PrintStackTraceOnErrorSignal(argv[0]);
 
-  hdoc::types::Config      cfg;
+  hdoc::types::Config cfg;
   cfg.binaryType = hdoc::types::BinaryType::Full;
   hdoc::frontend::Frontend frontend(argc, argv, &cfg);
 
@@ -40,4 +42,15 @@ int main(int argc, char** argv) {
   htmlWriter.printSearchPage();
   htmlWriter.processMarkdownFiles();
   htmlWriter.printProjectIndex();
+
+  // Ensure that cfg was properly initialized
+  if (cfg.debugDumpJSONPayload) {
+    const std::string data = hdoc::serde::serializeToJSON(*index, cfg);
+    bool              res  = dumpJSONPayload(data);
+    if (res == false) {
+      return EXIT_FAILURE;
+    }
+  }
+
+  return EXIT_SUCCESS;
 }

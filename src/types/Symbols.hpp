@@ -30,6 +30,10 @@ struct SymbolID {
     this->hashValue |= static_cast<uint64_t>(hash[7]);
   }
 
+  SymbolID(const uint64_t hashValue) {
+    this->hashValue = hashValue;
+  }
+
   /// @brief Returns the raw hash value for this SymbolID
   uint64_t raw() const {
     return this->hashValue;
@@ -65,6 +69,8 @@ struct Symbol {
   bool operator<(const Symbol& s) const {
     return this->name < s.name;
   }
+
+  bool operator==(hdoc::types::Symbol const&) const = default;
 };
 
 /// @brief Represents a possible reference to another Symbol that may or may not be in the Index.

@@ -6,6 +6,16 @@ date = 2020-01-01
 description = "What's changed between each release of hdoc, including new features, fixes, and improvements."
 +++
 
+# Version 1.4.1 (6 February 2023)
+
+## Fixes
+* Strings in "ignore.paths" are now compared to their relative path instead of the absolute path of the file.
+* hdoc's build system will now use an additional method to try to find the system-level Clang libraries it uses as a dependency.
+  - Thank you [@no92](https://github.com/no92) for [contributing this fix](https://github.com/hdoc/hdoc/pull/25).
+
+## Internal Changes
+* hdoc now uses Meson wraps to vendor its subproject dependencies instead of keeping them in the source tree.
+
 # Version 1.4.0 (24 October 2022)
 
 # New Features

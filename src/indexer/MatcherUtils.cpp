@@ -1,4 +1,4 @@
-// Copyright 2019-2022 hdoc
+// Copyright 2019-2023 hdoc
 // SPDX-License-Identifier: AGPL-3.0-only
 
 #include "MatcherUtils.hpp"
@@ -65,12 +65,32 @@ void fillOutSymbol(hdoc::types::Symbol& s, const clang::NamedDecl* d, const std:
   s.file = std::filesystem::relative(*absPath, rootDir).string();
 }
 
+/// @brief If the type is a specialized template, convert it to the original non-specialized
+/// templated type.
+const clang::ClassTemplateDecl* getNonSpecializedVersionOfDecl(const clang::TagDecl* tagdecl) {
+  if (const auto* spec = llvm::dyn_cast_or_null<clang::ClassTemplateSpecializationDecl>(tagdecl)) {
+    if (const auto* nonspec = spec->getSpecializedTemplate()) {
+      return nonspec;
+    } else {
+      return NULL;
+    }
+  }
+  return NULL;
+}
+
 void findParentNamespace(hdoc::types::Symbol& s, const clang::NamedDecl* d) {
   const auto* dc = llvm::dyn_cast<clang::DeclContext>(d)->getParent();
   if (const auto* n = llvm::dyn_cast<clang::NamespaceDecl>(dc)) {
     s.parentNamespaceID = buildID(n);
   } else if (const auto* n = llvm::dyn_cast<clang::RecordDecl>(dc)) {
-    s.parentNamespaceID = buildID(n);
+    // If the parent RecordDecl is a specialization, we need to "unspecialize" it
+    // to get the original type. Otherwise clang will return a different SymbolID
+    // and the parentNamespaceID will be a dangling reference.
+    if (const auto* nonspec = getNonSpecializedVersionOfDecl((clang::TagDecl*)n)) {
+      s.parentNamespaceID = buildID(nonspec);
+    } else {
+      s.parentNamespaceID = buildID(n);
+    }
   }
 }
 
@@ -99,7 +119,7 @@ bool isInIgnoreList(const clang::Decl*              d,
   }
 
   for (const auto& substr : ignorePaths) {
-    if (absPath->find(substr) != std::string::npos) {
+    if (relPath.find(substr) != std::string::npos) {
       return true;
     }
   }

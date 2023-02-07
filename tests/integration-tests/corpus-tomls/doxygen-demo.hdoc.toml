@@ -1,0 +1,13 @@
+[project]
+name = "doxygen-demo"
+git_repo_url = "https://github.com/qedsoftware/doxygen-demo/"
+git_default_branch = "master"
+
+[paths]
+compile_commands = "build/compile_commands.json"
+output_dir = "../../hdoc-output/doxygen-demo"
+
+[ignore]
+paths = [
+  "version.cpp",
+]

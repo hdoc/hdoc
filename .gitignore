@@ -14,3 +14,8 @@ site/public/
 site/static/processed_images/
 
 .direnv/
+
+/subprojects/*
+!/subprojects/*.wrap
+!/subprojects/ctml
+!/subprojects/packagefiles

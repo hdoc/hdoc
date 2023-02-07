@@ -1,0 +1,15 @@
+[project]
+name = "subspace"
+git_repo_url = "https://github.com/chromium/subspace/"
+git_default_branch = "main"
+
+[paths]
+compile_commands = "build/compile_commands.json"
+output_dir = "../../hdoc-output/subspace"
+
+[ignore]
+paths = [
+    "/third_party/",
+    "_unittest.cc",
+    "/__private/",
+]

@@ -1,17 +1,20 @@
-project('hdoc', 'c', 'cpp', version: '1.4.0', default_options: ['cpp_std=c++20', 'warning_level=3'])
+project('hdoc', 'c', 'cpp', version: '1.4.1', default_options: ['cpp_std=c++20', 'warning_level=3'])
 
 dep_llvm = dependency('LLVM', include_type: 'system')
-clang_modules = [
-  'clangTooling',
-  'clangToolingInclusions',
-  'clangToolingCore',
-  'clangFrontend',
-  'clangAST',
-  'clangIndex',
-  'clangBasic',
-]
-dep_clang = dependency('Clang', include_type: 'system', method: 'cmake', modules: clang_modules)
-dep_zlib = dependency('zlib')
+llvm_libdir = dep_llvm.get_variable(cmake: 'LLVM_LIBRARY_DIR', configtool: 'libdir')
+dep_clang = meson.get_compiler('cpp').find_library('clang-cpp', dirs: llvm_libdir, required: false)
+if not dep_clang.found()
+  clang_modules = [
+    'clangTooling',
+    'clangToolingInclusions',
+    'clangToolingCore',
+    'clangFrontend',
+    'clangAST',
+    'clangIndex',
+    'clangBasic',
+  ]
+  dep_clang = dependency('Clang', include_type: 'system', method: 'cmake', modules: clang_modules)
+endif
 
 # Disable RTTI
 add_project_arguments('-fno-rtti', language: 'cpp')
@@ -46,17 +49,17 @@ add_project_arguments('-DRAPIDJSON_HAS_STDSTRING', language: 'cpp')
 deps = []
 deps += dep_llvm
 deps += dep_clang
-deps += dep_zlib
 deps += dependency('threads')
 deps += dependency('openssl')
-deps += subproject('rapidjson').get_variable('dep')
-deps += subproject('cmark-gfm').get_variable('dep')
-deps += subproject('spdlog').get_variable('dep')
-deps += subproject('ctml').get_variable('dep')
-deps += subproject('argparse').get_variable('dep')
-deps += subproject('toml++').get_variable('dep')
-deps += subproject('doctest').get_variable('dep')
-deps += subproject('cpp-httplib').get_variable('dep')
+deps += subproject('zlib', default_options: ['default_library=static']).get_variable('zlib_dep')
+deps += subproject('rapidjson').get_variable('rapidjson_dep')
+deps += subproject('cmark-gfm', default_options: ['default_library=static']).get_variable('cmark_gfm_dep')
+deps += subproject('spdlog').get_variable('spdlog_dep')
+deps += subproject('ctml').get_variable('ctml_dep')
+deps += subproject('argparse').get_variable('argparse_dep')
+deps += subproject('tomlplusplus').get_variable('tomlplusplus_dep')
+deps += subproject('doctest').get_variable('doctest_dep')
+deps += subproject('cpp-httplib', default_options: ['cpp-httplib_brotli=disabled']).get_variable('cpp_httplib_dep')
 
 inc = include_directories('src')
 src = [

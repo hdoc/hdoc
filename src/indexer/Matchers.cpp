@@ -1,4 +1,4 @@
-// Copyright 2019-2022 hdoc
+// Copyright 2019-2023 hdoc
 // SPDX-License-Identifier: AGPL-3.0-only
 
 #include "Matchers.hpp"
@@ -8,19 +8,6 @@
 #include "clang/Lex/Lexer.h"
 
 #include <string>
-
-/// @brief If the type is a specialized template, convert it to the original non-specialized
-/// templated type.
-static const clang::ClassTemplateDecl* getNonSpecializedVersionOfDecl(const clang::TagDecl* tagdecl) {
-  if (const auto* spec = llvm::dyn_cast_or_null<clang::ClassTemplateSpecializationDecl>(tagdecl)) {
-    if (const auto* nonspec = spec->getSpecializedTemplate()) {
-      return nonspec;
-    } else {
-      return NULL;
-    }
-  }
-  return NULL;
-}
 
 /// @brief Try to get a SymbolID from a QualType, and return an empty SymbolID if it's not possible
 static hdoc::types::SymbolID getTypeSymbolID(const clang::QualType& typ) {

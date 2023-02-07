@@ -1,15 +1,20 @@
-// Copyright 2019-2022 hdoc
+// Copyright 2019-2023 hdoc
 // SPDX-License-Identifier: AGPL-3.0-only
 
 #pragma once
 
 #include "types/Symbols.hpp"
 #include "clang/AST/Comment.h"
+#include "clang/AST/DeclTemplate.h"
 #include <filesystem>
 #include <string>
 
 /// @brief Update the name, line, and file of the decl
 void fillOutSymbol(hdoc::types::Symbol& s, const clang::NamedDecl* d, const std::filesystem::path& rootDir);
+
+/// @brief If the type is a specialized template, convert it to the original non-specialized
+/// templated type.
+const clang::ClassTemplateDecl* getNonSpecializedVersionOfDecl(const clang::TagDecl* tagdecl);
 
 /// @brief Find the parent namespace (either record or an actual namespace) of a decl
 void findParentNamespace(hdoc::types::Symbol& s, const clang::NamedDecl* d);

@@ -1,5 +1,5 @@
 {
-    "$id": "hdoc-paket-schema",
+    "$id": "hdoc-payload-schema",
     "$schema": "http://json-schema.org/draft-04/schema",
     "description": "A representation of hdoc's internal data structures for a parsed C++ codebase.",
     "type": "object",

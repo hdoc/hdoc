@@ -1,4 +1,4 @@
-// Copyright 2019-2022 hdoc
+// Copyright 2019-2023 hdoc
 // SPDX-License-Identifier: AGPL-3.0-only
 
 #include "ctml.hpp"
@@ -170,7 +170,7 @@ static void printNewPage(const hdoc::types::Config&   cfg,
   auto aside      = CTML::Node("aside.column is-one-fifth");
   auto menuUL     = CTML::Node("ul.menu-list");
 
-  menuUL.AddChild(CTML::Node("p.is-size-4", cfg.projectName + (cfg.projectName == "" ? "" : " " + cfg.projectVersion)));
+  menuUL.AddChild(CTML::Node("p.is-size-4", cfg.projectName + (cfg.projectVersion == "" ? "" : " " + cfg.projectVersion)));
   menuUL.AddChild(CTML::Node("p.menu-label", "Navigation"));
   menuUL.AddChild(CTML::Node("li").AddChild(CTML::Node("a", "Home").SetAttr("href", "index.html")));
   menuUL.AddChild(CTML::Node("li").AddChild(CTML::Node("a", "Search").SetAttr("href", "search.html")));

@@ -1,0 +1,13 @@
+[project]
+name = "json"
+git_repo_url = "https://github.com/nlohmann/json/"
+git_default_branch = "develop"
+
+[paths]
+compile_commands = "build/compile_commands.json"
+output_dir = "../../hdoc-output/json"
+
+[ignore]
+paths = [
+    "/tests/",
+]

@@ -1,9 +1,9 @@
-// Copyright 2019-2022 hdoc
+// Copyright 2019-2023 hdoc
 // SPDX-License-Identifier: AGPL-3.0-only
 
 #pragma once
 
-#include "doctest.hpp"
+#include "doctest.h"
 #include "types/Config.hpp"
 #include "types/Index.hpp"
 

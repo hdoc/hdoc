@@ -71,7 +71,7 @@ ninja -C build          # Compile hdoc binaries and tests
 ./build/hdoc --verbose  # Run hdoc over itself, saving the HTML documentation to ./hdoc-output/
 ```
 
-Reportedly, `hdoc-client.exe` does not currently work on Windows due to a linking problem.
+Reportedly, `hdoc-online.exe` does not currently work on Windows due to a linking problem.
 However, `hdoc.exe` should work.
 
 ## Running tests
@@ -87,7 +87,7 @@ cd build
 
 # Running integration tests
 cd ../tests/integration_tests
-./clone_test_repos.sh          # Pull testing repos from GitHub
+./clone-corpus-repos.sh        # Pull testing repos from GitHub
 ./test.sh                      # Run hdoc over testing repos
 ```
 
@@ -96,6 +96,7 @@ cd ../tests/integration_tests
 ```
 hdoc
 ├── assets       # Static HTML/CSS/Favicons used in the generated HTML docs
+├── schemas      # JSON schema for hdoc's JSON payload output
 ├── site         # Source code for hdoc.io and hdoc's documentation
 ├── src          # C++ source code
 │   ├── frontend   # Parses configuration file and CLI arguments

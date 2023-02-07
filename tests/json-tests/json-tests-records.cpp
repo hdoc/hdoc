@@ -1,4 +1,4 @@
-// Copyright 2019-2022 hdoc
+// Copyright 2019-2023 hdoc
 // SPDX-License-Identifier: AGPL-3.0-only
 
 #include "serde/JSONDeserializer.hpp"
@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "doctest.hpp"
+#include "doctest.h"
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
 

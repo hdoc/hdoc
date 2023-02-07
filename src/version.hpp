@@ -1,4 +1,4 @@
-// Copyright 2019-2022 hdoc
+// Copyright 2019-2023 hdoc
 // SPDX-License-Identifier: AGPL-3.0-only
 
 // HDOC_GIT_REV takes the value of the git revision of the repo
@@ -9,5 +9,5 @@
 #define HDOC_GIT_REV "hdocInternal"
 #endif
 
-#define HDOC_NUMERIC_VERSION "1.4.0"
+#define HDOC_NUMERIC_VERSION "1.4.1"
 #define HDOC_VERSION HDOC_NUMERIC_VERSION "-" HDOC_GIT_REV

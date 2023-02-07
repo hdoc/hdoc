@@ -1,0 +1,13 @@
+[project]
+name = "marl"
+git_repo_url = "https://github.com/google/marl/"
+git_default_branch = "main"
+
+[paths]
+compile_commands = "build/compile_commands.json"
+output_dir = "../../hdoc-output/marl"
+
+[ignore]
+paths = [
+    "/third_party/",
+]

@@ -1,0 +1,6 @@
+[wrap-file]
+directory = rapidjson-27c3a8dc0e2c9218fe94986d249a12b5ed838f1d
+source_url = https://github.com/Tencent/rapidjson/archive/27c3a8dc0e2c9218fe94986d249a12b5ed838f1d.tar.gz
+source_filename = rapidjson-27c3a8dc0e2c9218fe94986d249a12b5ed838f1d.tar.gz
+source_hash = bca173d66f8a93ad5ac2a3b28c86da0b95f378613d6f25791af0153944960b37
+patch_directory = rapidjson

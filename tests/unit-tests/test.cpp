@@ -1,7 +1,7 @@
-// Copyright 2019-2022 hdoc
+// Copyright 2019-2023 hdoc
 // SPDX-License-Identifier: AGPL-3.0-only
 
-#include "doctest.hpp"
+#include "doctest.h"
 #include "serde/HTMLWriter.hpp"
 
 #include <string>

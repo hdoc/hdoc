@@ -1,0 +1,13 @@
+[project]
+name = "draco"
+git_repo_url = "https://github.com/google/draco/"
+git_default_branch = "master"
+
+[paths]
+compile_commands = "build/compile_commands.json"
+output_dir = "../../hdoc-output/draco"
+
+[ignore]
+paths = [
+      "/third_party/",
+]

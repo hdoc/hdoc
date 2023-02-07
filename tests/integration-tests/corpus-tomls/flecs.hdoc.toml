@@ -1,0 +1,13 @@
+[project]
+name = "flecs"
+git_repo_url = "https://github.com/SanderMertens/flecs/"
+git_default_branch = "master"
+
+[paths]
+compile_commands = "build/compile_commands.json"
+output_dir = "../../hdoc-output/flecs"
+
+[ignore]
+paths = [
+    "/test/",
+]

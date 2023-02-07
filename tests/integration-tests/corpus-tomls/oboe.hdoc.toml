@@ -1,0 +1,13 @@
+[project]
+name = "oboe"
+git_repo_url = "https://github.com/google/oboe/"
+git_default_branch = "main"
+
+[paths]
+compile_commands = "build/compile_commands.json"
+output_dir = "../../hdoc-output/oboe"
+
+[ignore]
+paths = [
+    "/tests/",
+]

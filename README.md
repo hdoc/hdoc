@@ -34,6 +34,9 @@ hdoc also comes with a Nix Flake which sets up a development environment for you
 Follow the instructions below to build hdoc.
 
 ```sh
+# Install the needed dependencies (valid for ubuntu:jammy)
+apt-get install -y git build-essential meson llvm cmake clang libclang-dev libclang-cpp-dev xxd pkg-config openssl libssl-dev
+
 # Build hdoc
 meson build             # Configure the build directory
 ninja -C build          # Compile hdoc binaries and tests

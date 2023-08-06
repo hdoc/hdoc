@@ -10,7 +10,7 @@
 #include <string>
 
 /// @brief Update the name, line, and file of the decl
-void fillOutSymbol(hdoc::types::Symbol& s, const clang::NamedDecl* d, const std::filesystem::path& rootDir);
+void fillOutSymbol(hdoc::types::Symbol& s, const clang::NamedDecl* d, const std::filesystem::path& inputDir);
 
 /// @brief If the type is a specialized template, convert it to the original non-specialized
 /// templated type.
@@ -22,7 +22,7 @@ void findParentNamespace(hdoc::types::Symbol& s, const clang::NamedDecl* d);
 /// @brief Check if a decl is defined in a non-existent file or in the set of ignored paths
 bool isInIgnoreList(const clang::Decl*              d,
                     const std::vector<std::string>& ignorePaths,
-                    const std::filesystem::path&    rootDir);
+                    const std::filesystem::path&    inputDir);
 
 /// @brief Check if the decl is in an anonymous namespace
 bool isInAnonymousNamespace(const clang::Decl* d);

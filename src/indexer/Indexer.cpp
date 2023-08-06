@@ -53,7 +53,7 @@ void hdoc::indexer::Indexer::run() {
     includePaths.emplace_back("-isystem" + d);
   }
 
-  hdoc::indexer::ParallelExecutor tool(*cmpdb, includePaths, this->pool, this->cfg->debugLimitNumIndexedFiles);
+  hdoc::indexer::ParallelExecutor tool(*cmpdb, includePaths, this->pool, *this->cfg);
   tool.execute(clang::tooling::newFrontendActionFactory(&Finder));
 }
 

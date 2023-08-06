@@ -7,6 +7,7 @@
 
 #include "clang/Tooling/Execution.h"
 #include "llvm/Support/ThreadPool.h"
+#include "types/Config.hpp"
 
 namespace hdoc::indexer {
 /// @brief A cut-down reimplementation of clang's AllTUsToolExecutor.
@@ -19,8 +20,8 @@ public:
   ParallelExecutor(const clang::tooling::CompilationDatabase& cmpdb,
                    const std::vector<std::string>&            includePaths,
                    llvm::ThreadPool&                          pool,
-                   const uint32_t                             debugLimitNumIndexedFiles)
-      : cmpdb(cmpdb), includePaths(includePaths), pool(pool), debugLimitNumIndexedFiles(debugLimitNumIndexedFiles) {}
+                   const hdoc::types::Config&                             config)
+      : cmpdb(cmpdb), includePaths(includePaths), pool(pool), config(config) {}
 
   void execute(std::unique_ptr<clang::tooling::FrontendActionFactory> action);
 
@@ -28,6 +29,6 @@ private:
   const clang::tooling::CompilationDatabase& cmpdb;
   const std::vector<std::string>&            includePaths;
   llvm::ThreadPool&                          pool;
-  const uint32_t                             debugLimitNumIndexedFiles = 0;
+  const hdoc::types::Config&                 config;
 };
 } // namespace hdoc::indexer

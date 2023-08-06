@@ -26,6 +26,7 @@ struct Config {
   std::filesystem::path    rootDir;                      ///< Path to the root of the repo directory where .hdoc.toml is
   std::filesystem::path    compileCommandsJSON;          ///< Path to compile_commands.json
   std::filesystem::path    outputDir;                    ///< Path of where documentation is saved
+  std::filesystem::path    inputDir;                     ///< Path of where source is located
   std::string              projectName;                  ///< Name of the project
   std::string              projectVersion;               ///< Project version
   std::string              timestamp;                    ///< Timestamp of this run

@@ -114,6 +114,17 @@ It is required for full versions of hdoc, but optional for "client" versions of 
 output_dir = "docs/hdoc-output"
 ```
 
+### `input_dir`
+
+hdoc discards source files that are located outside of input directory or its subdirectories.
+Specifying `input_dir` allows for having the configuration file separate from your sources, if desired.
+If no `input_dir` is specified, it defaults to the CWD.
+
+```toml
+[paths]
+input_dir = "/path/to/your/source/root"
+```
+
 ## `includes`
 
 The includes section allows for finer-grained control of how hdoc finds included files.

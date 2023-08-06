@@ -96,6 +96,7 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
 
   // Get other arguments from the .hdoc.toml file.
   cfg->outputDir        = std::filesystem::path(toml["paths"]["output_dir"].value_or(""));
+  cfg->inputDir         = std::filesystem::path(toml["paths"]["input_dir"].value_or(cfg->rootDir.string()));
   cfg->projectName      = toml["project"]["name"].value_or("");
   cfg->projectVersion   = toml["project"]["version"].value_or("");
   cfg->gitRepoURL       = toml["project"]["git_repo_url"].value_or("");

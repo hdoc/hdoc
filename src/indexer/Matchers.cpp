@@ -48,7 +48,7 @@ void hdoc::indexer::matchers::FunctionMatcher::run(const clang::ast_matchers::Ma
 
   // Ignore invalid matches, matches in ignored files, and static functions
   if (res == nullptr || res->isOverloadedOperator() ||
-      isInIgnoreList(res, this->cfg->ignorePaths, this->cfg->rootDir) || !res->getSourceRange().isValid() ||
+      isInIgnoreList(res, this->cfg->ignorePaths, this->cfg->inputDir) || !res->getSourceRange().isValid() ||
       (res->isStatic() && !res->isCXXClassMember()) || isInAnonymousNamespace(res) ||
       (res->getAccess() == clang::AS_private && cfg->ignorePrivateMembers == true)) {
     return;
@@ -61,7 +61,7 @@ void hdoc::indexer::matchers::FunctionMatcher::run(const clang::ast_matchers::Ma
   this->index->functions.reserve(ID);
   hdoc::types::FunctionSymbol f;
   f.ID = ID;
-  fillOutSymbol(f, res, this->cfg->rootDir);
+  fillOutSymbol(f, res, this->cfg->inputDir);
 
   // Get a bunch of qualifiers
   f.isVariadic   = res->isVariadic();
@@ -149,7 +149,7 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
 
   // Ignore invalid matches
   if (res == nullptr || !res->isCompleteDefinition() || !res->getSourceRange().isValid() ||
-      isInIgnoreList(res, this->cfg->ignorePaths, this->cfg->rootDir) || isInAnonymousNamespace(res)) {
+      isInIgnoreList(res, this->cfg->ignorePaths, this->cfg->inputDir) || isInAnonymousNamespace(res)) {
     return;
   }
 
@@ -181,7 +181,7 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
   this->index->records.reserve(ID);
   hdoc::types::RecordSymbol c;
   c.ID = ID;
-  fillOutSymbol(c, res, this->cfg->rootDir);
+  fillOutSymbol(c, res, this->cfg->inputDir);
 
   // Apply the cached name found earlier for suspected typedef'ed decls
   if (c.name == "") {
@@ -195,7 +195,7 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
   // Get methods and decls (what's the difference?) for this record
   for (const auto* m : res->methods()) {
     if (m == nullptr || m->isImplicit() || m->isOverloadedOperator() ||
-        isInIgnoreList(m, this->cfg->ignorePaths, this->cfg->rootDir) || isInAnonymousNamespace(m) ||
+        isInIgnoreList(m, this->cfg->ignorePaths, this->cfg->inputDir) || isInAnonymousNamespace(m) ||
         (m->getAccess() == clang::AS_private && cfg->ignorePrivateMembers == true)) {
       continue;
     }
@@ -204,7 +204,7 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
   for (const auto* d : res->decls()) {
     if (const auto* ftd = llvm::dyn_cast<clang::FunctionTemplateDecl>(d)) {
       if (ftd == nullptr || ftd->isImplicit() || ftd->getAsFunction()->isOverloadedOperator() ||
-          isInIgnoreList(ftd, this->cfg->ignorePaths, this->cfg->rootDir) || isInAnonymousNamespace(ftd) ||
+          isInIgnoreList(ftd, this->cfg->ignorePaths, this->cfg->inputDir) || isInAnonymousNamespace(ftd) ||
           (ftd->getAccess() == clang::AS_private && cfg->ignorePrivateMembers == true)) {
         continue;
       }
@@ -363,7 +363,7 @@ void hdoc::indexer::matchers::EnumMatcher::run(const clang::ast_matchers::MatchF
 
   // Ignore invalid matches and anonymous enums
   if (res == nullptr || res->getNameAsString() == "" ||
-      isInIgnoreList(res, this->cfg->ignorePaths, this->cfg->rootDir) || isInAnonymousNamespace(res)) {
+      isInIgnoreList(res, this->cfg->ignorePaths, this->cfg->inputDir) || isInAnonymousNamespace(res)) {
     return;
   }
 
@@ -374,7 +374,7 @@ void hdoc::indexer::matchers::EnumMatcher::run(const clang::ast_matchers::MatchF
   this->index->enums.reserve(ID);
   hdoc::types::EnumSymbol e;
   e.ID = ID;
-  fillOutSymbol(e, res, this->cfg->rootDir);
+  fillOutSymbol(e, res, this->cfg->inputDir);
 
   if (const auto* parent = llvm::dyn_cast<clang::CXXRecordDecl>(res->getParent())) {
     e.name = parent->getNameAsString() + "::" + e.name;
@@ -425,7 +425,7 @@ void hdoc::indexer::matchers::NamespaceMatcher::run(const clang::ast_matchers::M
 
   // Ignore invalid matches and anonymous enums
   if (res == nullptr || res->getNameAsString() == "" ||
-      isInIgnoreList(res, this->cfg->ignorePaths, this->cfg->rootDir) || isInAnonymousNamespace(res)) {
+      isInIgnoreList(res, this->cfg->ignorePaths, this->cfg->inputDir) || isInAnonymousNamespace(res)) {
     return;
   }
 
@@ -436,7 +436,7 @@ void hdoc::indexer::matchers::NamespaceMatcher::run(const clang::ast_matchers::M
   this->index->namespaces.reserve(ID);
   hdoc::types::NamespaceSymbol n;
   n.ID = ID;
-  fillOutSymbol(n, res, this->cfg->rootDir);
+  fillOutSymbol(n, res, this->cfg->inputDir);
 
   findParentNamespace(n, res);
   this->index->namespaces.update(n.ID, n);

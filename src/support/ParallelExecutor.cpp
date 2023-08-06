@@ -19,9 +19,9 @@ void hdoc::indexer::ParallelExecutor::execute(std::unique_ptr<clang::tooling::Fr
 
   std::vector<std::string> allFilesInCmpdb = this->cmpdb.getAllFiles();
 
-  if (this->debugLimitNumIndexedFiles > 0) {
-    allFilesInCmpdb.resize(this->debugLimitNumIndexedFiles);
-    totalNumFiles = std::to_string(this->debugLimitNumIndexedFiles);
+  if (this->config.debugLimitNumIndexedFiles > 0) {
+    allFilesInCmpdb.resize(this->config.debugLimitNumIndexedFiles);
+    totalNumFiles = std::to_string(this->config.debugLimitNumIndexedFiles);
   }
 
   for (const std::string& file : allFilesInCmpdb) {

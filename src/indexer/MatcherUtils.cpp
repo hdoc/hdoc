@@ -53,7 +53,7 @@ template <typename T> static bool isParamAndHasName(const T* param) {
 
 /// This is used across all types of symbols (Function, Record, Namespace, etc.) to get the
 /// vital information of the symbol
-void fillOutSymbol(hdoc::types::Symbol& s, const clang::NamedDecl* d, const std::filesystem::path& rootDir) {
+void fillOutSymbol(hdoc::types::Symbol& s, const clang::NamedDecl* d, const std::filesystem::path& inputDir) {
   s.name = d->getNameAsString();
   s.line = d->getASTContext().getSourceManager().getSpellingLineNumber(d->getLocation());
 
@@ -62,7 +62,7 @@ void fillOutSymbol(hdoc::types::Symbol& s, const clang::NamedDecl* d, const std:
     spdlog::warn("Unable to get absolute path for {}", s.name);
     return;
   }
-  s.file = std::filesystem::relative(*absPath, rootDir).string();
+  s.file = std::filesystem::relative(*absPath, inputDir).string();
 }
 
 /// @brief If the type is a specialized template, convert it to the original non-specialized
@@ -96,7 +96,7 @@ void findParentNamespace(hdoc::types::Symbol& s, const clang::NamedDecl* d) {
 
 bool isInIgnoreList(const clang::Decl*              d,
                     const std::vector<std::string>& ignorePaths,
-                    const std::filesystem::path&    rootDir) {
+                    const std::filesystem::path&    inputDir) {
   const auto rawPath = std::filesystem::path(d->getASTContext().getSourceManager().getFilename(d->getLocation()).str());
 
   // If the decl has an empty path, it's probably compiler-generated so we ignore it
@@ -110,10 +110,10 @@ bool isInIgnoreList(const clang::Decl*              d,
     return true;
   }
 
-  // Ignore paths outside of the rootDir
-  // ".." is used as a janky way to determine if the path is outside of rootDir since the canonicalized path
+  // Ignore paths outside of the inputDir
+  // ".." is used as a janky way to determine if the path is outside of inputDir since the canonicalized path
   // should not have any ".."s in it
-  const std::string relPath = std::filesystem::relative(std::filesystem::path(*absPath), rootDir).string();
+  const std::string relPath = std::filesystem::relative(std::filesystem::path(*absPath), inputDir).string();
   if (relPath.find("..") != std::string::npos) {
     return true;
   }

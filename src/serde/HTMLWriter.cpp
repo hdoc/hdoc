@@ -168,9 +168,12 @@ static void printNewPage(const hdoc::types::Config&   cfg,
   auto columnsDiv = CTML::Node("div.columns");
   auto mainColumn = CTML::Node("div.column").SetAttr("style", "overflow-x: auto");
   auto aside      = CTML::Node("aside.column is-one-fifth");
+  auto details    = CTML::Node("details").SetAttr("open", "");
   auto menuUL     = CTML::Node("ul.menu-list");
+  auto summary    = CTML::Node("summary.is-size-4", cfg.projectName + (cfg.projectVersion == "" ? "" : " " + cfg.projectVersion));
 
-  menuUL.AddChild(CTML::Node("p.is-size-4", cfg.projectName + (cfg.projectVersion == "" ? "" : " " + cfg.projectVersion)));
+  details.AddChild(summary);
+
   menuUL.AddChild(CTML::Node("p.menu-label", "Navigation"));
   menuUL.AddChild(CTML::Node("li").AddChild(CTML::Node("a", "Home").SetAttr("href", "index.html")));
   menuUL.AddChild(CTML::Node("li").AddChild(CTML::Node("a", "Search").SetAttr("href", "search.html")));
@@ -195,7 +198,9 @@ static void printNewPage(const hdoc::types::Config&   cfg,
   menuUL.AddChild(CTML::Node("li").AddChild(CTML::Node("a", "Records").SetAttr("href", "records.html")));
   menuUL.AddChild(CTML::Node("li").AddChild(CTML::Node("a", "Enums").SetAttr("href", "enums.html")));
   menuUL.AddChild(CTML::Node("li").AddChild(CTML::Node("a", "Namespaces").SetAttr("href", "namespaces.html")));
-  aside.AddChild(menuUL);
+  
+  details.AddChild(menuUL);
+  aside.AddChild(details);
 
   columnsDiv.AddChild(aside);
   columnsDiv.AddChild(mainColumn.AddChild(breadcrumbs).AddChild(main.SetAttr("class", "content")));
@@ -1074,3 +1079,4 @@ void hdoc::serde::HTMLWriter::processMarkdownFiles() const {
     printNewPage(*this->cfg, main, this->cfg->outputDir / filename, pageTitle);
   }
 }
+

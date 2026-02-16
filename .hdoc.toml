@@ -1,6 +1,6 @@
 [project]
 name = "hdoc"
-version = "1.4.0"
+version = "1.4.2"
 git_repo_url = "https://github.com/hdoc/hdoc/"
 git_default_branch = "master"
 

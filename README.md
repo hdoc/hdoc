@@ -27,17 +27,28 @@ The contents of this repository are a subset of a private repository where hdoc'
 
 ## Quick start
 
-### Linux
+### Linux/OSX
 
 hdoc depends on LLVM/Clang and OpenSSL, and all other dependencies are vendored in `subprojects/`.
+
+#### Linux Setup
 hdoc also comes with a Nix Flake which sets up a development environment for you with all of the needed dependencies, and should work on all Linux distributions.
 Follow the instructions below to build hdoc.
 
+#### OSX Setup via xcode is built into meson.build now
+```sh
+brew install llvm
+export CC=/usr/bin/clang
+export CXX=/usr/bin/clang++
+```
+
+
 ```sh
 # Build hdoc
-meson build             # Configure the build directory
-ninja -C build          # Compile hdoc binaries and tests
-./build/hdoc --verbose  # Run hdoc over itself, saving the HTML documentation to ./hdoc-output/
+meson setup build --prefix /usr/local   # Configure the build directory, --prefix /usr/local is for global install
+ninja -C build                          # Compile hdoc binaries and tests
+meson install -C build                  # optional for installing globally
+hdoc --verbose                          # Run hdoc over itself, saving the HTML documentation to ./hdoc-output/
 ```
 
 More instructions for using hdoc can be found at [hdoc.io/docs](https://hdoc.io/docs).

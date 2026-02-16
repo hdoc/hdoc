@@ -6,8 +6,18 @@
 #include "types/Symbols.hpp"
 #include "clang/AST/Comment.h"
 #include "clang/Lex/Lexer.h"
+#include "llvm/Support/raw_ostream.h"
 
 #include <string>
+
+static std::string templateArgLocToString(const clang::TemplateArgumentLoc& argLoc,
+                                          const clang::PrintingPolicy&      printingPolicy) {
+  std::string              result;
+  llvm::raw_string_ostream stream(result);
+  argLoc.getArgument().print(printingPolicy, stream, true);
+  stream.flush();
+  return result;
+}
 
 /// @brief Try to get a SymbolID from a QualType, and return an empty SymbolID if it's not possible
 static hdoc::types::SymbolID getTypeSymbolID(const clang::QualType& typ) {
@@ -110,13 +120,15 @@ void hdoc::indexer::matchers::FunctionMatcher::run(const clang::ast_matchers::Ma
         tparam.isTypename      = templateType->wasDeclaredWithTypename();
         tparam.name            = templateType->getNameAsString();
         tparam.defaultValue =
-            templateType->hasDefaultArgument() ? templateType->getDefaultArgument().getAsString(pp) : "";
+            templateType->hasDefaultArgument() ? templateArgLocToString(templateType->getDefaultArgument(), pp) : "";
       } else if (const auto* nonTypeTemplate = llvm::dyn_cast<clang::NonTypeTemplateParmDecl>(parameterDecl)) {
         tparam.templateType    = hdoc::types::TemplateParam::TemplateType::NonTypeTemplate;
         tparam.isParameterPack = nonTypeTemplate->isParameterPack();
         tparam.name            = nonTypeTemplate->getNameAsString();
         tparam.defaultValue =
-            nonTypeTemplate->hasDefaultArgument() ? exprToString(nonTypeTemplate->getDefaultArgument(), pp) : "";
+            nonTypeTemplate->hasDefaultArgument()
+                ? templateArgLocToString(nonTypeTemplate->getDefaultArgument(), pp)
+                : "";
         tparam.type = nonTypeTemplate->getType().getAsString(pp);
       }
       f.templateParams.emplace_back(tparam);
@@ -169,7 +181,7 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
 
   // Skip compiler-injected class specializations not caught by the above (pulled from adobe/hyde)
   if (const auto* s = llvm::dyn_cast_or_null<clang::ClassTemplateSpecializationDecl>(res)) {
-    if (!s->getTypeAsWritten()) {
+    if (!s->getTemplateArgsAsWritten()) {
       return;
     }
   }
@@ -244,7 +256,7 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
         tparam.name            = templateType->getNameAsString();
         // Get default argument if it exists
         tparam.defaultValue =
-            templateType->hasDefaultArgument() ? templateType->getDefaultArgument().getAsString(pp) : "";
+            templateType->hasDefaultArgument() ? templateArgLocToString(templateType->getDefaultArgument(), pp) : "";
       } else if (const auto* nonTypeTemplate = llvm::dyn_cast<clang::NonTypeTemplateParmDecl>(paramDecl)) {
         tparam.templateType    = hdoc::types::TemplateParam::TemplateType::NonTypeTemplate;
         tparam.type            = nonTypeTemplate->getType().getAsString(pp);
@@ -252,7 +264,9 @@ void hdoc::indexer::matchers::RecordMatcher::run(const clang::ast_matchers::Matc
         tparam.name            = nonTypeTemplate->getNameAsString();
         // Get default argument if it exists
         tparam.defaultValue =
-            nonTypeTemplate->hasDefaultArgument() ? exprToString(nonTypeTemplate->getDefaultArgument(), pp) : "";
+            nonTypeTemplate->hasDefaultArgument()
+                ? templateArgLocToString(nonTypeTemplate->getDefaultArgument(), pp)
+                : "";
       } else if (const auto* templateTemplateType = llvm::dyn_cast<clang::TemplateTemplateParmDecl>(paramDecl)) {
         tparam.templateType = hdoc::types::TemplateParam::TemplateType::TemplateTemplateType;
         tparam.type =

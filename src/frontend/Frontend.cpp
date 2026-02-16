@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
+#include <optional>
 #include <sstream>
 #include <string>
 
@@ -151,10 +152,10 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
     // The actual output we care about goes to tempFile, and we use /dev/null as a stand-in for the file the compiler
     // reads.
     llvm::SmallVector<llvm::StringRef> compilerFlags = {compilerPath.get(), "-E", "-Wp,-v", "-xc++", "/dev/null"};
-    llvm::Optional<llvm::StringRef>    redirects[]   = {llvm::None, {"/dev/null"}, {tempFile}}; // stdin, stdout, stderr
+    std::optional<llvm::StringRef>     redirects[]   = {std::nullopt, {"/dev/null"}, {tempFile}}; // stdin, stdout, stderr
 
     std::string errMsg = "";
-    int rc = llvm::sys::ExecuteAndWait(compilerPath.get(), compilerFlags, llvm::None, redirects, 10, 0, &errMsg);
+    int rc = llvm::sys::ExecuteAndWait(compilerPath.get(), compilerFlags, std::nullopt, redirects, 10, 0, &errMsg);
     if (rc != 0) {
       spdlog::error("Failed to determine the system include paths ({}, {}).", rc, errMsg);
       return;
@@ -179,8 +180,19 @@ hdoc::frontend::Frontend::Frontend(int argc, char** argv, hdoc::types::Config* c
 
       // If we have found the beginning of the include list, filter it to only lines that have include paths.
       if (searchListFound == true) {
-        if (line.startswith(" ")) {
-          cfg->includePaths.emplace_back(std::string(line.trim()));
+        if (line.starts_with(" ")) {
+          std::string path = std::string(line.trim());
+          const std::string frameworkSuffix = " (framework directory)";
+          if (path.size() >= frameworkSuffix.size() &&
+              path.compare(path.size() - frameworkSuffix.size(), frameworkSuffix.size(), frameworkSuffix) == 0) {
+            path.erase(path.size() - frameworkSuffix.size());
+            path = std::string(llvm::StringRef(path).trim());
+            if (!path.empty()) {
+              cfg->includePaths.emplace_back("-F" + path);
+            }
+          } else if (!path.empty()) {
+            cfg->includePaths.emplace_back(path);
+          }
         }
       }
 

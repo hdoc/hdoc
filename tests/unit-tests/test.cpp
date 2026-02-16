@@ -1196,7 +1196,7 @@ TEST_CASE("Testing getBareTypeName on a huge set of test cases") {
       {"label_type", "label_type"},
       {"linear_kernel<T> &", "linear_kernel"},
       {"llvm::StringRef", "llvm::StringRef"},
-      {"llvm::ThreadPool &", "llvm::ThreadPool"},
+      {"llvm::StdThreadPool &", "llvm::StdThreadPool"},
       {"long", "long"},
       {"long &", "long"},
       {"long *", "long"},

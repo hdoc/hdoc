@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
 
-  llvm::ThreadPool       pool(llvm::hardware_concurrency(cfg.numThreads));
+  llvm::StdThreadPool       pool(llvm::hardware_concurrency(cfg.numThreads));
   hdoc::indexer::Indexer indexer(&cfg, pool);
   indexer.run();
   indexer.pruneMethods();

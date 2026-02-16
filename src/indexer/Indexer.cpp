@@ -44,13 +44,18 @@ void hdoc::indexer::Indexer::run() {
   // Add include search paths to clang invocation
   std::vector<std::string> includePaths = {};
   for (const std::string& d : cfg->includePaths) {
+    const bool isFlagged = d.starts_with("-F") || d.starts_with("-isystem") || d.starts_with("-I");
+    const std::string path =
+        isFlagged ? (d.starts_with("-isystem") ? d.substr(8) : d.substr(2)) : d;
+
     // Ignore include paths that don't exist
-    if (!std::filesystem::exists(d)) {
-      spdlog::warn("Include path {} does not exist. Proceeding without it.", d);
+    if (!std::filesystem::exists(path)) {
+      spdlog::warn("Include path {} does not exist. Proceeding without it.", path);
       continue;
     }
-    spdlog::info("Appending {} to list of include paths.", d);
-    includePaths.emplace_back("-isystem" + d);
+
+    spdlog::info("Appending {} to list of include paths.", path);
+    includePaths.emplace_back(isFlagged ? d : "-isystem" + d);
   }
 
   hdoc::indexer::ParallelExecutor tool(*cmpdb, includePaths, this->pool, this->cfg->debugLimitNumIndexedFiles);

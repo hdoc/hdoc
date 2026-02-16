@@ -18,7 +18,7 @@ public:
   /// Args holds ArgumentAdjusters that will be applied to the parser, typically includes header search paths.
   ParallelExecutor(const clang::tooling::CompilationDatabase& cmpdb,
                    const std::vector<std::string>&            includePaths,
-                   llvm::ThreadPool&                          pool,
+                   llvm::StdThreadPool&                          pool,
                    const uint32_t                             debugLimitNumIndexedFiles)
       : cmpdb(cmpdb), includePaths(includePaths), pool(pool), debugLimitNumIndexedFiles(debugLimitNumIndexedFiles) {}
 
@@ -27,7 +27,7 @@ public:
 private:
   const clang::tooling::CompilationDatabase& cmpdb;
   const std::vector<std::string>&            includePaths;
-  llvm::ThreadPool&                          pool;
+  llvm::StdThreadPool&                       pool;
   const uint32_t                             debugLimitNumIndexedFiles = 0;
 };
 } // namespace hdoc::indexer

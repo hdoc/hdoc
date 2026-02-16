@@ -12,7 +12,7 @@ namespace hdoc::indexer {
 /// @brief Index all of the code in a project into hdoc's internal representation
 class Indexer {
 public:
-  Indexer(const hdoc::types::Config* cfg, llvm::ThreadPool& pool) : cfg(cfg), pool(pool) {}
+  Indexer(const hdoc::types::Config* cfg, llvm::StdThreadPool& pool) : cfg(cfg), pool(pool) {}
   /// @brief Run the indexer over project code
   void run();
 
@@ -42,7 +42,7 @@ public:
 private:
   hdoc::types::Index         index;
   const hdoc::types::Config* cfg;
-  llvm::ThreadPool&          pool;
+  llvm::StdThreadPool&          pool;
 };
 
 } // namespace hdoc::indexer

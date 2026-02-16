@@ -26,7 +26,7 @@ AST_MATCHER_P2(clang::Decl, shouldBeIgnored, std::vector<std::string>, ignoreLis
     return false;
   }
 
-  auto fileEntry = sourceManager.getFileEntryForID(sourceManager.getFileID(expansionLoc));
+  auto fileEntry = sourceManager.getFileEntryRefForID(sourceManager.getFileID(expansionLoc));
   if (!fileEntry) {
     return false;
   }

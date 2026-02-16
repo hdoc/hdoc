@@ -14,6 +14,7 @@
 #include "spdlog/spdlog.h"
 
 #include <filesystem>
+#include <optional>
 
 /// When hdoc is run by multiple threads, we use a VFS (virtual file system) to access
 /// files safely. The working directory of the parser is changed during indexing, and
@@ -21,23 +22,23 @@
 /// generated in a non-VFS-aware way can be wrong.
 /// This function is similar to one defined in clang, and gets the canonical path in a
 /// VFS-aware way.
-static llvm::Optional<std::string> getCanonicalPath(const clang::Decl* d) {
+static std::optional<std::string> getCanonicalPath(const clang::Decl* d) {
   const auto& sourceManager = d->getASTContext().getSourceManager();
-  const auto* fileEntry     = sourceManager.getFileEntryForID(sourceManager.getFileID(d->getLocation()));
+  const auto  fileEntry     = sourceManager.getFileEntryRefForID(sourceManager.getFileID(d->getLocation()));
 
   if (!fileEntry) {
-    return llvm::None;
+    return std::nullopt;
   }
 
   llvm::SmallString<128> path = fileEntry->getName();
   if (!llvm::sys::path::is_absolute(path)) {
     if (auto ec = sourceManager.getFileManager().getVirtualFileSystem().makeAbsolute(path)) {
       spdlog::warn("Could not turn relative path '{}' to absolute: {}", path.c_str(), ec.message().c_str());
-      return llvm::None;
+      return std::nullopt;
     }
   }
 
-  if (auto dir = sourceManager.getFileManager().getDirectory(llvm::sys::path::parent_path(path))) {
+  if (auto dir = sourceManager.getFileManager().getDirectoryRef(llvm::sys::path::parent_path(path))) {
     const llvm::StringRef  dirName = sourceManager.getFileManager().getCanonicalName(*dir);
     llvm::SmallString<128> realPath;
     llvm::sys::path::append(realPath, dirName, llvm::sys::path::filename(path));
@@ -272,7 +273,7 @@ std::string exprToString(const clang::Expr* expr, clang::PrintingPolicy printing
   }
   printingPolicy.FullyQualifiedName  = 1;
   printingPolicy.SuppressScope       = 0;
-  printingPolicy.PrintCanonicalTypes = 1;
+  // PrintCanonicalTypes was removed in newer LLVM; FullyQualifiedName provides close behavior.
 
   std::string              result;
   llvm::raw_string_ostream stream(result);

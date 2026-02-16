@@ -14,7 +14,7 @@ namespace serde {
 /// @brief Serialize hdoc's index to HTML files
 class HTMLWriter {
 public:
-  HTMLWriter(const hdoc::types::Index* index, const hdoc::types::Config* cfg, llvm::ThreadPool& pool);
+  HTMLWriter(const hdoc::types::Index* index, const hdoc::types::Config* cfg, llvm::StdThreadPool& pool);
   void printFunctions() const;
   void printRecords() const;
   void printRecord(const hdoc::types::RecordSymbol& c) const;
@@ -34,7 +34,7 @@ public:
 private:
   const hdoc::types::Index*  index;
   const hdoc::types::Config* cfg;
-  llvm::ThreadPool&          pool;
+  llvm::StdThreadPool&          pool;
 };
 std::string getHyperlinkedFunctionProto(const std::string_view proto, const hdoc::types::FunctionSymbol& f);
 std::string clangFormat(const std::string_view s, const uint64_t& columnLimit = 50);

@@ -62,7 +62,7 @@ extern unsigned int ___assets_index_min_js_len;
 
 hdoc::serde::HTMLWriter::HTMLWriter(const hdoc::types::Index*  index,
                                     const hdoc::types::Config* cfg,
-                                    llvm::ThreadPool&          pool)
+                                    llvm::StdThreadPool&          pool)
     : index(index), cfg(cfg), pool(pool) {
   // Create the directory where the HTML files will be placed
   std::error_code ec;

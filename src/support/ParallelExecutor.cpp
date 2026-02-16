@@ -4,7 +4,36 @@
 #include "support/ParallelExecutor.hpp"
 #include "spdlog/spdlog.h"
 
+#include <filesystem>
+
+#include "llvm/TargetParser/Host.h"
+#include "llvm/TargetParser/Triple.h"
 #include "llvm/Support/VirtualFileSystem.h"
+
+static clang::tooling::ArgumentsAdjuster getHostArchAdjuster() {
+  std::string hostArch = llvm::Triple::getArchTypeName(llvm::Triple(llvm::sys::getProcessTriple()).getArch()).str();
+  if (hostArch == "aarch64") {
+    hostArch = "arm64";
+  }
+  return [hostArch](const clang::tooling::CommandLineArguments& args, llvm::StringRef) {
+    clang::tooling::CommandLineArguments out;
+    for (size_t i = 0; i < args.size(); ++i) {
+      if (args[i] == "-arch" && i + 1 < args.size()) {
+        const std::string& arch = args[i + 1];
+        if (arch != hostArch) {
+          ++i; // skip arch value
+          continue;
+        }
+        out.push_back(args[i]);
+        out.push_back(args[i + 1]);
+        ++i;
+        continue;
+      }
+      out.push_back(args[i]);
+    }
+    return out;
+  };
+}
 
 void hdoc::indexer::ParallelExecutor::execute(std::unique_ptr<clang::tooling::FrontendActionFactory> action) {
   std::mutex mutex;
@@ -27,6 +56,10 @@ void hdoc::indexer::ParallelExecutor::execute(std::unique_ptr<clang::tooling::Fr
   for (const std::string& file : allFilesInCmpdb) {
     this->pool.async(
         [&](const std::string path) {
+          if (!std::filesystem::exists(path)) {
+            spdlog::warn("Skipping {} because it does not exist.", path);
+            return;
+          }
           spdlog::info("[{}/{}] processing {}", incrementCounter(), totalNumFiles, path);
 
           // Each thread gets an independent copy of a VFS to allow different concurrent working directories
@@ -38,6 +71,7 @@ void hdoc::indexer::ParallelExecutor::execute(std::unique_ptr<clang::tooling::Fr
           Tool.appendArgumentsAdjuster(clang::tooling::getClangStripOutputAdjuster());
           Tool.appendArgumentsAdjuster(clang::tooling::getClangStripDependencyFileAdjuster());
           Tool.appendArgumentsAdjuster(clang::tooling::getClangSyntaxOnlyAdjuster());
+          Tool.appendArgumentsAdjuster(getHostArchAdjuster());
           Tool.appendArgumentsAdjuster(clang::tooling::getInsertArgumentAdjuster(
               this->includePaths, clang::tooling::ArgumentInsertPosition::END));
 
